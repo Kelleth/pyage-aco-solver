@@ -10,8 +10,8 @@ class CitiesReader:
     def read_file(self):
         with open(self.file_name, "r") as f:
             lines = f.readlines()
-            self.cities_count = len(lines)-2
-            for line in lines[2:]:
+            self.cities_count = len(lines)
+            for line in lines:
                 splitted = line.split()
                 self.cities_positions.append((int(splitted[0]), int(splitted[1])))
 

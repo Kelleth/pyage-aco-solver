@@ -1,6 +1,7 @@
 from optparse import OptionParser
-from cities_reader import CitiesReader
-from aco_graph import ACOGraph
+
+from aco_solver.core.cities_reader import CitiesReader
+from aco_solver.sequential.aco_graph import ACOGraph
 from aco_ant_colony import ACOAntColony
 
 
@@ -23,7 +24,6 @@ def main():
     colony = ACOAntColony(graph, ants_count, iterations)
     colony.initialize_ants()
     colony.start()
-
 
 
 if __name__ == "__main__":

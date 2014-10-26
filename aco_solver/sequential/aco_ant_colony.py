@@ -1,6 +1,7 @@
 import random
 import sys
-from aco_ant import ACOAnt
+
+from aco_solver.sequential.aco_ant import ACOAnt
 
 
 class ACOAntColony:
