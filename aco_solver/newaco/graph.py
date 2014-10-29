@@ -17,24 +17,6 @@ class Graph:
         self.pheromone_matrix = [[self.initial_pheromone for _ in range(self.cities_count)] for _ in
                                  range(self.cities_count)]
 
-    def choose_city(self, present_city, visited_cities):
-        paths_attractiveness = []
-
-        for city in range(self.cities_count):
-            if city == present_city or city in visited_cities:
-                paths_attractiveness.append(0.0)
-            else:
-                paths_attractiveness.append(self.__calculate_path_attractiveness(present_city, city))
-
-        paths_probability = self.__calculate_path_probability(paths_attractiveness)
-        value = self.random_generator.random()
-
-        for city in range(self.cities_count):
-            if paths_probability[city] <= value < paths_probability[city + 1]:
-                return city
-
-        raise RuntimeError("City not found")
-
     def calculate_total_distance(self, cities):
         total_distance = 0
 
@@ -58,25 +40,11 @@ class Graph:
 
                     self.__update_pheromone(i, j, increase + decrease)
 
-    def __calculate_path_attractiveness(self, city_from, city_to):
+    def calculate_path_attractiveness(self, city_from, city_to):
         distance = self.__distance(city_from, city_to)
         pheromone = self.__pheromone(city_from, city_to)
 
         return (pheromone ** self.alpha) * ((1.0 / distance) ** self.beta)
-
-    @staticmethod
-    def __calculate_path_probability(paths_attractiveness):
-        attractiveness_sum = sum(paths_attractiveness)
-
-        paths_probability = []
-        for i in range(len(paths_attractiveness)):
-            paths_probability.append(paths_attractiveness[i] / attractiveness_sum)
-
-        converted_form = [0.0]
-        for probability in paths_probability:
-            converted_form.append(converted_form[-1] + probability)
-
-        return converted_form
 
     def __distance(self, city_from, city_to):
         return self.cities_distances[city_from][city_to]
