@@ -4,11 +4,9 @@ from random import Random
 class Graph:
     initial_pheromone = 0.01
 
-    def __init__(self, cities_distances, alpha, beta, rho, q):
-        self.alpha = alpha
-        self.beta = beta
-        self.rho = rho
-        self.q = q
+    def __init__(self, cities_distances, rho, q):
+        self.rho = rho  # pheromone evaporation coefficient
+        self.q = q  # pheromone deposit factor
 
         self.random_generator = Random()
         self.cities_distances = cities_distances
@@ -39,11 +37,11 @@ class Graph:
 
                     self.__update_pheromone(i, j, increase + decrease)
 
-    def calculate_path_attractiveness(self, city_from, city_to):
+    def calculate_path_attractiveness(self, alpha, beta, city_from, city_to):
         distance = self.__distance(city_from, city_to)
         pheromone = self.__pheromone(city_from, city_to)
 
-        return (pheromone ** self.alpha) * ((1.0 / distance) ** self.beta)
+        return (pheromone ** alpha) * ((1.0 / distance) ** beta)
 
     def __distance(self, city_from, city_to):
         return self.cities_distances[city_from][city_to]

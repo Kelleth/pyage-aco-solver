@@ -31,6 +31,6 @@ if __name__ == "__main__":
     cities_reader.read_file()
     cities_distances = cities_reader.create_distance_matrix()
 
-    graph = Graph(cities_distances, options.alpha, options.beta, options.rho, options.q)
-    colony = AntColony(graph, ants_count, iterations)
+    graph = Graph(cities_distances, options.rho, options.q)
+    colony = AntColony(graph, ants_count, iterations, options.alpha, options.beta)
     colony.start_simulation()
