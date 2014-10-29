@@ -2,16 +2,15 @@ from random import Random
 
 
 class Graph:
-    alpha = 3
-    beta = 2
-    rho = 0.01
-    Q = 2.0
-
     initial_pheromone = 0.01
 
-    def __init__(self, cities_distances):
-        self.random_generator = Random()
+    def __init__(self, cities_distances, alpha, beta, rho, q):
+        self.alpha = alpha
+        self.beta = beta
+        self.rho = rho
+        self.q = q
 
+        self.random_generator = Random()
         self.cities_distances = cities_distances
         self.cities_count = len(cities_distances)
         self.pheromone_matrix = [[self.initial_pheromone for _ in range(self.cities_count)] for _ in
@@ -36,7 +35,7 @@ class Graph:
                     increase = 0.0
                     decrease = (1.0 - self.rho) * self.__pheromone(i, j)
                     if ant.contains_connection(i, j):
-                        increase = (self.Q / ant.distance)
+                        increase = (self.q / ant.distance)
 
                     self.__update_pheromone(i, j, increase + decrease)
 

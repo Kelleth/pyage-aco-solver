@@ -1,7 +1,7 @@
 from random import Random
 import sys
 
-from aco_solver.newaco.aco_ant import Ant
+from aco_solver.newaco.ant import Ant
 
 
 class AntColony:
@@ -41,7 +41,7 @@ class AntColony:
         for i in range(self.ants_count):
             ant = Ant(self.graph, self.__generate_random_path(self.graph.cities_count))
             self.ants.append(ant)
-            print 'Ant %s %s' % (i, ant)
+            print 'Ant %s: init distance %s' % (i + 1, ant.distance)
 
     def __generate_random_path(self, cities_count):
         result = range(cities_count)
