@@ -33,4 +33,5 @@ if __name__ == "__main__":
 
     graph = Graph(cities_distances, options.rho, options.q)
     colony = AntColony(graph, ants_count, iterations, options.alpha, options.beta)
-    colony.start_simulation()
+    # colony.start_simulation()
+    print ''

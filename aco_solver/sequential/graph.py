@@ -1,53 +1,60 @@
-from random import Random
+class Graph(object):
+    def __init__(self, distance_matrix, rho, q):
+        number_of_cities = len(distance_matrix)
+
+        cities = []
+        for city_id in range(number_of_cities):
+            cities.append(City(city_id))
+
+        for i in range(number_of_cities):
+            present_city = cities[i]
+            for j in range(number_of_cities):
+                if i == j:
+                    continue
+
+                present_city.create_and_add_connection(distance_matrix[i][j], cities[j])
+
+        self.cities = cities
+        self.number_of_cities = number_of_cities
+        self.rho = rho
+        self.q = q
 
 
-class Graph:
-    initial_pheromone = 0.01
+class City(object):
+    def __init__(self, city_id, connection_list=None):
+        if not connection_list:
+            connection_list = []
 
-    def __init__(self, cities_distances, rho, q):
-        self.rho = rho  # pheromone evaporation coefficient
-        self.q = q  # pheromone deposit factor
+        self.city_id = city_id
+        self.connection_list = connection_list
 
-        self.random_generator = Random()
-        self.cities_distances = cities_distances
-        self.cities_count = len(cities_distances)
-        self.pheromone_matrix = [[self.initial_pheromone for _ in range(self.cities_count)] for _ in
-                                 range(self.cities_count)]
+    def add_connection(self, connection):
+        if connection.destination_city.city_id == self.city_id:
+            raise RuntimeError("Cannot add connection to itself")
 
-    def calculate_total_distance(self, cities):
-        total_distance = 0
+        self.connection_list.append(connection)
 
-        for i in range(len(cities) - 1):
-            city_from = cities[i]
-            city_to = cities[i + 1]
+    def create_and_add_connection(self, distance, destination_city):
+        self.add_connection(Connection(distance, destination_city))
 
-            total_distance += self.__distance(city_from, city_to)
+    def find_connection_to_city(self, city):
+        for connection in self.connection_list:
+            if connection.destination_city == city:
+                return connection
+        raise RuntimeError("Connection from city %d to city %d not found".format(self.city_id, city.city_id))
 
-        return total_distance
+    def __cmp__(self, other):
+        if isinstance(other, City):
+            return self.city_id == other.city_id
+        else:
+            return False
 
-    def update_pheromones(self, ants):
 
-        for i in range(self.cities_count):
-            for j in range(self.cities_count):
-                for ant in ants:
-                    increase = 0.0
-                    decrease = (1.0 - self.rho) * self.__pheromone(i, j)
-                    if ant.contains_connection(i, j):
-                        increase = (self.q / ant.distance)
+class Connection(object):
+    def __init__(self, distance, destination_city):
+        self.distance = distance
+        self.destination_city = destination_city
+        self.pheromone = 0.01
 
-                    self.__update_pheromone(i, j, increase + decrease)
-
-    def calculate_path_attractiveness(self, alpha, beta, city_from, city_to):
-        distance = self.__distance(city_from, city_to)
-        pheromone = self.__pheromone(city_from, city_to)
-
-        return (pheromone ** alpha) * ((1.0 / distance) ** beta)
-
-    def __distance(self, city_from, city_to):
-        return self.cities_distances[city_from][city_to]
-
-    def __pheromone(self, city_from, city_to):
-        return self.pheromone_matrix[city_from][city_to]
-
-    def __update_pheromone(self, city_from, city_to, val):
-        self.pheromone_matrix[city_from][city_to] = val
+    def update_pheromone(self, value):
+        self.pheromone += value

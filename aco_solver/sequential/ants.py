@@ -1,22 +1,10 @@
-from random import Random
-
-
 class Ant(object):
-    def __init__(self, graph, init_path, alpha, beta):
-        self.graph = graph
-        self.path = init_path
+    def __init__(self, alpha, beta, graph, path):
         self.alpha = alpha  # pheromone influence
         self.beta = beta  # distance influence
 
-        self.random = Random()
-        self.cities_count = len(init_path)
-        self.distance = self.graph.calculate_total_distance(self.path)
-
-    def contains_connection(self, city_from, city_to):
-        for i in range(len(self.path) - 1):
-            if self.path[i] == city_from and self.path[i + 1] == city_to:
-                return True
-        return False
+        self.graph = graph
+        self.path = path
 
     def find_path(self):
         present_city = self.__choose_start_city()
@@ -42,8 +30,8 @@ class Ant(object):
 
 
 class ClassicAnt(Ant):
-    def __init__(self, graph, init_path, alpha, beta):
-        super(ClassicAnt, self).__init__(graph, init_path, alpha, beta)
+    def __init__(self, alpha, beta, graph, path):
+        super(ClassicAnt, self).__init__(alpha, beta, graph, path)
 
     def choose_next_city(self, present_city, visited_cities):
         paths_attractiveness = []
@@ -80,8 +68,8 @@ class ClassicAnt(Ant):
 
 
 class GreedyAnt(Ant):
-    def __init__(self, graph, init_path, alpha, beta):
-        super(GreedyAnt, self).__init__(graph, init_path, alpha, beta)
+    def __init__(self, alpha, beta, graph, path):
+        super(GreedyAnt, self).__init__(alpha, beta, graph, init_path)
 
     def choose_next_city(self, present_city, visited_cities):
         chosen_city = None

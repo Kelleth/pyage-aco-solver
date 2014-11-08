@@ -1,7 +1,7 @@
 from random import Random
-import sys
 
 from aco_solver.sequential.ants import ClassicAnt
+from aco_solver.sequential.commons import Path
 
 
 class AntColony:
@@ -9,14 +9,15 @@ class AntColony:
         self.graph = graph
         self.ants_count = ants_count
         self.iterations = iterations
-        self.best_path_distance = sys.maxint
         self.best_path = None
         self.ants = []
         self.random = Random()
-        self.__initialize_ants(alpha, beta)
+        self.initialize_ants(alpha, beta)
 
     def start_simulation(self):
         for i in range(self.iterations):
+            pass
+
             found_new_best_solution = False
 
             # try to find better solution
@@ -36,13 +37,27 @@ class AntColony:
 
         print 'Best: %s, %s' % (self.best_path, self.best_path_distance)
 
-    def __initialize_ants(self, alpha, beta):
+    def initialize_ants(self, alpha, beta):
         for i in range(self.ants_count):
-            ant = ClassicAnt(self.graph, self.__generate_random_path(self.graph.cities_count), alpha, beta)
-            self.ants.append(ant)
-            print '%s %s: init distance %s' % (type(ant).__name__, i + 1, ant.distance)
+            path = self.__generate_random_path(self.graph.cities)
 
-    def __generate_random_path(self, cities_count):
-        result = range(cities_count)
-        self.random.shuffle(result)
-        return result
+            ant = ClassicAnt(alpha, beta, self.graph, path)
+            self.ants.append(ant)
+            print '%s %s: init distance %s' % (type(ant).__name__, i + 1, ant.path.distance)
+
+    def __generate_random_path(self, available_cities):
+        shuffled_cities = list(available_cities)
+        self.random.shuffle(shuffled_cities)
+
+        start_city = shuffled_cities.pop(0)
+
+        connection_list = []
+        present_city = start_city
+
+        while shuffled_cities:
+            next_city = shuffled_cities.pop(0)
+            connection_list.append(present_city.find_connection_to_city(next_city))
+
+            present_city = next_city
+
+        return Path(start_city, connection_list)
