@@ -1,7 +1,7 @@
 from random import Random
 import sys
 
-from aco_solver.newaco.ants import ClassicAnt
+from aco_solver.sequential.ants import ClassicAnt
 
 
 class AntColony:

@@ -1,8 +1,8 @@
 from optparse import OptionParser
 
 from aco_solver.core.cities_reader import CitiesReader
-from aco_solver.newaco.ant_colony import AntColony
-from aco_solver.newaco.graph import Graph
+from aco_solver.sequential.ant_colony import AntColony
+from aco_solver.sequential.graph import Graph
 
 
 if __name__ == "__main__":
