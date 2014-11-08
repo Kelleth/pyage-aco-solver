@@ -14,3 +14,14 @@ class Path(object):
         cities = [self.start_city]
         cities.extend(connection.destination_city for connection in self.connection_list)
         return cities
+
+    def __cmp__(self, other):
+        if self.distance < other.distance:
+            return -1
+        elif self.distance > other.distance:
+            return 1
+        else:
+            return 0
+
+    def __str__(self):
+        return 'Cities {}, distance {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])

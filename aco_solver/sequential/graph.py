@@ -30,7 +30,7 @@ class City(object):
 
     def add_connection(self, connection):
         if connection.destination_city.city_id == self.city_id:
-            raise RuntimeError("Cannot add connection to itself")
+            raise RuntimeError('Cannot add connection to itself')
 
         self.connection_list.append(connection)
 
@@ -41,9 +41,9 @@ class City(object):
         for connection in self.connection_list:
             if connection.destination_city == city:
                 return connection
-        raise RuntimeError("Connection from city %d to city %d not found".format(self.city_id, city.city_id))
+        raise RuntimeError('Connection from city {} to city {} not found'.format(self.city_id, city.city_id))
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if isinstance(other, City):
             return self.city_id == other.city_id
         else:

@@ -1,3 +1,8 @@
+import random
+
+from aco_solver.sequential.commons import Path
+
+
 class Ant(object):
     def __init__(self, alpha, beta, graph, path):
         self.alpha = alpha  # pheromone influence
@@ -7,26 +12,28 @@ class Ant(object):
         self.path = path
 
     def find_path(self):
-        present_city = self.__choose_start_city()
-        new_path = [present_city]
+        start_city = self.__choose_start_city()
+        connection_list = []
+        cities_visited = [start_city]
 
-        while len(new_path) != self.cities_count:
-            present_city = self.choose_next_city(present_city, new_path)
-            new_path.append(present_city)
+        present_city = start_city
+        while len(connection_list) != len(self.path.connection_list):
+            next_connection = self.choose_next_city(present_city, cities_visited)
 
-        self.path = new_path
-        self.distance = self.graph.calculate_total_distance(new_path)
+            connection_list.append(next_connection)
+            present_city = next_connection.destination_city
 
-        return self.path, self.distance
+        self.path = Path(start_city, connection_list)
+        return self.path
 
     def choose_next_city(self, present_city, new_path):
         pass
 
     def __choose_start_city(self):
-        return self.random.randint(0, self.cities_count - 1)
+        return random.choice(self.graph.cities)
 
     def __repr__(self):
-        return 'Distance: %s Path: %s' % (self.distance, self.path)
+        return 'Distance: %s Path: %s' % (self.path.distance, self.path)
 
 
 class ClassicAnt(Ant):
@@ -36,19 +43,22 @@ class ClassicAnt(Ant):
     def choose_next_city(self, present_city, visited_cities):
         paths_attractiveness = []
 
-        for city in range(self.cities_count):
-            if city == present_city or city in visited_cities:
+        for connection in present_city.connection_list:
+            destination_city = connection.destination_city
+
+            if destination_city == present_city or destination_city in visited_cities:
                 paths_attractiveness.append(0.0)
             else:
                 paths_attractiveness.append(
-                    self.graph.calculate_path_attractiveness(self.alpha, self.beta, present_city, city))
+                    self.__calculate_path_attractiveness(connection))
 
         paths_probability = self.__calculate_path_probability(paths_attractiveness)
-        value = self.random.random()
+        value = random.random()
 
-        for city in range(self.cities_count):
-            if paths_probability[city] <= value < paths_probability[city + 1]:
-                return city
+        # fixme
+        for i in range(len(paths_probability) - 1):
+            if paths_probability[i] <= value < paths_probability[i + 1]:
+                return present_city.connection_list[i]
 
         raise RuntimeError("City not found")
 
@@ -65,6 +75,9 @@ class ClassicAnt(Ant):
             converted_form.append(converted_form[-1] + probability)
 
         return converted_form
+
+    def __calculate_path_attractiveness(self, connection):
+        return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
 
 
 class GreedyAnt(Ant):

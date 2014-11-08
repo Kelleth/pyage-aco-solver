@@ -16,26 +16,20 @@ class AntColony:
 
     def start_simulation(self):
         for i in range(self.iterations):
-            pass
-
             found_new_best_solution = False
 
             # try to find better solution
             for ant in self.ants:
-                (path, distance) = ant.find_path()
+                new_path = ant.find_path()
 
-                if distance < self.best_path_distance:
+                if self.best_path is None or new_path < self.best_path:
                     found_new_best_solution = True
-                    self.best_path_distance = distance
-                    self.best_path = path
-
-            # update pheromones
-            self.graph.update_pheromones(self.ants)
+                    self.best_path = new_path
 
             if found_new_best_solution:
-                print 'Iteration: %s Best: %s' % (i + 1, self.best_path_distance)
+                print 'Iteration: %s Best: %s' % (i + 1, self.best_path.distance)
 
-        print 'Best: %s, %s' % (self.best_path, self.best_path_distance)
+        print 'Best: {}'.format(str(self.best_path))
 
     def initialize_ants(self, alpha, beta):
         for i in range(self.ants_count):
@@ -43,7 +37,7 @@ class AntColony:
 
             ant = ClassicAnt(alpha, beta, self.graph, path)
             self.ants.append(ant)
-            print '%s %s: init distance %s' % (type(ant).__name__, i + 1, ant.path.distance)
+            print '{} {}: init distance {}'.format(type(ant).__name__, i + 1, ant.path.distance)
 
     def __generate_random_path(self, available_cities):
         shuffled_cities = list(available_cities)
