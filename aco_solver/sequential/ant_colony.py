@@ -26,6 +26,8 @@ class AntColony:
                     found_new_best_solution = True
                     self.best_path = new_path
 
+            self.graph.update_pheromones(self.ants)
+
             if found_new_best_solution:
                 print 'Iteration: %s Best: %s' % (i + 1, self.best_path.distance)
 
@@ -35,7 +37,7 @@ class AntColony:
         for i in range(self.ants_count):
             path = self.__generate_random_path(self.graph.cities)
 
-            ant = ClassicAnt(alpha, beta, self.graph, path)
+            ant = ClassicAnt(self.graph, path, alpha, beta)
             self.ants.append(ant)
             print '{} {}: init distance {}'.format(type(ant).__name__, i + 1, ant.path.distance)
 

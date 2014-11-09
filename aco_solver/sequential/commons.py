@@ -24,4 +24,4 @@ class Path(object):
             return 0
 
     def __str__(self):
-        return 'Cities {}, distance {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])
+        return 'Distance {}, path {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])

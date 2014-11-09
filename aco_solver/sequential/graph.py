@@ -16,8 +16,20 @@ class Graph(object):
 
         self.cities = cities
         self.number_of_cities = number_of_cities
-        self.rho = rho
-        self.q = q
+
+        self.pheromone_evaporation = rho
+        self.pheromone_deposit = q
+
+    def update_pheromones(self, ants):
+        # pheromone evaporation
+        for city in self.cities:
+            for connection in city.connection_list:
+                connection.pheromone *= (1.0 - self.pheromone_evaporation)
+
+        # increase value for visited connections
+        for path in [ant.path for ant in ants]:
+            for connection in path.connection_list:
+                connection.pheromone += self.pheromone_deposit / path.distance
 
 
 class City(object):

@@ -4,10 +4,7 @@ from aco_solver.sequential.commons import Path
 
 
 class Ant(object):
-    def __init__(self, alpha, beta, graph, path):
-        self.alpha = alpha  # pheromone influence
-        self.beta = beta  # distance influence
-
+    def __init__(self, graph, path):
         self.graph = graph
         self.path = path
 
@@ -18,16 +15,35 @@ class Ant(object):
 
         present_city = start_city
         while len(connection_list) != len(self.path.connection_list):
-            next_connection = self.choose_next_city(present_city, cities_visited)
+            next_connection = self.chose_next_connection(present_city, cities_visited)
 
             connection_list.append(next_connection)
+            cities_visited.append(next_connection.destination_city)
             present_city = next_connection.destination_city
 
         self.path = Path(start_city, connection_list)
         return self.path
 
-    def choose_next_city(self, present_city, new_path):
-        pass
+    def chose_next_connection(self, present_city, visited_cities):
+        chosen_connection = None
+        chosen_connection_attractiveness = -1
+
+        for connection in present_city.connection_list:
+            destination_city = connection.destination_city
+
+            if destination_city == present_city or destination_city in visited_cities:
+                continue
+            else:
+                path_attractiveness = self.calculate_connection_attractiveness(connection)
+
+                if path_attractiveness > chosen_connection_attractiveness:
+                    chosen_connection = connection
+                    chosen_connection_attractiveness = path_attractiveness
+
+        return chosen_connection
+
+    def calculate_connection_attractiveness(self, connection):
+        return 0
 
     def __choose_start_city(self):
         return random.choice(self.graph.cities)
@@ -36,66 +52,92 @@ class Ant(object):
         return 'Distance: %s Path: %s' % (self.path.distance, self.path)
 
 
-class ClassicAnt(Ant):
-    def __init__(self, alpha, beta, graph, path):
-        super(ClassicAnt, self).__init__(alpha, beta, graph, path)
+class ShuffleAnt(Ant):
+    def __init__(self, graph, path):
+        super(ShuffleAnt, self).__init__(graph, path)
 
-    def choose_next_city(self, present_city, visited_cities):
-        paths_attractiveness = []
+    def chose_next_connection(self, present_city, visited_cities):
+        connections_attractiveness = []
 
         for connection in present_city.connection_list:
             destination_city = connection.destination_city
 
             if destination_city == present_city or destination_city in visited_cities:
-                paths_attractiveness.append(0.0)
+                connections_attractiveness.append(0.0)
             else:
-                paths_attractiveness.append(
-                    self.__calculate_path_attractiveness(connection))
+                connections_attractiveness.append(
+                    self.calculate_connection_attractiveness(connection))
 
-        paths_probability = self.__calculate_path_probability(paths_attractiveness)
+        connection_probabilities = self.calculate_connection_probability(connections_attractiveness)
         value = random.random()
 
-        # fixme
-        for i in range(len(paths_probability) - 1):
-            if paths_probability[i] <= value < paths_probability[i + 1]:
+        for i in range(len(connection_probabilities) - 1):
+            if connection_probabilities[i] <= value < connection_probabilities[i + 1]:
                 return present_city.connection_list[i]
 
         raise RuntimeError("City not found")
 
     @staticmethod
-    def __calculate_path_probability(paths_attractiveness):
-        attractiveness_sum = sum(paths_attractiveness)
+    def calculate_connection_probability(connections_attractiveness):
+        attractiveness_sum = sum(connections_attractiveness)
 
-        paths_probability = []
-        for i in range(len(paths_attractiveness)):
-            paths_probability.append(paths_attractiveness[i] / attractiveness_sum)
+        connections_probability = []
+
+        for i in range(len(connections_attractiveness)):
+            connections_probability.append(connections_attractiveness[i] / attractiveness_sum)
 
         converted_form = [0.0]
-        for probability in paths_probability:
+        for probability in connections_probability:
             converted_form.append(converted_form[-1] + probability)
 
         return converted_form
 
-    def __calculate_path_attractiveness(self, connection):
+
+# ClassicAnt which computes attractiveness like pheromone^alpha * (1/distance)^beta
+class ClassicAnt(ShuffleAnt):
+    def __init__(self, graph, path, alpha, beta):
+        super(ClassicAnt, self).__init__(graph, path)
+        self.alpha = alpha
+        self.beta = beta
+
+    def calculate_connection_attractiveness(self, connection):
         return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
 
 
-class GreedyAnt(Ant):
-    def __init__(self, alpha, beta, graph, path):
-        super(GreedyAnt, self).__init__(alpha, beta, graph, init_path)
+# The individuals who are "altercentric" would follow the mass
+class ACAnt(Ant):
+    def __init__(self, graph, path):
+        super(ACAnt, self).__init__(graph, path)
 
-    def choose_next_city(self, present_city, visited_cities):
-        chosen_city = None
-        chosen_city_attractiveness = -1
+    def calculate_connection_attractiveness(self, connection):
+        return connection.pheromone
 
-        for city in range(self.cities_count):
-            if city == present_city or city in visited_cities:
+
+# The individuals who are "egocentric" would be more creative to try to find a new solution,
+# finding their own way, less caring for others and for pheromone trail.
+class ECAnt(Ant):
+    def __init__(self, graph, path):
+        super(ECAnt, self).__init__(graph, path)
+
+    def calculate_connection_attractiveness(self, connection):
+        return 1.0 / connection.distance
+
+
+# Those bad at conflict handling will behave impulsively (in effect randomly)
+class BCAnt(Ant):
+    def __init__(self, graph, path):
+        super(BCAnt, self).__init__(graph, path)
+
+    def chose_next_connection(self, present_city, visited_cities):
+        next_connection = None
+
+        while not next_connection:
+            random_connection = random.choice(present_city.connection_list)
+            destination_city = random_connection.destination_city
+
+            if destination_city == present_city or destination_city in visited_cities:
                 continue
             else:
-                path_attractiveness = self.graph.calculate_path_attractiveness(self.alpha, self.beta, present_city,
-                                                                               city)
-                if path_attractiveness > chosen_city_attractiveness:
-                    chosen_city = city
-                    chosen_city_attractiveness = path_attractiveness
+                next_connection = random_connection
 
-        return chosen_city
+        return next_connection
