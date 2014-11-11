@@ -3,10 +3,23 @@ import random
 
 from aco_solver.core.cities_reader import CitiesReader
 from aco_solver.sequential.ant_colony import AntColony
-from aco_solver.sequential.ants import GCAnt, BCAnt, ACAnt, ECAnt
+from aco_solver.sequential.ants import GCAnt, BCAnt, ACAnt, ECAnt, GreedyAnt, ClassicAnt
 from aco_solver.sequential.commons import Path
 from aco_solver.sequential.graph import Graph
 
+
+def generate_greedy_ants(total_number_of_ants, city_graph, alpha, beta):
+    generated_ants = []
+    for _ in range(total_number_of_ants):
+        generated_ants.append(GreedyAnt(city_graph, generate_random_path(city_graph.cities), alpha, beta))
+    return generated_ants
+
+
+def generate_classic_ants(total_number_of_ants, city_graph, alpha, beta):
+    generated_ants = []
+    for _ in range(total_number_of_ants):
+        generated_ants.append(ClassicAnt(city_graph, generate_random_path(city_graph.cities), alpha, beta))
+    return generated_ants
 
 
 # 22% egocentric, 15% altercentric, 45% flexible, 18% bad conflict handlers
@@ -69,6 +82,10 @@ if __name__ == "__main__":
 
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--type", default="cs", type="string", dest="type")
+    parser.add_option("-a", "--alpha", default="3.0", type="float", help="pheromone influence [default: %default]",
+                      dest="alpha")
+    parser.add_option("-b", "--beta", default="2.0", type="float", help="distance influence [default: %default]",
+                      dest="beta")
     parser.add_option("-r", "--rho", default="0.01", type="float",
                       help="pheromone evaporation coefficient [default: %default]",
                       dest="rho")
@@ -90,12 +107,16 @@ if __name__ == "__main__":
     graph = Graph(cities_distances, options.rho, options.q)
 
     ants = []
-    if options.type == "cs":
+    if options.type == "cs":  # control sample
         ants = generate_control_sample(ants_count, graph)
-    elif options.type == "gc":
+    elif options.type == "gc":  # guilt condition
         ants = generate_guilt_condition_sample(ants_count, graph)
-    elif options.type == "ac":
-        ants = generate_guilt_condition_sample(ants_count, graph)
+    elif options.type == "ac":  # anger condition
+        ants = generate_anger_condition_sample(ants_count, graph)
+    elif options.type == "ca":  # classical ants
+        ants = generate_classic_ants(ants_count, graph, options.alpha, options.beta)
+    elif options.type == "ga":  # greedy ants
+        ants = generate_greedy_ants(ants_count, graph, options.alpha, options.beta)
 
     colony = AntColony(graph, ants, iterations)
     colony.start_simulation()

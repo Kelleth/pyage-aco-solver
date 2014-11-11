@@ -80,16 +80,21 @@ class ShuffleAnt(Ant):
 
     @staticmethod
     def calculate_connection_probability(connections_attractiveness):
-        attractiveness_sum = sum(connections_attractiveness)
+        attractiveness_sum = float(sum(connections_attractiveness))
 
         connections_probability = []
 
-        for i in range(len(connections_attractiveness)):
-            connections_probability.append(connections_attractiveness[i] / attractiveness_sum)
+        if attractiveness_sum > 0:
+            for i in range(len(connections_attractiveness)):
+                connections_probability.append(connections_attractiveness[i] / attractiveness_sum)
+        else:
+            for i in range(len(connections_attractiveness)):
+                connections_probability.append(1.0 / len(connections_attractiveness))
 
         converted_form = [0.0]
         for probability in connections_probability:
             converted_form.append(converted_form[-1] + probability)
+        converted_form[-1] = 1.0
 
         return converted_form
 
@@ -105,8 +110,18 @@ class ClassicAnt(ShuffleAnt):
         return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
 
 
+class GreedyAnt(Ant):
+    def __init__(self, graph, path, alpha, beta):
+        super(GreedyAnt, self).__init__(graph, path)
+        self.alpha = alpha
+        self.beta = beta
+
+    def calculate_connection_attractiveness(self, connection):
+        return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
+
+
 # The individuals who are "altercentric" would follow the mass
-class ACAnt(Ant):
+class ACAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(ACAnt, self).__init__(graph, path)
 
@@ -116,7 +131,7 @@ class ACAnt(Ant):
 
 # The individuals who are "egocentric" would be more creative to try to find a new solution,
 # finding their own way, less caring for others and for pheromone trail.
-class ECAnt(Ant):
+class ECAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(ECAnt, self).__init__(graph, path)
 
@@ -125,7 +140,7 @@ class ECAnt(Ant):
 
 
 # These good at conflict handling will wait and observe the others.
-class GCAnt(Ant):
+class GCAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(GCAnt, self).__init__(graph, path)
 
