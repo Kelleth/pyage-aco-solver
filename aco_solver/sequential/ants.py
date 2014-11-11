@@ -16,6 +16,7 @@ class Ant(object):
         present_city = start_city
         while len(connection_list) != len(self.path.connection_list):
             next_connection = self.chose_next_connection(present_city, cities_visited)
+            next_connection.visit_connection()
 
             connection_list.append(next_connection)
             cities_visited.append(next_connection.destination_city)
@@ -121,6 +122,15 @@ class ECAnt(Ant):
 
     def calculate_connection_attractiveness(self, connection):
         return 1.0 / connection.distance
+
+
+# These good at conflict handling will wait and observe the others.
+class GCAnt(Ant):
+    def __init__(self, graph, path):
+        super(GCAnt, self).__init__(graph, path)
+
+    def calculate_connection_attractiveness(self, connection):
+        return connection.number_of_visits
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)

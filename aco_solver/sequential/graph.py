@@ -31,6 +31,11 @@ class Graph(object):
             for connection in path.connection_list:
                 connection.pheromone += self.pheromone_deposit / path.distance
 
+    def clean_connections_statistics(self):
+        for city in self.cities:
+            for connection in city.connection_list:
+                connection.number_of_visits = 0
+
 
 class City(object):
     def __init__(self, city_id, connection_list=None):
@@ -67,6 +72,10 @@ class Connection(object):
         self.distance = distance
         self.destination_city = destination_city
         self.pheromone = 0.01
+        self.number_of_visits = 0
 
     def update_pheromone(self, value):
         self.pheromone += value
+
+    def visit_connection(self):
+        self.number_of_visits += 1
