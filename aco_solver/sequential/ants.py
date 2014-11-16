@@ -16,8 +16,6 @@ class Ant(object):
         present_city = start_city
         while len(connection_list) != len(self.path.connection_list):
             next_connection = self.chose_next_connection(present_city, cities_visited)
-            next_connection.visit_connection()
-
             connection_list.append(next_connection)
             cities_visited.append(next_connection.destination_city)
             present_city = next_connection.destination_city
@@ -45,6 +43,9 @@ class Ant(object):
 
     def calculate_connection_attractiveness(self, connection):
         return 0
+
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_unknown_pheromone(pheromone_value)
 
     def __choose_start_city(self):
         return random.choice(self.graph.cities)
@@ -101,42 +102,52 @@ class ShuffleAnt(Ant):
 
 # ClassicAnt which computes attractiveness like pheromone^alpha * (1/distance)^beta
 class ClassicAnt(ShuffleAnt):
-    def __init__(self, graph, path, alpha, beta):
+    def __init__(self, graph, path, pheromone_influence, distance_influence):
         super(ClassicAnt, self).__init__(graph, path)
-        self.alpha = alpha
-        self.beta = beta
+        self.pheromone_influence = pheromone_influence
+        self.distance_influence = distance_influence
 
     def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
+        return connection.pheromone.total_pheromone ** self.pheromone_influence * \
+               (1.0 / connection.distance) ** self.distance_influence
 
 
 class GreedyAnt(Ant):
-    def __init__(self, graph, path, alpha, beta):
+    def __init__(self, graph, path, pheromone_influence, distance_influence):
         super(GreedyAnt, self).__init__(graph, path)
-        self.alpha = alpha
-        self.beta = beta
+        self.pheromone_influence = pheromone_influence
+        self.distance_influence = distance_influence
 
     def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone ** self.alpha * (1.0 / connection.distance) ** self.beta
+        return connection.pheromone ** self.pheromone_influence * \
+               (1.0 / connection.distance) ** self.distance_influence
 
 
 # The individuals who are "altercentric" would follow the mass
 class ACAnt(ShuffleAnt):
-    def __init__(self, graph, path):
+    def __init__(self, graph, path, pheromone_influence=2.0):
         super(ACAnt, self).__init__(graph, path)
+        self.pheromone_influence = pheromone_influence
+
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_ac_pheromone(pheromone_value)
 
     def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone
+        return connection.pheromone.total_pheromone ** self.pheromone_influence
 
 
 # The individuals who are "egocentric" would be more creative to try to find a new solution,
 # finding their own way, less caring for others and for pheromone trail.
 class ECAnt(ShuffleAnt):
-    def __init__(self, graph, path):
+    def __init__(self, graph, path, distance_influence=3.0):
         super(ECAnt, self).__init__(graph, path)
+        self.distance_influence = distance_influence
+
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_ec_pheromone(pheromone_value)
 
     def calculate_connection_attractiveness(self, connection):
-        return 1.0 / connection.distance
+        return (1.0 / connection.distance) ** self.distance_influence
 
 
 # These good at conflict handling will wait and observe the others.
@@ -144,14 +155,20 @@ class GCAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(GCAnt, self).__init__(graph, path)
 
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_gc_pheromone(pheromone_value)
+
     def calculate_connection_attractiveness(self, connection):
-        return connection.number_of_visits
+        return 2.0 * connection.pheromone.ac_pheromone + connection.pheromone.gc_pheromone
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)
 class BCAnt(Ant):
     def __init__(self, graph, path):
         super(BCAnt, self).__init__(graph, path)
+
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_bc_pheromone(pheromone_value)
 
     def chose_next_connection(self, present_city, visited_cities):
         next_connection = None

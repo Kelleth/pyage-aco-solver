@@ -1,5 +1,6 @@
 from optparse import OptionParser
 import random
+import math
 
 from aco_solver.core.cities_reader import CitiesReader
 from aco_solver.sequential.ant_colony import AntColony
@@ -38,21 +39,18 @@ def generate_anger_condition_sample(total_number_of_ants, city_graph):
 
 
 def create_sample(total_number_of_ants, ec_fraction, ac_fraction, bc_fraction, gc_fraction, city_graph):
-    # if total_number_of_ants % 100 != 0:
-    # raise RuntimeError('Total number of ants must be multiple of 100')
-
     generated_ants = []
 
-    for _ in range(int(total_number_of_ants * ec_fraction)):
+    for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
         generated_ants.append(ECAnt(city_graph, generate_random_path(graph.cities)))
 
-    for _ in range(int(total_number_of_ants * ac_fraction)):
+    for _ in range(int(math.ceil(total_number_of_ants * ac_fraction))):
         generated_ants.append(ACAnt(city_graph, generate_random_path(graph.cities)))
 
-    for _ in range(int(total_number_of_ants * bc_fraction)):
+    for _ in range(int(math.ceil(total_number_of_ants * bc_fraction))):
         generated_ants.append(BCAnt(city_graph, generate_random_path(graph.cities)))
 
-    for _ in range(int(total_number_of_ants * gc_fraction)):
+    for _ in range(total_number_of_ants - len(generated_ants)):
         generated_ants.append(GCAnt(city_graph, generate_random_path(graph.cities)))
 
     random.shuffle(generated_ants)
@@ -119,4 +117,5 @@ if __name__ == "__main__":
         ants = generate_greedy_ants(ants_count, graph, options.alpha, options.beta)
 
     colony = AntColony(graph, ants, iterations)
+    print colony
     colony.start_simulation()

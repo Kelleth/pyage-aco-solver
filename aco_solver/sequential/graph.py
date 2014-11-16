@@ -20,21 +20,39 @@ class Graph(object):
         self.pheromone_evaporation = rho
         self.pheromone_deposit = q
 
-    def update_pheromones(self, ants):
+    def update_pheromones(self, ant):
+        # increase value for visited connections
+        path = ant.path
+        for connection in path.connection_list:
+            connection.accept_visitor(ant, self.pheromone_deposit / path.distance)
+
+    def evaporate_pheromones(self):
         # pheromone evaporation
         for city in self.cities:
             for connection in city.connection_list:
-                connection.pheromone *= (1.0 - self.pheromone_evaporation)
+                connection.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
-        # increase value for visited connections
-        for path in [ant.path for ant in ants]:
-            for connection in path.connection_list:
-                connection.pheromone += self.pheromone_deposit / path.distance
+    def compute_average_distance(self):
 
-    def clean_connections_statistics(self):
-        for city in self.cities:
-            for connection in city.connection_list:
-                connection.number_of_visits = 0
+        total_distance = 0.0
+        number_of_connections = 0
+
+        connection_queue = []
+        visited_cities = [self.cities[0]]
+        connection_queue.extend(self.cities[0].connection_list)
+
+        while connection_queue:
+            connection = connection_queue.pop(0)
+            total_distance += connection.distance
+            number_of_connections += 1
+
+            if connection.destination_city in visited_cities:
+                continue
+            else:
+                connection_queue.extend(connection.destination_city.connection_list)
+                visited_cities.append(connection.destination_city)
+
+        return total_distance / number_of_connections
 
 
 class City(object):
@@ -71,11 +89,51 @@ class Connection(object):
     def __init__(self, distance, destination_city):
         self.distance = distance
         self.destination_city = destination_city
-        self.pheromone = 0.01
-        self.number_of_visits = 0
+        self.pheromone = Pheromone()
 
-    def update_pheromone(self, value):
-        self.pheromone += value
+    def accept_visitor(self, visitor, pheromone_value):
+        visitor.visit(self, pheromone_value)
 
-    def visit_connection(self):
-        self.number_of_visits += 1
+
+class Pheromone(object):
+    def __init__(self, init_value=0.01):
+        self.ac_pheromone = init_value
+        self.ec_pheromone = init_value
+        self.gc_pheromone = init_value
+        self.bc_pheromone = init_value
+        self.unknown_pheromone = init_value
+
+        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+                               + self.unknown_pheromone
+
+    def update_ac_pheromone(self, value):
+        self.ac_pheromone += value
+        self.__update_total_pheromone()
+
+    def update_ec_pheromone(self, value):
+        self.ec_pheromone += value
+        self.__update_total_pheromone()
+
+    def update_gc_pheromone(self, value):
+        self.gc_pheromone += value
+        self.__update_total_pheromone()
+
+    def update_bc_pheromone(self, value):
+        self.bc_pheromone += value
+        self.__update_total_pheromone()
+
+    def update_unknown_pheromone(self, value):
+        self.unknown_pheromone += value
+        self.__update_total_pheromone()
+
+    def evaporate(self, factor):
+        self.ac_pheromone *= factor
+        self.ec_pheromone *= factor
+        self.gc_pheromone *= factor
+        self.bc_pheromone *= factor
+        self.unknown_pheromone *= factor
+        self.__update_total_pheromone()
+
+    def __update_total_pheromone(self):
+        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+                               + self.unknown_pheromone
