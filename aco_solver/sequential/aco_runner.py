@@ -39,7 +39,7 @@ def generate_anger_condition_sample(total_number_of_ants, city_graph):
     return create_sample(total_number_of_ants, 0.06, 0.06, 0.63, 0.25, city_graph)
 
 
-def create_sample(total_number_of_ants, ec_fraction, ac_fraction, bc_fraction, gc_fraction, city_graph):
+def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, city_graph):
     generated_ants = []
 
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
@@ -48,11 +48,11 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, bc_fraction, g
     for _ in range(int(math.ceil(total_number_of_ants * ac_fraction))):
         generated_ants.append(ACAnt(city_graph, generate_random_path(city_graph.cities)))
 
-    for _ in range(int(math.ceil(total_number_of_ants * bc_fraction))):
-        generated_ants.append(BCAnt(city_graph, generate_random_path(city_graph.cities)))
+    for _ in range(int(math.ceil(total_number_of_ants * gc_fraction))):
+        generated_ants.append(GCAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(total_number_of_ants - len(generated_ants)):
-        generated_ants.append(GCAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(BCAnt(city_graph, generate_random_path(city_graph.cities)))
 
     random.shuffle(generated_ants)
     return generated_ants
@@ -125,6 +125,7 @@ if __name__ == "__main__":
     cities_distances = cities_reader.create_distance_matrix()
 
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
+
     processes = []
     queue = Queue()
     for i in range(options.p):
