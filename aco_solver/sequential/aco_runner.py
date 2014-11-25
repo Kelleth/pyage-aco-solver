@@ -75,7 +75,7 @@ def generate_random_path(available_cities):
 
     return Path(start_city, connection_list)
 
-	
+
 def start_simulation(ants_count, iterations, cities_distances, rho, q, type, alpha, beta, queue):
     graph = Graph(cities_distances, rho, q)
 
@@ -128,7 +128,9 @@ if __name__ == "__main__":
     processes = []
     queue = Queue()
     for i in range(options.p):
-        processes.append(Process(target=start_simulation, args=(ants_count, iterations, cities_distances, options.rho, options.q, options.type, options.alpha, options.beta, queue,)))
+        processes.append(Process(target=start_simulation, args=(
+            ants_count, iterations, cities_distances, options.rho, options.q, options.type, options.alpha, options.beta,
+            queue,)))
     for i in range(options.p):
         processes[i].start()
     for i in range(options.p):

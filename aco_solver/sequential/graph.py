@@ -19,7 +19,7 @@ class Graph(object):
 
         self.pheromone_evaporation = rho
         self.pheromone_deposit = q
-        #print 1.0/self.compute_average_distance()
+        # print 1.0/self.compute_average_distance()
 
     def update_pheromones(self, ant):
         # increase value for visited connections
@@ -97,7 +97,7 @@ class Connection(object):
 
 
 class Pheromone(object):
-    def __init__(self, init_value=0.000584553657222**2):
+    def __init__(self, init_value=0.000584553657222 ** 2):
         self.ac_pheromone = init_value
         self.ec_pheromone = init_value
         self.gc_pheromone = init_value
