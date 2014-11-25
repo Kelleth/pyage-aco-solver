@@ -1,4 +1,5 @@
 import random
+import time
 
 
 class AntColony:
@@ -7,29 +8,39 @@ class AntColony:
         self.ants = ants
         self.iterations = iterations
         self.best_path = None
+        self.best_path_iteration = None
 
     def start_simulation(self):
+
+        start_time = time.time()
+
         for iteration in range(self.iterations):
             # shuffle ants
             random.shuffle(self.ants)
-            found_new_best_solution = False
 
-            # try to find better solution
+            iteration_best_ant = None
+            iteration_best_path = None
+
             for ant in self.ants:
                 new_path = ant.find_path()
 
-                if self.best_path is None or new_path < self.best_path:
-                    found_new_best_solution = True
-                    self.best_path = new_path
+                if iteration_best_path is None or new_path < iteration_best_path:
+                    iteration_best_path = new_path
+                    iteration_best_ant = ant
+
+                    if self.best_path is None or new_path < self.best_path:
+                        self.best_path = new_path
+                        self.best_path_iteration = iteration + 1
 
                 self.graph.update_pheromones(ant)
 
             self.graph.evaporate_pheromones()
 
-            if found_new_best_solution:
-                print 'Iteration: %s Best: %s' % (iteration + 1, self.best_path.distance)
+            print 'Iteration: {}\tbest: {:.3f}\tant: {}'.format(iteration + 1, iteration_best_path.distance,
+                                                                iteration_best_ant)
 
-        print 'Best: {}'.format(str(self.best_path))
+        print 'Time: {:.2f}s\tbest: {:.3f}\titeration: {}'.format(time.time() - start_time, self.best_path.distance,
+                                                                  self.best_path_iteration)
 
     def __repr__(self):
         output = 'Colony population:\n'
@@ -37,7 +48,7 @@ class AntColony:
 
         for ant in self.ants:
             previous_value = 0
-            name = ant.__class__.__name__
+            name = str(ant)
 
             if name in population.keys():
                 previous_value = population[name]
@@ -45,6 +56,6 @@ class AntColony:
             population[name] = previous_value + 1
 
         for k, v in population.iteritems():
-            output += "{}: {}\n".format(k, v)
+            output += "{}:\t{}\n".format(k, v)
 
         return output
