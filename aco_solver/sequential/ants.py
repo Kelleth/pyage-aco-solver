@@ -159,7 +159,8 @@ class GCAnt(ShuffleAnt):
         connection.pheromone.update_gc_pheromone(pheromone_value)
 
     def calculate_connection_attractiveness(self, connection):
-        return 2.0 * connection.pheromone.ac_pheromone + connection.pheromone.gc_pheromone
+        #print connection.pheromone.ec_pheromone, connection.pheromone.gc_pheromone, connection.pheromone.ac_pheromone
+        return ((5.0 * connection.pheromone.ec_pheromone + 2.0*connection.pheromone.ac_pheromone + 2.5*connection.pheromone.gc_pheromone + 0.5*connection.pheromone.bc_pheromone)/2.0) ** 2.0
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)

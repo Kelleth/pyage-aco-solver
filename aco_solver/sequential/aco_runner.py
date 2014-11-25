@@ -1,3 +1,4 @@
+from multiprocessing import Process, Queue
 from optparse import OptionParser
 import random
 import math
@@ -42,16 +43,16 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, bc_fraction, g
     generated_ants = []
 
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
-        generated_ants.append(ECAnt(city_graph, generate_random_path(graph.cities)))
+        generated_ants.append(ECAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(int(math.ceil(total_number_of_ants * ac_fraction))):
-        generated_ants.append(ACAnt(city_graph, generate_random_path(graph.cities)))
+        generated_ants.append(ACAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(int(math.ceil(total_number_of_ants * bc_fraction))):
-        generated_ants.append(BCAnt(city_graph, generate_random_path(graph.cities)))
+        generated_ants.append(BCAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(total_number_of_ants - len(generated_ants)):
-        generated_ants.append(GCAnt(city_graph, generate_random_path(graph.cities)))
+        generated_ants.append(GCAnt(city_graph, generate_random_path(city_graph.cities)))
 
     random.shuffle(generated_ants)
     return generated_ants
@@ -74,6 +75,25 @@ def generate_random_path(available_cities):
 
     return Path(start_city, connection_list)
 
+	
+def start_simulation(ants_count, iterations, cities_distances, rho, q, type, alpha, beta, queue):
+    graph = Graph(cities_distances, rho, q)
+
+    ants = []
+    if type == "cs":  # control sample
+        ants = generate_control_sample(ants_count, graph)
+    elif type == "gc":  # guilt condition
+        ants = generate_guilt_condition_sample(ants_count, graph)
+    elif type == "ac":  # anger condition
+        ants = generate_anger_condition_sample(ants_count, graph)
+    elif type == "ca":  # classical ants
+        ants = generate_classic_ants(ants_count, graph, alpha, beta)
+    elif type == "ga":  # greedy ants
+        ants = generate_greedy_ants(ants_count, graph, alpha, beta)
+
+    colony = AntColony(graph, ants, iterations)
+    queue.put(colony.start_simulation())
+
 
 if __name__ == "__main__":
     usage = "usage: %prog [options] ants_count iterations citiesFileName"
@@ -89,6 +109,8 @@ if __name__ == "__main__":
                       dest="rho")
     parser.add_option("-q", "--q", default="2.0", type="float", help="pheromone deposit factor [default: %default]",
                       dest="q")
+    parser.add_option("-p", "--p", default="1", type="int", help="number of processes [default: %default]",
+                      dest="p")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -102,20 +124,14 @@ if __name__ == "__main__":
     cities_reader.read_file()
     cities_distances = cities_reader.create_distance_matrix()
 
-    graph = Graph(cities_distances, options.rho, options.q)
-
-    ants = []
-    if options.type == "cs":  # control sample
-        ants = generate_control_sample(ants_count, graph)
-    elif options.type == "gc":  # guilt condition
-        ants = generate_guilt_condition_sample(ants_count, graph)
-    elif options.type == "ac":  # anger condition
-        ants = generate_anger_condition_sample(ants_count, graph)
-    elif options.type == "ca":  # classical ants
-        ants = generate_classic_ants(ants_count, graph, options.alpha, options.beta)
-    elif options.type == "ga":  # greedy ants
-        ants = generate_greedy_ants(ants_count, graph, options.alpha, options.beta)
-
-    colony = AntColony(graph, ants, iterations)
-    print colony
-    colony.start_simulation()
+    print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
+    processes = []
+    queue = Queue()
+    for i in range(options.p):
+        processes.append(Process(target=start_simulation, args=(ants_count, iterations, cities_distances, options.rho, options.q, options.type, options.alpha, options.beta, queue,)))
+    for i in range(options.p):
+        processes[i].start()
+    for i in range(options.p):
+        processes[i].join()
+    for i in range(options.p):
+        print(queue.get())
