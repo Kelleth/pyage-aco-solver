@@ -136,5 +136,15 @@ if __name__ == "__main__":
         processes[i].start()
     for i in range(options.p):
         processes[i].join()
-    for i in range(options.p):
-        print(queue.get())
+
+    best_result = None
+    output_string = None
+
+    while not queue.empty():
+        (new_output, new_result) = queue.get()
+
+        if best_result is None or new_result < best_result:
+            best_result = new_result
+            output_string = new_output
+
+    print output_string

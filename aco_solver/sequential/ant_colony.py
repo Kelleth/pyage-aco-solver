@@ -12,6 +12,7 @@ class AntColony:
 
     def start_simulation(self, print_fitness=True):
 
+        output_string = ''
         start_time = time.time()
 
         for iteration in range(self.iterations):
@@ -37,11 +38,13 @@ class AntColony:
             self.graph.evaporate_pheromones()
 
             if print_fitness:
-                print 'Iteration: {}\tbest: {:.3f}\tant: {}'.format(iteration + 1, iteration_best_path.distance,
-                                                                    iteration_best_ant)
+                output_string += '{};{:.3f};{}\n'.format(iteration + 1, iteration_best_path.distance,
+                                                         iteration_best_ant)
 
-        print 'Time: {:.2f}s\tbest: {:.3f}\titeration: {}'.format(time.time() - start_time, self.best_path.distance,
-                                                                  self.best_path_iteration)
+        output_string += 'Time: {:.2f}s\tbest: {:.3f}\titeration: {}\n'.format(time.time() - start_time,
+                                                                               self.best_path.distance,
+                                                                               self.best_path_iteration)
+        return output_string, self.best_path.distance
 
     def __repr__(self):
         output = 'Colony population:\n'
