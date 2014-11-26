@@ -1,0 +1,636 @@
+File: inputs/examples/eil51.cities Type: cs Ants: 20 Iterations: 50
+1;710.129;Egocentric
+2;622.581;Egocentric
+3;680.044;Egocentric
+4;657.814;Egocentric
+5;695.170;Egocentric
+6;730.860;Egocentric
+7;689.501;Egocentric
+8;651.423;Egocentric
+9;589.815;Egocentric
+10;618.671;Egocentric
+11;666.681;Good Conflict
+12;691.024;Good Conflict
+13;592.845;Good Conflict
+14;604.328;Good Conflict
+15;602.414;Egocentric
+16;636.270;Good Conflict
+17;632.725;Good Conflict
+18;641.119;Good Conflict
+19;634.565;Good Conflict
+20;634.382;Good Conflict
+21;624.327;Good Conflict
+22;582.845;Good Conflict
+23;567.444;Egocentric
+24;635.747;Good Conflict
+25;531.181;Good Conflict
+26;597.910;Good Conflict
+27;556.515;Good Conflict
+28;570.771;Good Conflict
+29;562.164;Good Conflict
+30;577.581;Good Conflict
+31;563.780;Good Conflict
+32;564.361;Good Conflict
+33;560.058;Altercentric
+34;583.476;Good Conflict
+35;536.722;Good Conflict
+36;519.131;Good Conflict
+37;548.208;Good Conflict
+38;522.843;Altercentric
+39;584.474;Good Conflict
+40;549.102;Good Conflict
+41;541.553;Good Conflict
+42;505.760;Altercentric
+43;514.214;Good Conflict
+44;500.483;Good Conflict
+45;532.000;Good Conflict
+46;532.424;Good Conflict
+47;518.366;Good Conflict
+48;590.193;Altercentric
+49;479.984;Good Conflict
+50;529.786;Good Conflict
+Time: 19.87s	best: 479.984	iteration: 49
+
+File: inputs/examples/eil51.cities Type: ac Ants: 20 Iterations: 50
+1;708.373;Egocentric
+2;723.100;Egocentric
+3;720.960;Egocentric
+4;732.881;Egocentric
+5;744.722;Egocentric
+6;768.544;Egocentric
+7;700.654;Egocentric
+8;686.976;Egocentric
+9;702.274;Egocentric
+10;734.590;Egocentric
+11;743.993;Egocentric
+12;650.251;Egocentric
+13;739.227;Egocentric
+14;667.023;Egocentric
+15;674.941;Egocentric
+16;700.813;Good Conflict
+17;743.221;Good Conflict
+18;600.229;Egocentric
+19;594.954;Egocentric
+20;702.783;Good Conflict
+21;593.823;Good Conflict
+22;619.151;Good Conflict
+23;608.113;Good Conflict
+24;573.760;Good Conflict
+25;636.830;Good Conflict
+26;631.478;Good Conflict
+27;632.470;Good Conflict
+28;613.590;Good Conflict
+29;600.777;Good Conflict
+30;627.964;Good Conflict
+31;538.345;Good Conflict
+32;632.512;Good Conflict
+33;618.595;Good Conflict
+34;616.388;Good Conflict
+35;531.996;Altercentric
+36;524.011;Good Conflict
+37;562.458;Good Conflict
+38;536.752;Good Conflict
+39;573.780;Good Conflict
+40;550.598;Good Conflict
+41;489.833;Good Conflict
+42;557.970;Good Conflict
+43;537.367;Good Conflict
+44;534.323;Good Conflict
+45;460.005;Good Conflict
+46;492.125;Good Conflict
+47;556.376;Good Conflict
+48;553.793;Good Conflict
+49;512.190;Good Conflict
+50;525.567;Good Conflict
+Time: 19.79s	best: 460.005	iteration: 45
+
+File: inputs/examples/eil51.cities Type: gc Ants: 20 Iterations: 50
+1;726.736;Egocentric
+2;768.726;Egocentric
+3;637.788;Egocentric
+4;722.509;Egocentric
+5;677.703;Egocentric
+6;676.918;Egocentric
+7;739.777;Egocentric
+8;721.996;Egocentric
+9;696.697;Egocentric
+10;715.995;Egocentric
+11;746.141;Egocentric
+12;808.105;Egocentric
+13;660.708;Egocentric
+14;811.743;Egocentric
+15;761.842;Egocentric
+16;773.569;Egocentric
+17;639.143;Egocentric
+18;749.915;Egocentric
+19;737.064;Egocentric
+20;828.302;Good Conflict
+21;855.798;Egocentric
+22;678.578;Egocentric
+23;755.530;Egocentric
+24;690.596;Egocentric
+25;729.717;Good Conflict
+26;710.677;Egocentric
+27;738.520;Good Conflict
+28;699.492;Egocentric
+29;734.136;Egocentric
+30;736.443;Good Conflict
+31;702.662;Egocentric
+32;671.698;Egocentric
+33;765.344;Egocentric
+34;631.121;Good Conflict
+35;746.925;Altercentric
+36;670.722;Good Conflict
+37;629.911;Egocentric
+38;717.982;Egocentric
+39;696.415;Altercentric
+40;609.917;Good Conflict
+41;629.149;Good Conflict
+42;680.673;Altercentric
+43;637.919;Good Conflict
+44;560.108;Good Conflict
+45;716.211;Good Conflict
+46;604.844;Altercentric
+47;656.861;Good Conflict
+48;677.618;Good Conflict
+49;675.641;Altercentric
+50;596.536;Good Conflict
+Time: 18.14s	best: 560.108	iteration: 44
+
+File: inputs/examples/eil51.cities Type: ca Ants: 20 Iterations: 50
+1;648.656;Classic
+2;515.414;Classic
+3;480.351;Classic
+4;445.431;Classic
+5;433.579;Classic
+6;435.057;Classic
+7;458.218;Classic
+8;455.529;Classic
+9;456.041;Classic
+10;452.804;Classic
+11;460.350;Classic
+12;456.535;Classic
+13;462.289;Classic
+14;460.350;Classic
+15;438.099;Classic
+16;458.703;Classic
+17;449.735;Classic
+18;455.529;Classic
+19;453.600;Classic
+20;458.703;Classic
+21;456.445;Classic
+22;460.350;Classic
+23;460.350;Classic
+24;455.529;Classic
+25;464.736;Classic
+26;461.477;Classic
+27;461.477;Classic
+28;461.084;Classic
+29;461.643;Classic
+30;459.586;Classic
+31;455.529;Classic
+32;461.084;Classic
+33;460.350;Classic
+34;438.099;Classic
+35;460.350;Classic
+36;455.529;Classic
+37;460.350;Classic
+38;438.099;Classic
+39;462.289;Classic
+40;456.445;Classic
+41;461.084;Classic
+42;449.735;Classic
+43;438.099;Classic
+44;461.084;Classic
+45;460.350;Classic
+46;461.643;Classic
+47;455.529;Classic
+48;456.445;Classic
+49;461.084;Classic
+50;449.735;Classic
+Time: 22.17s	best: 433.579	iteration: 5
+
+File: inputs/examples/eil51.cities Type: cs Ants: 50 Iterations: 50
+1;661.148;Egocentric
+2;609.050;Egocentric
+3;680.970;Egocentric
+4;639.888;Egocentric
+5;640.425;Good Conflict
+6;606.905;Good Conflict
+7;576.013;Good Conflict
+8;576.014;Good Conflict
+9;589.224;Good Conflict
+10;609.624;Good Conflict
+11;519.932;Good Conflict
+12;568.817;Good Conflict
+13;545.557;Good Conflict
+14;521.213;Good Conflict
+15;528.541;Good Conflict
+16;548.973;Good Conflict
+17;511.500;Good Conflict
+18;497.801;Good Conflict
+19;511.611;Good Conflict
+20;512.317;Good Conflict
+21;504.897;Good Conflict
+22;526.074;Altercentric
+23;526.950;Good Conflict
+24;496.027;Altercentric
+25;544.319;Good Conflict
+26;491.383;Good Conflict
+27;515.232;Good Conflict
+28;487.665;Altercentric
+29;514.632;Good Conflict
+30;474.947;Good Conflict
+31;475.850;Good Conflict
+32;487.930;Good Conflict
+33;472.793;Good Conflict
+34;470.556;Good Conflict
+35;521.288;Good Conflict
+36;523.220;Good Conflict
+37;505.144;Altercentric
+38;472.221;Good Conflict
+39;470.533;Altercentric
+40;509.076;Good Conflict
+41;493.362;Good Conflict
+42;489.510;Altercentric
+43;515.092;Altercentric
+44;442.951;Good Conflict
+45;484.532;Good Conflict
+46;483.823;Altercentric
+47;456.209;Altercentric
+48;496.202;Good Conflict
+49;496.864;Good Conflict
+50;494.243;Good Conflict
+Time: 47.71s	best: 442.951	iteration: 44
+
+File: inputs/examples/eil51.cities Type: ac Ants: 50 Iterations: 50
+1;690.801;Egocentric
+2;758.214;Egocentric
+3;735.159;Egocentric
+4;668.551;Egocentric
+5;707.541;Egocentric
+6;712.393;Egocentric
+7;660.035;Egocentric
+8;646.678;Egocentric
+9;617.190;Egocentric
+10;647.848;Egocentric
+11;659.912;Good Conflict
+12;676.773;Good Conflict
+13;624.675;Good Conflict
+14;663.669;Good Conflict
+15;580.691;Good Conflict
+16;578.548;Good Conflict
+17;591.354;Good Conflict
+18;544.400;Good Conflict
+19;606.037;Good Conflict
+20;533.093;Good Conflict
+21;580.539;Good Conflict
+22;582.134;Good Conflict
+23;565.002;Good Conflict
+24;501.642;Good Conflict
+25;530.616;Good Conflict
+26;509.330;Good Conflict
+27;560.769;Good Conflict
+28;508.625;Good Conflict
+29;540.444;Good Conflict
+30;502.744;Good Conflict
+31;551.514;Good Conflict
+32;493.192;Good Conflict
+33;514.374;Good Conflict
+34;518.956;Good Conflict
+35;518.420;Good Conflict
+36;488.759;Good Conflict
+37;536.302;Good Conflict
+38;504.489;Good Conflict
+39;545.470;Good Conflict
+40;481.917;Good Conflict
+41;488.294;Good Conflict
+42;525.355;Good Conflict
+43;482.500;Good Conflict
+44;502.519;Good Conflict
+45;509.468;Good Conflict
+46;463.881;Good Conflict
+47;531.686;Good Conflict
+48;498.460;Good Conflict
+49;495.900;Good Conflict
+50;495.113;Good Conflict
+Time: 44.60s	best: 463.881	iteration: 46
+
+File: inputs/examples/eil51.cities Type: gc Ants: 50 Iterations: 50
+1;656.447;Egocentric
+2;741.039;Egocentric
+3;669.925;Egocentric
+4;726.131;Egocentric
+5;734.632;Egocentric
+6;756.872;Egocentric
+7;702.874;Egocentric
+8;643.206;Egocentric
+9;754.359;Egocentric
+10;705.993;Egocentric
+11;665.038;Egocentric
+12;711.634;Egocentric
+13;809.203;Egocentric
+14;696.310;Egocentric
+15;717.797;Egocentric
+16;724.311;Egocentric
+17;691.084;Egocentric
+18;685.438;Good Conflict
+19;678.279;Good Conflict
+20;729.888;Egocentric
+21;698.630;Egocentric
+22;682.850;Good Conflict
+23;639.705;Good Conflict
+24;618.020;Altercentric
+25;599.818;Good Conflict
+26;557.875;Altercentric
+27;596.701;Good Conflict
+28;527.812;Good Conflict
+29;641.802;Good Conflict
+30;581.083;Good Conflict
+31;503.486;Good Conflict
+32;552.490;Good Conflict
+33;529.748;Good Conflict
+34;539.441;Altercentric
+35;512.504;Altercentric
+36;502.934;Altercentric
+37;504.692;Altercentric
+38;496.687;Altercentric
+39;546.799;Altercentric
+40;507.608;Altercentric
+41;524.597;Altercentric
+42;510.173;Good Conflict
+43;467.519;Altercentric
+44;499.834;Altercentric
+45;501.465;Good Conflict
+46;528.479;Altercentric
+47;501.687;Altercentric
+48;480.248;Altercentric
+49;513.980;Altercentric
+50;493.064;Good Conflict
+Time: 42.45s	best: 467.519	iteration: 43
+
+File: inputs/examples/eil51.cities Type: ca Ants: 50 Iterations: 50
+1;482.538;Classic
+2;459.431;Classic
+3;454.076;Classic
+4;458.696;Classic
+5;458.696;Classic
+6;475.330;Classic
+7;469.585;Classic
+8;477.444;Classic
+9;455.758;Classic
+10;463.516;Classic
+11;477.764;Classic
+12;470.473;Classic
+13;460.338;Classic
+14;460.828;Classic
+15;470.473;Classic
+16;470.473;Classic
+17;469.585;Classic
+18;475.330;Classic
+19;470.473;Classic
+20;470.473;Classic
+21;470.473;Classic
+22;470.473;Classic
+23;469.585;Classic
+24;485.886;Classic
+25;469.585;Classic
+26;485.886;Classic
+27;470.473;Classic
+28;485.886;Classic
+29;470.473;Classic
+30;470.473;Classic
+31;464.424;Classic
+32;470.473;Classic
+33;470.473;Classic
+34;488.473;Classic
+35;487.077;Classic
+36;470.473;Classic
+37;470.473;Classic
+38;470.473;Classic
+39;470.473;Classic
+40;470.473;Classic
+41;470.473;Classic
+42;470.473;Classic
+43;488.473;Classic
+44;470.473;Classic
+45;470.473;Classic
+46;470.473;Classic
+47;470.473;Classic
+48;470.473;Classic
+49;470.473;Classic
+50;470.473;Classic
+Time: 56.30s	best: 454.076	iteration: 3
+
+File: inputs/examples/eil51.cities Type: cs Ants: 100 Iterations: 50
+1;648.790;Egocentric
+2;645.595;Egocentric
+3;647.972;Egocentric
+4;606.689;Good Conflict
+5;575.983;Good Conflict
+6;543.839;Good Conflict
+7;557.141;Good Conflict
+8;524.618;Good Conflict
+9;527.586;Good Conflict
+10;500.019;Good Conflict
+11;520.067;Good Conflict
+12;509.330;Good Conflict
+13;512.814;Good Conflict
+14;517.046;Good Conflict
+15;491.751;Good Conflict
+16;506.526;Good Conflict
+17;490.629;Altercentric
+18;503.385;Good Conflict
+19;456.628;Good Conflict
+20;487.196;Good Conflict
+21;507.008;Good Conflict
+22;471.739;Good Conflict
+23;474.901;Altercentric
+24;475.620;Good Conflict
+25;490.126;Altercentric
+26;477.052;Altercentric
+27;457.834;Good Conflict
+28;512.439;Good Conflict
+29;498.968;Good Conflict
+30;505.214;Good Conflict
+31;489.742;Altercentric
+32;484.187;Good Conflict
+33;483.458;Altercentric
+34;468.076;Altercentric
+35;478.899;Good Conflict
+36;480.390;Altercentric
+37;485.994;Good Conflict
+38;494.731;Altercentric
+39;455.352;Good Conflict
+40;489.344;Good Conflict
+41;477.105;Good Conflict
+42;487.135;Altercentric
+43;448.647;Altercentric
+44;486.520;Altercentric
+45;468.720;Good Conflict
+46;459.667;Altercentric
+47;480.276;Good Conflict
+48;475.497;Good Conflict
+49;463.773;Good Conflict
+50;419.887;Good Conflict
+Time: 95.63s	best: 419.887	iteration: 50
+
+File: inputs/examples/eil51.cities Type: ac Ants: 100 Iterations: 50
+1;648.356;Egocentric
+2;666.048;Egocentric
+3;659.722;Egocentric
+4;713.534;Egocentric
+5;618.374;Egocentric
+6;631.399;Good Conflict
+7;599.384;Good Conflict
+8;570.902;Good Conflict
+9;597.647;Good Conflict
+10;546.380;Good Conflict
+11;564.234;Good Conflict
+12;534.610;Good Conflict
+13;556.189;Good Conflict
+14;522.972;Good Conflict
+15;518.202;Good Conflict
+16;502.876;Good Conflict
+17;507.308;Good Conflict
+18;449.434;Good Conflict
+19;462.219;Good Conflict
+20;493.028;Good Conflict
+21;499.915;Good Conflict
+22;477.846;Good Conflict
+23;491.463;Good Conflict
+24;454.450;Good Conflict
+25;454.780;Good Conflict
+26;481.693;Good Conflict
+27;482.669;Good Conflict
+28;492.391;Good Conflict
+29;465.559;Good Conflict
+30;478.512;Good Conflict
+31;477.864;Good Conflict
+32;473.611;Good Conflict
+33;470.307;Good Conflict
+34;487.280;Good Conflict
+35;478.891;Good Conflict
+36;463.483;Good Conflict
+37;462.361;Good Conflict
+38;479.378;Altercentric
+39;445.054;Altercentric
+40;476.268;Good Conflict
+41;465.445;Good Conflict
+42;487.212;Good Conflict
+43;460.822;Good Conflict
+44;462.949;Good Conflict
+45;438.644;Good Conflict
+46;457.503;Good Conflict
+47;463.575;Good Conflict
+48;459.648;Altercentric
+49;452.095;Good Conflict
+50;459.317;Good Conflict
+Time: 89.69s	best: 438.644	iteration: 45
+
+File: inputs/examples/eil51.cities Type: gc Ants: 100 Iterations: 50
+1;794.540;Egocentric
+2;659.651;Egocentric
+3;695.669;Egocentric
+4;675.309;Egocentric
+5;771.516;Egocentric
+6;638.182;Egocentric
+7;604.758;Egocentric
+8;676.377;Egocentric
+9;629.733;Egocentric
+10;701.808;Egocentric
+11;686.729;Egocentric
+12;695.806;Good Conflict
+13;614.991;Egocentric
+14;715.333;Good Conflict
+15;688.524;Altercentric
+16;630.380;Egocentric
+17;613.293;Good Conflict
+18;571.989;Altercentric
+19;568.239;Good Conflict
+20;580.018;Good Conflict
+21;646.764;Altercentric
+22;577.528;Altercentric
+23;563.664;Good Conflict
+24;572.606;Good Conflict
+25;542.281;Good Conflict
+26;553.966;Good Conflict
+27;566.906;Good Conflict
+28;528.702;Good Conflict
+29;563.169;Altercentric
+30;549.497;Good Conflict
+31;548.487;Altercentric
+32;520.580;Good Conflict
+33;557.043;Good Conflict
+34;534.970;Good Conflict
+35;528.591;Good Conflict
+36;534.438;Altercentric
+37;544.594;Altercentric
+38;502.485;Altercentric
+39;528.058;Good Conflict
+40;484.941;Altercentric
+41;500.369;Altercentric
+42;499.519;Altercentric
+43;527.108;Altercentric
+44;493.567;Altercentric
+45;516.376;Altercentric
+46;504.478;Altercentric
+47;496.267;Altercentric
+48;510.773;Altercentric
+49;500.413;Altercentric
+50;507.021;Altercentric
+Time: 84.03s	best: 484.941	iteration: 40
+
+File: inputs/examples/eil51.cities Type: ca Ants: 100 Iterations: 50
+1;443.383;Classic
+2;443.383;Classic
+3;492.012;Classic
+4;464.450;Classic
+5;495.896;Classic
+6;487.844;Classic
+7;495.896;Classic
+8;487.844;Classic
+9;487.844;Classic
+10;487.844;Classic
+11;487.844;Classic
+12;495.896;Classic
+13;487.844;Classic
+14;495.896;Classic
+15;487.844;Classic
+16;487.844;Classic
+17;495.896;Classic
+18;487.844;Classic
+19;487.844;Classic
+20;487.844;Classic
+21;487.844;Classic
+22;487.844;Classic
+23;487.844;Classic
+24;495.896;Classic
+25;487.844;Classic
+26;487.844;Classic
+27;509.091;Classic
+28;487.844;Classic
+29;487.844;Classic
+30;487.844;Classic
+31;487.844;Classic
+32;487.844;Classic
+33;487.844;Classic
+34;487.844;Classic
+35;487.844;Classic
+36;487.844;Classic
+37;487.844;Classic
+38;487.844;Classic
+39;487.844;Classic
+40;487.844;Classic
+41;487.844;Classic
+42;495.896;Classic
+43;487.844;Classic
+44;487.844;Classic
+45;487.844;Classic
+46;509.091;Classic
+47;487.844;Classic
+48;487.844;Classic
+49;487.844;Classic
+50;487.844;Classic
+Time: 112.43s	best: 443.383	iteration: 1
+
