@@ -1,6 +1,6 @@
 import random
 
-from aco_solver.sequential.commons import Path
+from aco_solver.algorithm.commons import Path
 
 
 class Ant(object):

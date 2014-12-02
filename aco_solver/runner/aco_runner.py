@@ -3,11 +3,11 @@ from optparse import OptionParser
 import random
 import math
 
-from aco_solver.core.cities_reader import CitiesReader
-from aco_solver.sequential.ant_colony import AntColony
-from aco_solver.sequential.ants import GCAnt, BCAnt, ACAnt, ECAnt, GreedyAnt, ClassicAnt
-from aco_solver.sequential.commons import Path
-from aco_solver.sequential.graph import Graph
+from aco_solver.utils.cities_reader import CitiesReader
+from aco_solver.algorithm.ant_colony import AntColony
+from aco_solver.algorithm.ant import GCAnt, BCAnt, ACAnt, ECAnt, GreedyAnt, ClassicAnt
+from aco_solver.algorithm.commons import Path
+from aco_solver.algorithm.graph import Graph
 
 
 def generate_greedy_ants(total_number_of_ants, city_graph, alpha, beta):
