@@ -1,10 +1,10 @@
 class Graph(object):
-    def __init__(self, distance_matrix, rho, q):
+    def __init__(self, distance_matrix, pheromone_evaporation, pheromone_deposit, init_pheromone_value):
         number_of_cities = len(distance_matrix)
 
         cities = []
         for city_id in range(number_of_cities):
-            cities.append(City(city_id))
+            cities.append(City(city_id, init_pheromone_value))
 
         for i in range(number_of_cities):
             present_city = cities[i]
@@ -17,9 +17,8 @@ class Graph(object):
         self.cities = cities
         self.number_of_cities = number_of_cities
 
-        self.pheromone_evaporation = rho
-        self.pheromone_deposit = q
-        # print 1.0/self.compute_average_distance()
+        self.pheromone_evaporation = pheromone_evaporation
+        self.pheromone_deposit = pheromone_deposit
 
     def update_pheromones(self, ant):
         # increase value for visited connections
@@ -33,36 +32,15 @@ class Graph(object):
             for connection in city.connection_list:
                 connection.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
-    def compute_average_distance(self):
-
-        total_distance = 0.0
-        number_of_connections = 0
-
-        connection_queue = []
-        visited_cities = [self.cities[0]]
-        connection_queue.extend(self.cities[0].connection_list)
-
-        while connection_queue:
-            connection = connection_queue.pop(0)
-            total_distance += connection.distance
-            number_of_connections += 1
-
-            if connection.destination_city in visited_cities:
-                continue
-            else:
-                connection_queue.extend(connection.destination_city.connection_list)
-                visited_cities.append(connection.destination_city)
-
-        return total_distance / number_of_connections
-
 
 class City(object):
-    def __init__(self, city_id, connection_list=None):
+    def __init__(self, city_id, init_pheromone_value, connection_list=None):
         if not connection_list:
             connection_list = []
 
         self.city_id = city_id
         self.connection_list = connection_list
+        self.init_pheromone_value = init_pheromone_value
 
     def add_connection(self, connection):
         if connection.destination_city.city_id == self.city_id:
@@ -71,7 +49,7 @@ class City(object):
         self.connection_list.append(connection)
 
     def create_and_add_connection(self, distance, destination_city):
-        self.add_connection(Connection(distance, destination_city))
+        self.add_connection(Connection(distance, destination_city, self.init_pheromone_value))
 
     def find_connection_to_city(self, city):
         for connection in self.connection_list:
@@ -87,17 +65,17 @@ class City(object):
 
 
 class Connection(object):
-    def __init__(self, distance, destination_city):
+    def __init__(self, distance, destination_city, init_pheromone_value):
         self.distance = distance
         self.destination_city = destination_city
-        self.pheromone = Pheromone()
+        self.pheromone = Pheromone(init_pheromone_value)
 
     def accept_visitor(self, visitor, pheromone_value):
         visitor.visit(self, pheromone_value)
 
 
 class Pheromone(object):
-    def __init__(self, init_value=0.000584553657222 ** 2):
+    def __init__(self, init_value):
         self.ac_pheromone = init_value
         self.ec_pheromone = init_value
         self.gc_pheromone = init_value
@@ -138,3 +116,37 @@ class Pheromone(object):
     def __update_total_pheromone(self):
         self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
                                + self.unknown_pheromone
+
+
+def compute_average_distance(distance_matrix):
+    total_distance = 0.0
+    number_of_connections = 0
+
+    connection_queue = []
+    visited_cities = [0]
+
+    connection_queue.extend(get_connection_list(0, distance_matrix))
+
+    while connection_queue:
+        (source_id, destination_id) = connection_queue.pop(0)
+
+        total_distance += distance_matrix[source_id][destination_id]
+        number_of_connections += 1
+
+        if destination_id in visited_cities:
+            continue
+        else:
+            connection_queue.extend(get_connection_list(destination_id, distance_matrix))
+            visited_cities.append(destination_id)
+
+    return total_distance / number_of_connections
+
+
+def get_connection_list(city_id, distance_matrix):
+    connection_list = []
+
+    for destination_id in range(len(distance_matrix[city_id])):
+        if distance_matrix[city_id][destination_id] is not None:
+            connection_list.append((city_id, destination_id))
+
+    return connection_list
