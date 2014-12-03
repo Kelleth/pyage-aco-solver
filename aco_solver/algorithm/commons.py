@@ -23,5 +23,11 @@ class Path(object):
         else:
             return 0
 
+    def get_points(self):
+        points = []
+        for city in self.get_cities_list():
+            points.append(city.get_position())
+        return points
+
     def __str__(self):
         return 'Distance {}, path {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])

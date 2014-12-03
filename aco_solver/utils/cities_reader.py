@@ -21,3 +21,6 @@ class CitiesReader:
             for idxTo, cityTo in enumerate(self.cities_positions):
                 matrix[idxFrom][idxTo] = math.sqrt((cityFrom[0] - cityTo[0]) ** 2 + (cityFrom[1] - cityTo[1]) ** 2)
         return matrix
+
+    def get_positions(self):
+        return self.cities_positions

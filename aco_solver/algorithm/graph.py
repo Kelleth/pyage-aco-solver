@@ -1,10 +1,10 @@
 class Graph(object):
-    def __init__(self, distance_matrix, pheromone_evaporation, pheromone_deposit, init_pheromone_value):
+    def __init__(self, distance_matrix, positions, pheromone_evaporation, pheromone_deposit, init_pheromone_value):
         number_of_cities = len(distance_matrix)
 
         cities = []
         for city_id in range(number_of_cities):
-            cities.append(City(city_id, init_pheromone_value))
+            cities.append(City(city_id, positions[city_id], init_pheromone_value))
 
         for i in range(number_of_cities):
             present_city = cities[i]
@@ -34,13 +34,14 @@ class Graph(object):
 
 
 class City(object):
-    def __init__(self, city_id, init_pheromone_value, connection_list=None):
+    def __init__(self, city_id, position, init_pheromone_value, connection_list=None):
         if not connection_list:
             connection_list = []
 
         self.city_id = city_id
         self.connection_list = connection_list
         self.init_pheromone_value = init_pheromone_value
+        self.position = position
 
     def add_connection(self, connection):
         if connection.destination_city.city_id == self.city_id:
@@ -56,6 +57,9 @@ class City(object):
             if connection.destination_city == city:
                 return connection
         raise RuntimeError('Connection from city {} to city {} not found'.format(self.city_id, city.city_id))
+
+    def get_position(self):
+        return self.position
 
     def __eq__(self, other):
         if isinstance(other, City):

@@ -4,6 +4,9 @@ import math
 
 from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
 from aco_solver.algorithm.commons import Path
+import matplotlib.pyplot as plt
+import matplotlib.path as ph
+import matplotlib.patches as patches
 
 
 class AntColony:
@@ -44,6 +47,16 @@ class AntColony:
             if print_fitness:
                 output_string += '{};{:.3f};{}\n'.format(iteration + 1, iteration_best_path.distance,
                                                          iteration_best_ant)
+
+            verts = iteration_best_path.get_points()
+            verts.append((0,0))
+            path = ph.Path(verts)
+            x, y = zip(*path.vertices[:-1])
+            fig, ax = plt.subplots()
+            ax.plot(x, y, 'go', ms=10)
+            ax.plot(x, y, '-k')
+            plt.savefig("path_"+ ("0" if iteration<9 else "") + str(iteration+1)+".png")
+            plt.close()
 
         output_string += 'Time: {:.2f}s\tbest: {:.3f}\titeration: {}\n'.format(time.time() - start_time,
                                                                                self.best_path.distance,
