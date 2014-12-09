@@ -67,21 +67,18 @@ if __name__ == "__main__":
     queue = Queue()
     for i in range(options.p):
         processes.append(Process(target=start_simulation, args=(
-            ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha, options.beta,
-            queue,)))
+            ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+            options.beta, queue,)))
     for i in range(options.p):
         processes[i].start()
     for i in range(options.p):
         processes[i].join()
 
     best_result = None
-    output_string = None
-
     while not queue.empty():
-        (new_output, new_result) = queue.get()
+        new_result = queue.get()
 
-        if best_result is None or new_result < best_result:
+        if best_result is None or new_result.best_path < best_result.best_path:
             best_result = new_result
-            output_string = new_output
 
-    print output_string
+    print best_result.fitness

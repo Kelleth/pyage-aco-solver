@@ -4,9 +4,75 @@ import math
 
 from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
 from aco_solver.algorithm.commons import Path
-import matplotlib.pyplot as plt
-import matplotlib.path as ph
-import matplotlib.patches as patches
+
+
+class Result(object):
+    def __init__(self, fitness, computation_time, best_path, iteration):
+        self.fitness = fitness
+        self.computation_time = computation_time
+        self.best_path = best_path
+        self.iteration = iteration
+
+
+class Fitness(object):
+    def __init__(self):
+        self.separator = ';'
+        self.best_key = 'Best'
+        self.current_iteration = 0
+
+        self.map = dict()
+        self.map[ClassicAnt.__name__] = []
+        self.map[ECAnt.__name__] = []
+        self.map[ACAnt.__name__] = []
+        self.map[GCAnt.__name__] = []
+        self.map[BCAnt.__name__] = []
+        self.map[self.best_key] = []
+
+    def increase_iteration(self):
+        iteration_best = None
+
+        for key in self.map:
+            if key == self.best_key or not self.map[key]:
+                continue
+
+            if iteration_best is None or self.map[key][-1] < iteration_best:
+                iteration_best = self.map[key][-1]
+
+        self.map[self.best_key].append(iteration_best)
+        self.current_iteration += 1
+
+    def update_fitness(self, ant):
+        fitness_list = self.map[ant.__class__.__name__]
+
+        current_best = None
+        if len(fitness_list) > self.current_iteration:
+            current_best = fitness_list[self.current_iteration]
+
+        ant_distance = ant.path.distance
+        if current_best is None:
+            fitness_list.append(ant_distance)
+        elif ant_distance < current_best:
+            fitness_list[self.current_iteration] = ant_distance
+
+    def __repr__(self):
+        output_string = 'Iteration'
+        for key in sorted(self.map):
+            output_string += self.separator + key
+        output_string += '\n'
+
+        for i in range(self.current_iteration):
+            output_string += str(i + 1)
+
+            for key in sorted(self.map):
+                fitness = ''
+                if self.map[key]:
+                    fitness = str(self.map[key][i])
+
+                output_string += self.separator + fitness
+
+            output_string += '\n'
+
+        return output_string
 
 
 class AntColony:
@@ -17,51 +83,38 @@ class AntColony:
         self.best_path = None
         self.best_path_iteration = None
 
-    def start_simulation(self, print_fitness=True):
-
-        output_string = ''
+    def start_simulation(self):
         start_time = time.time()
+        fitness = Fitness()
 
         for iteration in range(self.iterations):
             # shuffle ants
             random.shuffle(self.ants)
 
-            iteration_best_ant = None
-            iteration_best_path = None
-
             for ant in self.ants:
                 new_path = ant.find_path()
 
-                if iteration_best_path is None or new_path < iteration_best_path:
-                    iteration_best_path = new_path
-                    iteration_best_ant = ant
-
-                    if self.best_path is None or new_path < self.best_path:
-                        self.best_path = new_path
-                        self.best_path_iteration = iteration + 1
+                if self.best_path is None or new_path < self.best_path:
+                    self.best_path = new_path
+                    self.best_path_iteration = iteration + 1
 
                 self.graph.update_pheromones(ant)
+                fitness.update_fitness(ant)
 
             self.graph.evaporate_pheromones()
+            fitness.increase_iteration()
 
-            if print_fitness:
-                output_string += '{};{:.3f};{}\n'.format(iteration + 1, iteration_best_path.distance,
-                                                         iteration_best_ant)
-
-            verts = iteration_best_path.get_points()
-            verts.append((0,0))
-            path = ph.Path(verts)
-            x, y = zip(*path.vertices[:-1])
-            fig, ax = plt.subplots()
-            ax.plot(x, y, 'go', ms=10)
-            ax.plot(x, y, '-k')
-            plt.savefig("path_"+ ("0" if iteration<9 else "") + str(iteration+1)+".png")
-            plt.close()
-
-        output_string += 'Time: {:.2f}s\tbest: {:.3f}\titeration: {}\n'.format(time.time() - start_time,
-                                                                               self.best_path.distance,
-                                                                               self.best_path_iteration)
-        return output_string, self.best_path.distance
+            # verts = iteration_best_path.get_points()
+            # verts.append((0, 0))
+            # path = ph.Path(verts)
+            # x, y = zip(*path.vertices[:-1])
+            # fig, ax = plt.subplots()
+            # ax.plot(x, y, 'go', ms=10)
+            # ax.plot(x, y, '-k')
+            # plt.savefig("path_" + ("0" if iteration < 9 else "") + str(iteration + 1) + ".png")
+            # plt.close()
+        print fitness
+        return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration)
 
     def __repr__(self):
         output = 'Colony population:\n'
