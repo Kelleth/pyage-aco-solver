@@ -8,7 +8,7 @@ class CitiesReader:
         self.cities_positions = []
 
     def read_file(self):
-        with open(self.file_name, "r") as f:
+        with open('inputs/examples/'+self.file_name+'.cities', "r") as f:
             lines = f.readlines()
             self.cities_count = len(lines)
             for line in lines:

@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Manager
 from optparse import OptionParser
 
 from aco_solver.algorithm import graph
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
 
     processes = []
-    queue = Queue()
+    queue = Manager().Queue(options.p)
     for i in range(options.p):
         processes.append(Process(target=start_simulation, args=(
             ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
@@ -77,8 +77,10 @@ if __name__ == "__main__":
     best_result = None
     while not queue.empty():
         new_result = queue.get()
-
         if best_result is None or new_result.best_path < best_result.best_path:
             best_result = new_result
 
-    print best_result.fitness
+    print best_result
+    f = open('outputs/'+cities_filename+'_'+str(ants_count)+'_'+str(iterations)+'_'+options.type+'.dat', 'w')
+    f.write(str(best_result.fitness))
+    f.close()

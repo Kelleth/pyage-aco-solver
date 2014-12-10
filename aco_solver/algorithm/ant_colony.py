@@ -13,6 +13,15 @@ class Result(object):
         self.best_path = best_path
         self.iteration = iteration
 
+    def __str__(self):
+        output_string = str(self.fitness)
+        output_string += '\nBest iteration: '
+        output_string += str(self.iteration)
+        output_string += '\nComputation time: '
+        output_string += str(self.computation_time)
+        output_string += '\nBest path: '
+        output_string += str(self.best_path)
+        return output_string
 
 class Fitness(object):
     def __init__(self):
@@ -54,7 +63,7 @@ class Fitness(object):
         elif ant_distance < current_best:
             fitness_list[self.current_iteration] = ant_distance
 
-    def __repr__(self):
+    def __str__(self):
         output_string = 'Iteration'
         for key in sorted(self.map):
             output_string += self.separator + key
@@ -113,7 +122,7 @@ class AntColony:
             # ax.plot(x, y, '-k')
             # plt.savefig("path_" + ("0" if iteration < 9 else "") + str(iteration + 1) + ".png")
             # plt.close()
-        print fitness
+        #print fitness
         return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration)
 
     def __repr__(self):
