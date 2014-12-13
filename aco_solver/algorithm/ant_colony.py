@@ -14,14 +14,19 @@ class Result(object):
         self.iteration = iteration
 
     def __str__(self):
-        output_string = str(self.fitness)
-        output_string += '\nBest iteration: '
-        output_string += str(self.iteration)
-        output_string += '\nComputation time: '
-        output_string += str(self.computation_time)
-        output_string += '\nBest path: '
-        output_string += str(self.best_path)
+        output_string = 'Best distance: '
+        output_string += str(self.best_path.distance) + '\n'
+        output_string += 'Best path: '
+        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
+        output_string += 'Best iteration:'
+        output_string += str(self.iteration) + '\n'
+        output_string += 'Computation time:'
+        output_string += str(self.computation_time) + '\n'
+
+        output_string += str(self.fitness)
+
         return output_string
+
 
 class Fitness(object):
     def __init__(self):
@@ -122,7 +127,7 @@ class AntColony:
             # ax.plot(x, y, '-k')
             # plt.savefig("path_" + ("0" if iteration < 9 else "") + str(iteration + 1) + ".png")
             # plt.close()
-        #print fitness
+        # print fitness
         return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration)
 
     def __repr__(self):

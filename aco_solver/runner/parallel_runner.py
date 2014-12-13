@@ -1,5 +1,6 @@
 from multiprocessing import Process, Manager
 from optparse import OptionParser
+import os
 
 from aco_solver.algorithm import graph
 from aco_solver.utils.cities_reader import CitiesReader
@@ -79,8 +80,15 @@ if __name__ == "__main__":
         new_result = queue.get()
         if best_result is None or new_result.best_path < best_result.best_path:
             best_result = new_result
-
     print best_result
-    f = open('outputs/'+cities_filename+'_'+str(ants_count)+'_'+str(iterations)+'_'+options.type+'.dat', 'w')
-    f.write(str(best_result.fitness))
+
+    output_directory_name = "outputs/"
+    if not os.path.exists(output_directory_name):
+        os.makedirs(output_directory_name)
+
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '.dat', 'w')
+    f.write(str(best_result))
     f.close()
