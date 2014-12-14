@@ -6,6 +6,19 @@ from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
 from aco_solver.algorithm.commons import Path
 
 
+def get_population_fullname(abbreviation):
+    if abbreviation == 'ca':
+        return 'Classic Ants'
+    elif abbreviation == 'cs':
+        return 'Control Sample'
+    elif abbreviation == 'gc':
+        return 'Guilt Condition'
+    elif abbreviation == 'ac':
+        return 'Anger Condition'
+    else:
+        raise RuntimeError('Unknown population: ' + abbreviation)
+
+
 class Result(object):
     def __init__(self, fitness, computation_time, best_path, iteration):
         self.fitness = fitness
