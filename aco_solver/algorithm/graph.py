@@ -61,6 +61,9 @@ class City(object):
     def get_position(self):
         return self.position
 
+    def get_position_string(self):
+        return str(self.position[0]) + ";" + str(self.position[1])
+
     def __eq__(self, other):
         if isinstance(other, City):
             return self.city_id == other.city_id

@@ -29,5 +29,12 @@ class Path(object):
             points.append(city.get_position())
         return points
 
+    def get_points_gnuplot(self):
+        points = []
+        for city in self.get_cities_list():
+            points.append(city.get_position_string())
+
+        return '\n'.join(points)
+
     def __str__(self):
         return 'Distance {}, path {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])

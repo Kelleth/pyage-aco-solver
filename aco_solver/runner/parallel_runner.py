@@ -1,4 +1,4 @@
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Pipe
 from optparse import OptionParser
 import os
 
@@ -9,7 +9,7 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, GuiltConditionC
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, queue):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe):
     colony = None
 
     if type == "cs":  # control sample
@@ -25,7 +25,10 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         graph = Graph(distance_matrix, positions, rho, q, 0.01)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
 
-    queue.put(colony.start_simulation())
+    result = colony.start_simulation()
+    pipe.send(result.best_path.distance)
+    pipe.send(str(result))
+    pipe.send(str(result.best_path.get_points_gnuplot()))
 
 
 def create_graph_with_default_pheromone_value(cities_distances, positions, rho, q):
@@ -65,22 +68,27 @@ if __name__ == "__main__":
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
 
     processes = []
-    queue = Manager().Queue(options.p)
+    pipes = []
+    for i in range(options.p):
+        pipes.append(Pipe(False))
     for i in range(options.p):
         processes.append(Process(target=start_simulation, args=(
             ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-            options.beta, queue,)))
+            options.beta, pipes[i][1],)))
     for i in range(options.p):
         processes[i].start()
-    for i in range(options.p):
-        processes[i].join()
 
     best_result = None
-    while not queue.empty():
-        new_result = queue.get()
-        if best_result is None or new_result.best_path < best_result.best_path:
+    best_dist = None
+    best_path = None
+    for i in range(options.p):
+        new_dist = pipes[i][0].recv()
+        new_result = pipes[i][0].recv()
+        new_path = pipes[i][0].recv()
+        if best_result is None or new_dist < best_dist:
             best_result = new_result
-    print best_result
+            best_dist = new_dist
+            best_path = new_path
 
     output_directory_name = "outputs/"
     if not os.path.exists(output_directory_name):
@@ -90,5 +98,14 @@ if __name__ == "__main__":
              + str(ants_count) + '_'
              + str(iterations) + '_'
              + options.type + '.dat', 'w')
-    f.write(str(best_result))
+    f.write(best_result)
     f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '_path.dat', 'w')
+    f.write(best_path)
+    f.close()
+
+    for i in range(options.p):
+        processes[i].join()
