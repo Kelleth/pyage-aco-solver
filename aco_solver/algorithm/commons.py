@@ -8,11 +8,13 @@ class Path(object):
         total_distance = 0.0
         for connection in connection_list:
             total_distance += connection.distance
+        total_distance += connection_list[-1].destination_city.find_connection_to_city(self.start_city).distance
         return total_distance
 
     def get_cities_list(self):
         cities = [self.start_city]
         cities.extend(connection.destination_city for connection in self.connection_list)
+        cities.append(self.start_city)
         return cities
 
     def __cmp__(self, other):
