@@ -40,6 +40,20 @@ class Result(object):
 
         return output_string
 
+    def fitness_to_string(self):
+        output_string = 'Best distance: '
+        output_string += str(self.best_path.distance) + '\n'
+        output_string += 'Best path: '
+        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
+        output_string += 'Best iteration:'
+        output_string += str(self.iteration) + '\n'
+        output_string += 'Computation time:'
+        output_string += str(self.computation_time) + '\n'
+
+        output_string += self.fitness.fitness_to_string()
+
+        return output_string
+
 
 class Fitness(object):
     def __init__(self):
@@ -80,6 +94,36 @@ class Fitness(object):
             fitness_list.append(ant_distance)
         elif ant_distance < current_best:
             fitness_list[self.current_iteration] = ant_distance
+
+    def fitness_to_string(self):
+        output_string = 'Iteration'
+        for key in sorted(self.map):
+            output_string += self.separator + key
+        output_string += '\n'
+
+        current_best = dict()
+        current_best[ClassicAnt.__name__] = None
+        current_best[ECAnt.__name__] = None
+        current_best[ACAnt.__name__] = None
+        current_best[GCAnt.__name__] = None
+        current_best[BCAnt.__name__] = None
+        current_best[self.best_key] = None
+
+        for i in range(self.current_iteration):
+            output_string += str(i + 1)
+
+            for key in sorted(self.map):
+                fitness = ''
+                if self.map[key]:
+                    if current_best[key] is None or self.map[key][i] < current_best[key]:
+                        current_best[key] = self.map[key][i]
+                    fitness = str(current_best[key])
+
+                output_string += self.separator + fitness
+
+            output_string += '\n'
+
+        return output_string
 
     def __str__(self):
         output_string = 'Iteration'

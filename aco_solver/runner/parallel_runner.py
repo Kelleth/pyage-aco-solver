@@ -28,6 +28,7 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
     result = colony.start_simulation()
     pipe.send(result.best_path.distance)
     pipe.send(str(result))
+    pipe.send(result.fitness_to_string())
     pipe.send(str(result.best_path.get_points_gnuplot()))
 
 
@@ -80,14 +81,17 @@ if __name__ == "__main__":
 
     best_result = None
     best_dist = None
+    best_fitness = None
     best_path = None
     for i in range(options.p):
         new_dist = pipes[i][0].recv()
         new_result = pipes[i][0].recv()
+        new_fitness = pipes[i][0].recv()
         new_path = pipes[i][0].recv()
         if best_result is None or new_dist < best_dist:
             best_result = new_result
             best_dist = new_dist
+            best_fitness = new_fitness
             best_path = new_path
 
     output_directory_name = "outputs/"
@@ -99,6 +103,12 @@ if __name__ == "__main__":
              + str(iterations) + '_'
              + options.type + '.dat', 'w')
     f.write(best_result)
+    f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '_fitness.dat', 'w')
+    f.write(best_fitness)
     f.close()
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
