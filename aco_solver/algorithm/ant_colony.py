@@ -4,6 +4,7 @@ import math
 
 from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
 from aco_solver.algorithm.commons import Path
+from aco_solver.algorithm.results import Result, Fitness
 
 
 def get_population_fullname(abbreviation):
@@ -17,133 +18,6 @@ def get_population_fullname(abbreviation):
         return 'Anger Condition'
     else:
         raise RuntimeError('Unknown population: ' + abbreviation)
-
-
-class Result(object):
-    def __init__(self, fitness, computation_time, best_path, iteration):
-        self.fitness = fitness
-        self.computation_time = computation_time
-        self.best_path = best_path
-        self.iteration = iteration
-
-    def __str__(self):
-        output_string = 'Best distance: '
-        output_string += str(self.best_path.distance) + '\n'
-        output_string += 'Best path: '
-        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
-        output_string += 'Best iteration:'
-        output_string += str(self.iteration) + '\n'
-        output_string += 'Computation time:'
-        output_string += str(self.computation_time) + '\n'
-
-        output_string += str(self.fitness)
-
-        return output_string
-
-    def fitness_to_string(self):
-        output_string = 'Best distance: '
-        output_string += str(self.best_path.distance) + '\n'
-        output_string += 'Best path: '
-        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
-        output_string += 'Best iteration:'
-        output_string += str(self.iteration) + '\n'
-        output_string += 'Computation time:'
-        output_string += str(self.computation_time) + '\n'
-
-        output_string += self.fitness.fitness_to_string()
-
-        return output_string
-
-
-class Fitness(object):
-    def __init__(self):
-        self.separator = ';'
-        self.best_key = 'Best'
-        self.current_iteration = 0
-
-        self.map = dict()
-        self.map[ClassicAnt.__name__] = []
-        self.map[ECAnt.__name__] = []
-        self.map[ACAnt.__name__] = []
-        self.map[GCAnt.__name__] = []
-        self.map[BCAnt.__name__] = []
-        self.map[self.best_key] = []
-
-    def increase_iteration(self):
-        iteration_best = None
-
-        for key in self.map:
-            if key == self.best_key or not self.map[key]:
-                continue
-
-            if iteration_best is None or self.map[key][-1] < iteration_best:
-                iteration_best = self.map[key][-1]
-
-        self.map[self.best_key].append(iteration_best)
-        self.current_iteration += 1
-
-    def update_fitness(self, ant):
-        fitness_list = self.map[ant.__class__.__name__]
-
-        current_best = None
-        if len(fitness_list) > self.current_iteration:
-            current_best = fitness_list[self.current_iteration]
-
-        ant_distance = ant.path.distance
-        if current_best is None:
-            fitness_list.append(ant_distance)
-        elif ant_distance < current_best:
-            fitness_list[self.current_iteration] = ant_distance
-
-    def fitness_to_string(self):
-        output_string = 'Iteration'
-        for key in sorted(self.map):
-            output_string += self.separator + key
-        output_string += '\n'
-
-        current_best = dict()
-        current_best[ClassicAnt.__name__] = None
-        current_best[ECAnt.__name__] = None
-        current_best[ACAnt.__name__] = None
-        current_best[GCAnt.__name__] = None
-        current_best[BCAnt.__name__] = None
-        current_best[self.best_key] = None
-
-        for i in range(self.current_iteration):
-            output_string += str(i + 1)
-
-            for key in sorted(self.map):
-                fitness = ''
-                if self.map[key]:
-                    if current_best[key] is None or self.map[key][i] < current_best[key]:
-                        current_best[key] = self.map[key][i]
-                    fitness = str(current_best[key])
-
-                output_string += self.separator + fitness
-
-            output_string += '\n'
-
-        return output_string
-
-    def __str__(self):
-        output_string = 'Iteration'
-        for key in sorted(self.map):
-            output_string += self.separator + key
-        output_string += '\n'
-
-        for i in range(self.current_iteration):
-            output_string += str(i + 1)
-
-            for key in sorted(self.map):
-                fitness = ''
-                if self.map[key]:
-                    fitness = str(self.map[key][i])
-
-                output_string += self.separator + fitness
-
-            output_string += '\n'
-
-        return output_string
 
 
 class AntColony:
@@ -185,7 +59,7 @@ class AntColony:
             # plt.savefig("path_" + ("0" if iteration < 9 else "") + str(iteration + 1) + ".png")
             # plt.close()
         # print fitness
-        return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration)
+        return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations)
 
     def __repr__(self):
         output = 'Colony population:\n'
