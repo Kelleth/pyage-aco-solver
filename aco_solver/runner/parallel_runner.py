@@ -1,5 +1,6 @@
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Pipe
 from optparse import OptionParser
+import os
 
 from aco_solver.algorithm import graph
 from aco_solver.utils.cities_reader import CitiesReader
@@ -8,27 +9,31 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, GuiltConditionC
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, rho, q, type, alpha, beta, queue):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe):
     colony = None
 
     if type == "cs":  # control sample
-        graph = create_graph_with_default_pheromone_value(distance_matrix, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = ControlSampleColony(ants_count, graph, iterations)
     elif type == "gc":  # guilt condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = GuiltConditionColony(ants_count, graph, iterations)
     elif type == "ac":  # anger condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = AngerConditionColony(ants_count, graph, iterations)
     elif type == "ca":  # classical ants
-        graph = Graph(distance_matrix, rho, q, 0.01)
+        graph = Graph(distance_matrix, positions, rho, q, 0.01)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
 
-    queue.put(colony.start_simulation())
+    result = colony.start_simulation()
+    pipe.send(result.best_path.distance)
+    pipe.send(str(result))
+    pipe.send(result.fitness_to_string())
+    pipe.send(str(result.best_path.get_points_gnuplot()))
 
 
-def create_graph_with_default_pheromone_value(cities_distances, rho, q):
-    return Graph(cities_distances, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0)
+def create_graph_with_default_pheromone_value(cities_distances, positions, rho, q):
+    return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0)
 
 
 if __name__ == "__main__":
@@ -59,28 +64,58 @@ if __name__ == "__main__":
     cities_reader = CitiesReader(cities_filename)
     cities_reader.read_file()
     distance_matrix = cities_reader.create_distance_matrix()
+    positions = cities_reader.get_positions()
 
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
 
     processes = []
-    queue = Queue()
+    pipes = []
+    for i in range(options.p):
+        pipes.append(Pipe(False))
     for i in range(options.p):
         processes.append(Process(target=start_simulation, args=(
-            ants_count, iterations, distance_matrix, options.rho, options.q, options.type, options.alpha, options.beta,
-            queue,)))
+            ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+            options.beta, pipes[i][1],)))
     for i in range(options.p):
         processes[i].start()
-    for i in range(options.p):
-        processes[i].join()
 
     best_result = None
-    output_string = None
-
-    while not queue.empty():
-        (new_output, new_result) = queue.get()
-
-        if best_result is None or new_result < best_result:
+    best_dist = None
+    best_fitness = None
+    best_path = None
+    for i in range(options.p):
+        new_dist = pipes[i][0].recv()
+        new_result = pipes[i][0].recv()
+        new_fitness = pipes[i][0].recv()
+        new_path = pipes[i][0].recv()
+        if best_result is None or new_dist < best_dist:
             best_result = new_result
-            output_string = new_output
+            best_dist = new_dist
+            best_fitness = new_fitness
+            best_path = new_path
 
-    print output_string
+    output_directory_name = "outputs/"
+    if not os.path.exists(output_directory_name):
+        os.makedirs(output_directory_name)
+
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '.dat', 'w')
+    f.write(best_result)
+    f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '_fitness.dat', 'w')
+    f.write(best_fitness)
+    f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + options.type + '_path.dat', 'w')
+    f.write(best_path)
+    f.close()
+
+    for i in range(options.p):
+        processes[i].join()

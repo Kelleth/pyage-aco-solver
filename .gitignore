@@ -2,6 +2,10 @@
 .idea/
 *.iml
 
+# Algorithm output files
+*.png
+*.dat
+
 
 ### Python template
 # Byte-compiled / optimized / DLL files
