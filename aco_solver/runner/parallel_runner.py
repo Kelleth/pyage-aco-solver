@@ -4,7 +4,6 @@ import os
 import pickle
 
 from aco_solver.algorithm import graph
-
 from aco_solver.algorithm.results import ResultConverter
 from aco_solver.utils.cities_reader import CitiesReader
 from aco_solver.algorithm.ant_colony import ControlSampleColony, GuiltConditionColony, AngerConditionColony, \
@@ -93,10 +92,18 @@ if __name__ == "__main__":
     if not os.path.exists(output_directory_name):
         os.makedirs(output_directory_name)
 
+    for i in range(len(result_list)):
+        f = open(output_directory_name + cities_filename + '_'
+                 + str(ants_count) + '_'
+                 + str(iterations) + '_'
+                 + options.type + '_' + str(i) + '.dat', 'w')
+        f.write(str(result_list[i]))
+        f.close()
+
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
              + str(iterations) + '_'
-             + options.type + '.dat', 'w')
+             + options.type + '_best.dat', 'w')
     f.write(str(best_result))
     f.close()
 
