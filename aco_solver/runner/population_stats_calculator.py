@@ -4,11 +4,23 @@ import re
 
 import numpy
 
+from aco_solver.algorithm import ant_colony
+
 from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
 ant_populations = ['cs', 'ac', 'gc', 'ca']
+
+
+def generate_header_items():
+    header = []
+
+    for population_abbrev in ant_populations:
+        full_name = ant_colony.get_population_fullname(population_abbrev)
+        header.append(full_name)
+        header.append(full_name + " stdev")
+    return header
 
 
 def list_files_with_data(prefix, population_abbreviation, output_directory):
@@ -47,11 +59,7 @@ def compute_average_fitness_for_population(results, iterations):
 
 
 def generate_fitness_output(population_results, iterations, f):
-    temporary_array = []
-    for population_name in ant_populations:
-        temporary_array.append(population_name + '_avg')
-        temporary_array.append(population_name + '_stdev')
-    fitness_header = 'iteration' + separator + separator.join(temporary_array) + '\n'
+    fitness_header = 'Iteration' + separator + separator.join(generate_header_items()) + '\n'
 
     f.write(fitness_header)
 
@@ -74,14 +82,49 @@ def generate_fitness_output(population_results, iterations, f):
         f.write('\n')
 
 
+def compute_average_distance_for_population(results):
+    distance_list = [result.best_distance for result in results]
+
+    avg_distance = numpy.average(distance_list)
+    stdev_distance = numpy.std(distance_list)
+
+    return avg_distance, stdev_distance
+
+
+def compute_average_time_for_population(results):
+    time_list = [result.computation_time for result in results]
+
+    avg_time = numpy.average(time_list)
+    stdev_time = numpy.std(time_list)
+
+    return avg_time, stdev_time
+
+
+def generate_stats_output(population_results, f):
+    stats_header = 'Stat kind' + separator + separator.join(generate_header_items()) + '\n'
+    f.write(stats_header)
+
+    f.write('Best distance')
+    for _, value in population_results.iteritems():
+        avg_distance, stdev_distance = compute_average_distance_for_population(value)
+        f.write(separator + str(avg_distance) + separator + str(stdev_distance))
+    f.write('\n')
+
+    f.write('Computation time')
+    for _, value in population_results.iteritems():
+        avg_time, stdev_time = compute_average_time_for_population(value)
+        f.write(separator + str(avg_time) + separator + str(stdev_time))
+    f.write('\n')
+
+
 def main():
-    usage = "usage: %prog citiesFileName antsCount iterations resultsDir"
+    usage = "Usage: %prog citiesFileName antsCount iterations resultsDir"
 
     parser = OptionParser(usage=usage)
 
     (options, args) = parser.parse_args()
     if len(args) != 4:
-        parser.error("incorrect number of arguments")
+        parser.error("Incorrect number of arguments")
 
     cities_filename = args[0]
     ants_count = int(args[1])
@@ -97,7 +140,9 @@ def main():
 
         populations_results[ant_type] = type_results
 
-    f = open(directory + '/' + prefix + 'fitness_avg.dat', 'w')
+    f = open(directory + '/' + prefix + 'avg_summary.dat', 'w')
+    generate_stats_output(populations_results, f)
+    f.write('\n')
     generate_fitness_output(populations_results, iterations, f)
     f.close()
 
