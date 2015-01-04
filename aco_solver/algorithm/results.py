@@ -1,4 +1,4 @@
-import numpy
+# import numpy
 
 from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
 
@@ -43,78 +43,78 @@ class Result(object):
         return output_string
 
 
-class ResultConverter(object):
-    def __init__(self, result_list):
-        self.result_list = result_list
-
-    def covert_to_avg_results(self):
-        output_string = ''
-
-        avg_distance, stdev_distance = self.__compute_avg_distance()
-        output_string += 'Average distance: ' + str(avg_distance) + '\n'
-        output_string += 'Standard deviation distance: ' + str(stdev_distance) + '\n'
-
-        avg_time, stdev_time = self.__compute_avg_time()
-        output_string += 'Average time: ' + str(avg_time) + '\n'
-        output_string += 'Standard deviation time: ' + str(stdev_time) + '\n'
-
-        output_string += "Iteration" + fitness_separator
-        for fitness_key in fitness_keys:
-            output_string += fitness_key + fitness_separator
-            output_string += fitness_key + '_stdev' + fitness_separator
-        output_string += '\n'
-
-        avg_fitness_map = self.__compute_avg_fitness()
-        for i in range(self.result_list[0].max_iterations):
-            output_string += str(i)
-
-            for key in fitness_keys:
-                output_string += fitness_separator
-
-                if avg_fitness_map[key]:
-                    avg_fitness, stdev_fitness = avg_fitness_map[key][i]
-                    output_string += str(avg_fitness) + fitness_separator + str(stdev_fitness)
-                else:
-                    output_string += fitness_separator
-
-            output_string += '\n'
-
-        return output_string
-
-    def __compute_avg_distance(self):
-        distances = [result.best_path.distance for result in self.result_list]
-        mean = numpy.mean(distances)
-        stdev = numpy.std(distances)
-
-        return mean, stdev
-
-
-    def __compute_avg_time(self):
-        times = [result.computation_time for result in self.result_list]
-        mean = numpy.mean(times)
-        stdev = numpy.std(times)
-
-        return mean, stdev
-
-    def __compute_avg_fitness(self):
-        avg_fitness_map = dict()
-        for key in fitness_keys:
-            avg_fitness_map[key] = []
-
-        for fitness_iteration in range(self.result_list[0].max_iterations):
-
-            for key in fitness_keys:
-                if len(self.result_list[0].fitness.map[key]) == 0:
-                    continue
-
-                iteration_fitness = [result.fitness.map[key][fitness_iteration] for result in self.result_list]
-
-                mean = numpy.mean(iteration_fitness)
-                stdev = numpy.std(iteration_fitness)
-
-                avg_fitness_map[key].append((mean, stdev, ))
-
-        return avg_fitness_map
+# class ResultConverter(object):
+#     def __init__(self, result_list):
+#         self.result_list = result_list
+#
+#     def covert_to_avg_results(self):
+#         output_string = ''
+#
+#         avg_distance, stdev_distance = self.__compute_avg_distance()
+#         output_string += 'Average distance: ' + str(avg_distance) + '\n'
+#         output_string += 'Standard deviation distance: ' + str(stdev_distance) + '\n'
+#
+#         avg_time, stdev_time = self.__compute_avg_time()
+#         output_string += 'Average time: ' + str(avg_time) + '\n'
+#         output_string += 'Standard deviation time: ' + str(stdev_time) + '\n'
+#
+#         output_string += "Iteration" + fitness_separator
+#         for fitness_key in fitness_keys:
+#             output_string += fitness_key + fitness_separator
+#             output_string += fitness_key + '_stdev' + fitness_separator
+#         output_string += '\n'
+#
+#         avg_fitness_map = self.__compute_avg_fitness()
+#         for i in range(self.result_list[0].max_iterations):
+#             output_string += str(i)
+#
+#             for key in fitness_keys:
+#                 output_string += fitness_separator
+#
+#                 if avg_fitness_map[key]:
+#                     avg_fitness, stdev_fitness = avg_fitness_map[key][i]
+#                     output_string += str(avg_fitness) + fitness_separator + str(stdev_fitness)
+#                 else:
+#                     output_string += fitness_separator
+#
+#             output_string += '\n'
+#
+#         return output_string
+#
+#     def __compute_avg_distance(self):
+#         distances = [result.best_path.distance for result in self.result_list]
+#         mean = numpy.mean(distances)
+#         stdev = numpy.std(distances)
+#
+#         return mean, stdev
+#
+#
+#     def __compute_avg_time(self):
+#         times = [result.computation_time for result in self.result_list]
+#         mean = numpy.mean(times)
+#         stdev = numpy.std(times)
+#
+#         return mean, stdev
+#
+#     def __compute_avg_fitness(self):
+#         avg_fitness_map = dict()
+#         for key in fitness_keys:
+#             avg_fitness_map[key] = []
+#
+#         for fitness_iteration in range(self.result_list[0].max_iterations):
+#
+#             for key in fitness_keys:
+#                 if len(self.result_list[0].fitness.map[key]) == 0:
+#                     continue
+#
+#                 iteration_fitness = [result.fitness.map[key][fitness_iteration] for result in self.result_list]
+#
+#                 mean = numpy.mean(iteration_fitness)
+#                 stdev = numpy.std(iteration_fitness)
+#
+#                 avg_fitness_map[key].append((mean, stdev, ))
+#
+#         return avg_fitness_map
 
 
 class Fitness(object):
@@ -136,6 +136,18 @@ class Fitness(object):
             current_best = fitness_list[self.current_iteration]
 
         ant_distance = ant.path.distance
+        if current_best is None:
+            fitness_list.append(ant_distance)
+        elif ant_distance < current_best:
+            fitness_list[self.current_iteration] = ant_distance
+
+    def update_fitness_stats(self, ant_name, ant_distance):
+        fitness_list = self.map[ant_name]
+
+        current_best = None
+        if len(fitness_list) > self.current_iteration:
+            current_best = fitness_list[self.current_iteration]
+
         if current_best is None:
             fitness_list.append(ant_distance)
         elif ant_distance < current_best:
