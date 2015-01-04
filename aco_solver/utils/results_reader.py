@@ -3,7 +3,7 @@ separator = ';'
 
 
 def read_file(directory, filename):
-    f = open(directory + filename, 'r')
+    f = open(directory + '/' + filename, 'r')
 
     details = []
     lines = f.readlines()
@@ -17,7 +17,7 @@ def read_file(directory, filename):
         for i in range(1, 6):
             distance = distances[i]
             if distance:
-                fitness.update_fitness_stats(headers[i], distance)
+                fitness.update_fitness_stats(headers[i], float(distance))
         fitness.increase_iteration()
     result = results.Result(fitness, details[3], details[1], details[2], 100)
     f.close()
