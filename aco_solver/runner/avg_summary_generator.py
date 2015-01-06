@@ -5,7 +5,6 @@ import re
 import numpy
 
 from aco_solver.algorithm import ant_colony
-
 from aco_solver.utils.results_reader import read_file
 
 

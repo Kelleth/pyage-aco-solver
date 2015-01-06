@@ -2,6 +2,7 @@ from multiprocessing import Process, Pipe
 from optparse import OptionParser
 import os
 import pickle
+import sys
 
 from aco_solver.algorithm import graph
 from aco_solver.algorithm.results import ResultConverter
@@ -28,6 +29,8 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
 
     result = colony.start_simulation()
+    # to avoid problems with deep recursion while serializing large objects with pickle
+    sys.setrecursionlimit(30000)
     pipe.send(pickle.dumps(result))
 
 
@@ -35,7 +38,7 @@ def create_graph_with_default_pheromone_value(cities_distances, positions, rho, 
     return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0)
 
 
-if __name__ == "__main__":
+def main():
     usage = "usage: %prog [options] ants_count iterations citiesFileName"
 
     parser = OptionParser(usage=usage)
@@ -130,3 +133,7 @@ if __name__ == "__main__":
 
     for i in range(options.p):
         processes[i].join()
+
+
+if __name__ == "__main__":
+    main()

@@ -49,16 +49,6 @@ class AntColony:
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
 
-            # verts = iteration_best_path.get_points()
-            # verts.append((0, 0))
-            # path = ph.Path(verts)
-            # x, y = zip(*path.vertices[:-1])
-            # fig, ax = plt.subplots()
-            # ax.plot(x, y, 'go', ms=10)
-            # ax.plot(x, y, '-k')
-            # plt.savefig("path_" + ("0" if iteration < 9 else "") + str(iteration + 1) + ".png")
-            # plt.close()
-        # print fitness
         return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations)
 
     def __repr__(self):
