@@ -89,7 +89,6 @@ class ResultConverter(object):
 
         return mean, stdev
 
-
     def __compute_avg_time(self):
         times = [result.computation_time for result in self.result_list]
         mean = numpy.mean(times)

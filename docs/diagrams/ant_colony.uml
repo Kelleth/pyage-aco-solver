@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>Python</ID>
+  <OriginalElement>#D:/Studia/IO/pyage-aco-solver/aco_solver/algorithm/ant_colony.py</OriginalElement>
+  <nodes>
+    <node x="1067.0" y="239.0">aco_solver.algorithm.ant_colony.AltercentricCondition</node>
+    <node x="0.0" y="239.0">aco_solver.algorithm.ant_colony.ControlSampleColony</node>
+    <node x="487.75" y="0.0">aco_solver.algorithm.ant_colony.AntColony</node>
+    <node x="671.0" y="239.0">aco_solver.algorithm.ant_colony.ClassicAntColony</node>
+    <node x="334.0" y="239.0">aco_solver.algorithm.ant_colony.ConflictHandlingCondition</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="aco_solver.algorithm.ant_colony.ControlSampleColony" target="aco_solver.algorithm.ant_colony.AntColony">
+      <point x="0.0" y="-34.0" />
+      <point x="157.0" y="209.0" />
+      <point x="534.75" y="209.0" />
+      <point x="-141.0" y="94.5" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant_colony.AltercentricCondition" target="aco_solver.algorithm.ant_colony.AntColony">
+      <point x="0.0" y="-34.0" />
+      <point x="1224.0" y="209.0" />
+      <point x="816.75" y="209.0" />
+      <point x="141.0" y="94.5" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant_colony.ClassicAntColony" target="aco_solver.algorithm.ant_colony.AntColony">
+      <point x="0.0" y="-34.0" />
+      <point x="859.0" y="219.0" />
+      <point x="722.75" y="219.0" />
+      <point x="47.0" y="94.5" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant_colony.ConflictHandlingCondition" target="aco_solver.algorithm.ant_colony.AntColony">
+      <point x="0.0" y="-34.0" />
+      <point x="492.5" y="219.0" />
+      <point x="628.75" y="219.0" />
+      <point x="-47.0" y="94.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="623.0" y="151.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+</Diagram>
+

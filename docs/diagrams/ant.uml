@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>Python</ID>
+  <OriginalElement>#D:/Studia/IO/pyage-aco-solver/aco_solver/algorithm/ant.py</OriginalElement>
+  <nodes>
+    <node x="0.0" y="312.0">aco_solver.algorithm.ant.GoodConflictAnt</node>
+    <node x="841.0" y="234.0">aco_solver.algorithm.ant.BadConflictAnt</node>
+    <node x="256.0" y="312.0">aco_solver.algorithm.ant.EgocentricAnt</node>
+    <node x="611.0" y="234.0">aco_solver.algorithm.ant.GreedyAnt</node>
+    <node x="382.0" y="234.0">aco_solver.algorithm.ant.ShuffleAnt</node>
+    <node x="728.0" y="312.0">aco_solver.algorithm.ant.AltercentricAnt</node>
+    <node x="684.0" y="78.0">object</node>
+    <node x="501.0" y="312.0">aco_solver.algorithm.ant.ClassicAnt</node>
+    <node x="650.5" y="0.0">_abcoll.Hashable</node>
+    <node x="628.5" y="156.0">aco_solver.algorithm.ant.Ant</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="object" target="_abcoll.Hashable">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.ShuffleAnt" target="aco_solver.algorithm.ant.Ant">
+      <point x="0.0" y="-14.0" />
+      <point x="486.5" y="209.0" />
+      <point x="657.6666666666666" y="209.0" />
+      <point x="-58.33333333333337" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.AltercentricAnt" target="aco_solver.algorithm.ant.ShuffleAnt">
+      <point x="0.0" y="-14.0" />
+      <point x="843.0" y="282.0" />
+      <point x="564.875" y="282.0" />
+      <point x="78.375" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.GoodConflictAnt" target="aco_solver.algorithm.ant.ShuffleAnt">
+      <point x="0.0" y="-14.0" />
+      <point x="118.0" y="282.0" />
+      <point x="408.125" y="282.0" />
+      <point x="-78.375" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.GreedyAnt" target="aco_solver.algorithm.ant.Ant">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.EgocentricAnt" target="aco_solver.algorithm.ant.ShuffleAnt">
+      <point x="0.0" y="-14.0" />
+      <point x="368.5" y="292.0" />
+      <point x="460.375" y="292.0" />
+      <point x="-26.125" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.BadConflictAnt" target="aco_solver.algorithm.ant.Ant">
+      <point x="0.0" y="-14.0" />
+      <point x="955.5" y="209.0" />
+      <point x="774.3333333333334" y="209.0" />
+      <point x="58.33333333333337" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.Ant" target="object">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="aco_solver.algorithm.ant.ClassicAnt" target="aco_solver.algorithm.ant.ShuffleAnt">
+      <point x="0.0" y="-14.0" />
+      <point x="604.5" y="292.0" />
+      <point x="512.625" y="292.0" />
+      <point x="26.125" y="14.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="535.0" y="170.0" />
+  <SelectedNodes>
+    <node>object</node>
+  </SelectedNodes>
+  <Categories />
+</Diagram>
+

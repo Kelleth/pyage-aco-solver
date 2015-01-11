@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>Python</ID>
+  <OriginalElement>#D:/Studia/IO/pyage-aco-solver/aco_solver/algorithm/graph.py</OriginalElement>
+  <nodes>
+    <node x="0.0" y="862.0">aco_solver.algorithm.graph.Connection</node>
+    <node x="0.0" y="0.0">aco_solver.algorithm.graph.Pheromone</node>
+    <node x="0.0" y="354.0">aco_solver.algorithm.graph.City</node>
+    <node x="0.0" y="648.0">aco_solver.algorithm.graph.Graph</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="0.874381800197824" x="356.5" y="495.5" />
+  <SelectedNodes>
+    <node>aco_solver.algorithm.graph.Graph</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Fields</Category>
+  </Categories>
+</Diagram>
+

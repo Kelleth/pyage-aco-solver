@@ -7,7 +7,7 @@ from aco_solver.algorithm.commons import Path
 from aco_solver.algorithm.results import Result, Fitness
 
 
-class AntColony:
+class AntColony(object):
     def __init__(self, graph, ants, iterations):
         self.graph = graph
         self.ants = ants
