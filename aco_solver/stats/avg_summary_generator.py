@@ -117,7 +117,7 @@ def generate_stats_output(population_results, f):
 
 
 def main():
-    usage = "Usage: %prog citiesFileName antsCount iterations resultsDir"
+    usage = "Usage: %prog number_of_ants iterations dataset_name output_directory"
 
     parser = OptionParser(usage=usage)
 
@@ -125,9 +125,9 @@ def main():
     if len(args) != 4:
         parser.error("Incorrect number of arguments")
 
-    cities_filename = args[0]
-    ants_count = int(args[1])
-    iterations = int(args[2])
+    ants_count = int(args[0])
+    iterations = int(args[1])
+    cities_filename = args[3]
     directory = args[3]
 
     prefix = cities_filename + '_' + str(ants_count) + '_' + str(iterations) + '_'

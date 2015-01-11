@@ -39,7 +39,7 @@ def create_graph_with_default_pheromone_value(cities_distances, positions, rho, 
 
 
 def main():
-    usage = "usage: %prog [options] ants_count iterations citiesFileName"
+    usage = "usage: %prog [options] number_of_ants iterations dataset_name"
 
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--type", default="cs", type="string", dest="type")
