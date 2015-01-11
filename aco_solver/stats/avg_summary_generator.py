@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['cs', 'ac', 'gc', 'ca']
+ant_populations = ['cs', 'ca', 'ch', 'ac']
 
 
 def generate_header_items():

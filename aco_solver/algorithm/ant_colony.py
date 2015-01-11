@@ -2,22 +2,9 @@ import random
 import time
 import math
 
-from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
+from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 from aco_solver.algorithm.commons import Path
 from aco_solver.algorithm.results import Result, Fitness
-
-
-def get_population_fullname(abbreviation):
-    if abbreviation == 'ca':
-        return 'Classic Ants'
-    elif abbreviation == 'cs':
-        return 'Control Sample'
-    elif abbreviation == 'gc':
-        return 'Guilt Condition'
-    elif abbreviation == 'ac':
-        return 'Anger Condition'
-    else:
-        raise RuntimeError('Unknown population: ' + abbreviation)
 
 
 class AntColony:
@@ -94,7 +81,7 @@ class ControlSampleColony(AntColony):
 
 
 # 3% egocentric, 46% altercentric, 23% flexible, 28% bad conflict handlers
-class GuiltConditionColony(AntColony):
+class AltercentricCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
@@ -104,7 +91,7 @@ class GuiltConditionColony(AntColony):
 
 
 # 6% egocentric, 6% altercentric, 63% flexible, 25% bad conflict handlers
-class AngerConditionColony(AntColony):
+class ConflictHandlingCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
@@ -113,20 +100,33 @@ class AngerConditionColony(AntColony):
         return create_sample(number_of_ants, 0.06, 0.06, 0.63, 0.25, city_graph)
 
 
+def get_population_fullname(abbreviation):
+    if abbreviation == 'ca':
+        return 'Classic Ants'
+    elif abbreviation == 'cs':
+        return 'Control Sample'
+    elif abbreviation == 'ac':
+        return 'Altercentric Condition'
+    elif abbreviation == 'ch':
+        return 'Conflict Handling Condition'
+    else:
+        raise RuntimeError('Unknown population: ' + abbreviation)
+
+
 def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, city_graph):
     generated_ants = []
 
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
-        generated_ants.append(ECAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(EgocentricAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(int(math.ceil(total_number_of_ants * ac_fraction))):
-        generated_ants.append(ACAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(AltercentricAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(int(math.ceil(total_number_of_ants * gc_fraction))):
-        generated_ants.append(GCAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(GoodConflictAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(total_number_of_ants - len(generated_ants)):
-        generated_ants.append(BCAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(BadConflictAnt(city_graph, generate_random_path(city_graph.cities)))
 
     random.shuffle(generated_ants)
     return generated_ants

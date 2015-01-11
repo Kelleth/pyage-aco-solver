@@ -111,9 +111,6 @@ class ClassicAnt(ShuffleAnt):
         return connection.pheromone.total_pheromone ** self.pheromone_influence * \
                (1.0 / connection.distance) ** self.distance_influence
 
-    def __str__(self):
-        return 'Classic'
-
 
 class GreedyAnt(Ant):
     def __init__(self, graph, path, pheromone_influence, distance_influence):
@@ -125,14 +122,11 @@ class GreedyAnt(Ant):
         return connection.pheromone ** self.pheromone_influence * \
                (1.0 / connection.distance) ** self.distance_influence
 
-    def __str__(self):
-        return 'Greedy'
-
 
 # The individuals who are "altercentric" would follow the mass
-class ACAnt(ShuffleAnt):
+class AltercentricAnt(ShuffleAnt):
     def __init__(self, graph, path, pheromone_influence=2.0):
-        super(ACAnt, self).__init__(graph, path)
+        super(AltercentricAnt, self).__init__(graph, path)
         self.pheromone_influence = pheromone_influence
 
     def visit(self, connection, pheromone_value):
@@ -141,15 +135,12 @@ class ACAnt(ShuffleAnt):
     def calculate_connection_attractiveness(self, connection):
         return connection.pheromone.total_pheromone ** self.pheromone_influence
 
-    def __str__(self):
-        return 'Altercentric'
-
 
 # The individuals who are "egocentric" would be more creative to try to find a new solution,
 # finding their own way, less caring for others and for pheromone trail.
-class ECAnt(ShuffleAnt):
+class EgocentricAnt(ShuffleAnt):
     def __init__(self, graph, path, distance_influence=3.0):
-        super(ECAnt, self).__init__(graph, path)
+        super(EgocentricAnt, self).__init__(graph, path)
         self.distance_influence = distance_influence
 
     def visit(self, connection, pheromone_value):
@@ -158,14 +149,11 @@ class ECAnt(ShuffleAnt):
     def calculate_connection_attractiveness(self, connection):
         return (1.0 / connection.distance) ** self.distance_influence
 
-    def __str__(self):
-        return 'Egocentric'
-
 
 # These good at conflict handling will wait and observe the others.
-class GCAnt(ShuffleAnt):
+class GoodConflictAnt(ShuffleAnt):
     def __init__(self, graph, path):
-        super(GCAnt, self).__init__(graph, path)
+        super(GoodConflictAnt, self).__init__(graph, path)
 
     def visit(self, connection, pheromone_value):
         connection.pheromone.update_gc_pheromone(pheromone_value)
@@ -174,14 +162,11 @@ class GCAnt(ShuffleAnt):
         return ((14.0 * connection.pheromone.ec_pheromone + 2.0 * connection.pheromone.ac_pheromone  #
                  + 2.5 * connection.pheromone.gc_pheromone + 0.5 * connection.pheromone.bc_pheromone) / 4.0) ** 2.0
 
-    def __str__(self):
-        return 'Good Conflict'
-
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)
-class BCAnt(Ant):
+class BadConflictAnt(Ant):
     def __init__(self, graph, path):
-        super(BCAnt, self).__init__(graph, path)
+        super(BadConflictAnt, self).__init__(graph, path)
 
     def visit(self, connection, pheromone_value):
         connection.pheromone.update_bc_pheromone(pheromone_value)
@@ -200,5 +185,3 @@ class BCAnt(Ant):
 
         return next_connection
 
-    def __str__(self):
-        return 'Bad Conflict'

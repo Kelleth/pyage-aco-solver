@@ -7,7 +7,7 @@ import sys
 from aco_solver.algorithm import graph
 from aco_solver.algorithm.results import ResultConverter
 from aco_solver.utils.cities_reader import CitiesReader
-from aco_solver.algorithm.ant_colony import ControlSampleColony, GuiltConditionColony, AngerConditionColony, \
+from aco_solver.algorithm.ant_colony import ControlSampleColony, AltercentricCondition, ConflictHandlingCondition, \
     ClassicAntColony
 from aco_solver.algorithm.graph import Graph
 
@@ -18,12 +18,12 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
     if type == "cs":  # control sample
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = ControlSampleColony(ants_count, graph, iterations)
-    elif type == "gc":  # guilt condition
+    elif type == "ac":  # altercentric condition
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = GuiltConditionColony(ants_count, graph, iterations)
-    elif type == "ac":  # anger condition
+        colony = AltercentricCondition(ants_count, graph, iterations)
+    elif type == "ch":  # conflict handling
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = AngerConditionColony(ants_count, graph, iterations)
+        colony = ConflictHandlingCondition(ants_count, graph, iterations)
     elif type == "ca":  # classical ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)

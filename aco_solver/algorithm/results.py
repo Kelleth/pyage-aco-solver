@@ -1,9 +1,10 @@
 import numpy
 
-from aco_solver.algorithm.ant import ClassicAnt, ECAnt, ACAnt, GCAnt, BCAnt
+from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 
 fitness_separator = ';'
-fitness_keys = sorted([ClassicAnt.__name__, ECAnt.__name__, ACAnt.__name__, GCAnt.__name__, BCAnt.__name__])
+fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, AltercentricAnt.__name__, GoodConflictAnt.__name__,
+                       BadConflictAnt.__name__])
 
 
 class Result(object):
@@ -161,10 +162,10 @@ class Fitness(object):
 
         current_best = dict()
         current_best[ClassicAnt.__name__] = None
-        current_best[ECAnt.__name__] = None
-        current_best[ACAnt.__name__] = None
-        current_best[GCAnt.__name__] = None
-        current_best[BCAnt.__name__] = None
+        current_best[EgocentricAnt.__name__] = None
+        current_best[AltercentricAnt.__name__] = None
+        current_best[GoodConflictAnt.__name__] = None
+        current_best[BadConflictAnt.__name__] = None
 
         for i in range(self.current_iteration):
             output_string += str(i + 1)
