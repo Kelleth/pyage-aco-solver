@@ -125,6 +125,7 @@ class Pheromone(object):
                                + self.unknown_pheromone
 
 
+# Average distance in graph is used to setup initial pheromone value
 def compute_average_distance(distance_matrix):
     total_distance = 0.0
     number_of_connections = 0

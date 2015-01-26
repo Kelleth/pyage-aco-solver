@@ -1,3 +1,4 @@
+# Represents ant path
 class Path(object):
     def __init__(self, start_city, connection_list):
         self.start_city = start_city
@@ -17,6 +18,7 @@ class Path(object):
         cities.append(self.start_city)
         return cities
 
+    # Comparing by distance
     def __cmp__(self, other):
         if self.distance < other.distance:
             return -1

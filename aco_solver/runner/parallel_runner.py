@@ -7,7 +7,8 @@ import sys
 from aco_solver.algorithm import graph
 from aco_solver.algorithm.results import ResultConverter
 from aco_solver.utils.cities_reader import CitiesReader
-from aco_solver.algorithm.ant_colony import ControlSampleColony, AltercentricCondition, ConflictHandlingCondition, \
+from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentricityCondition, \
+    LowAltercentricityCondition, \
     ClassicAntColony
 from aco_solver.algorithm.graph import Graph
 
@@ -15,18 +16,18 @@ from aco_solver.algorithm.graph import Graph
 def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe):
     colony = None
 
-    if type == "cs":  # control sample
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ControlSampleColony(ants_count, graph, iterations)
-    elif type == "ac":  # altercentric condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = AltercentricCondition(ants_count, graph, iterations)
-    elif type == "ch":  # conflict handling
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ConflictHandlingCondition(ants_count, graph, iterations)
-    elif type == "ca":  # classical ants
+    if type == "ca":  # Classical Ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
+    elif type == "cs":  # Control Sample
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        colony = ControlSampleColony(ants_count, graph, iterations)
+    elif type == "ha":  # High Altercentricity Condition
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        colony = HighAltercentricityCondition(ants_count, graph, iterations)
+    elif type == "la":  # Low Altercentricity Condition
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        colony = LowAltercentricityCondition(ants_count, graph, iterations)
 
     result = colony.start_simulation()
     # to avoid problems with deep recursion while serializing large objects with pickle
@@ -72,6 +73,7 @@ def main():
 
     processes = []
     pipes = []
+    # start concurrent processes
     for i in range(options.p):
         pipes.append(Pipe(False))
     for i in range(options.p):

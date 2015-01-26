@@ -3,6 +3,7 @@ import random
 from aco_solver.algorithm.commons import Path
 
 
+# Template class for different kinds of ants - implements basic ant behaviour in "find_path" method
 class Ant(object):
     def __init__(self, graph, path):
         self.graph = graph
@@ -14,6 +15,7 @@ class Ant(object):
         cities_visited = [start_city]
 
         present_city = start_city
+        # Main loop - visits all cities
         while len(connection_list) != len(self.path.connection_list):
             next_connection = self.chose_next_connection(present_city, cities_visited)
             connection_list.append(next_connection)
@@ -23,6 +25,7 @@ class Ant(object):
         self.path = Path(start_city, connection_list)
         return self.path
 
+    # By default ant chooses city which path has best attractiveness (greedy approach) - overridden in ShuffleAnt
     def chose_next_connection(self, present_city, visited_cities):
         chosen_connection = None
         chosen_connection_attractiveness = -1
@@ -41,9 +44,12 @@ class Ant(object):
 
         return chosen_connection
 
+    # Override in subclasses to provide attractiveness value based on ant kind
     def calculate_connection_attractiveness(self, connection):
         return 0
 
+    # Visitor pattern used to update pheromone value while visiting paths without using "instance of"
+    # By default unknown pheromone (which isn't assigned to any ant species) is updated
     def visit(self, connection, pheromone_value):
         connection.pheromone.update_unknown_pheromone(pheromone_value)
 
@@ -54,6 +60,9 @@ class Ant(object):
         return 'Distance: %s Path: %s' % (self.path.distance, self.path)
 
 
+# Converts attractiveness of all available paths to their probability
+# and randomly chooses path based on computed probabilities - paths with higher attractiveness will be more likely
+# Base class for other ants used in experiment
 class ShuffleAnt(Ant):
     def __init__(self, graph, path):
         super(ShuffleAnt, self).__init__(graph, path)
@@ -112,6 +121,7 @@ class ClassicAnt(ShuffleAnt):
                (1.0 / connection.distance) ** self.distance_influence
 
 
+# Always chooses path with best attractiveness - used only for tests
 class GreedyAnt(Ant):
     def __init__(self, graph, path, pheromone_influence, distance_influence):
         super(GreedyAnt, self).__init__(graph, path)
@@ -174,6 +184,7 @@ class BadConflictAnt(Ant):
     def chose_next_connection(self, present_city, visited_cities):
         next_connection = None
 
+        # fixme - the way it is done really sucks
         while not next_connection:
             random_connection = random.choice(present_city.connection_list)
             destination_city = random_connection.destination_city
@@ -184,4 +195,3 @@ class BadConflictAnt(Ant):
                 next_connection = random_connection
 
         return next_connection
-

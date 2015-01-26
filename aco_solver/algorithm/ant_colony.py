@@ -7,6 +7,9 @@ from aco_solver.algorithm.commons import Path
 from aco_solver.algorithm.results import Result, Fitness
 
 
+
+# Template class for different populations/colonies
+# Subclass only has to provide ants list
 class AntColony(object):
     def __init__(self, graph, ants, iterations):
         self.graph = graph
@@ -57,7 +60,7 @@ class AntColony(object):
         return output
 
 
-# only classic ants
+# Only classic ants
 class ClassicAntColony(AntColony):
     def __init__(self, number_of_ants, graph, alpha, beta, iterations):
         ants = self.__generate_population(number_of_ants, graph, alpha, beta)
@@ -70,7 +73,7 @@ class ClassicAntColony(AntColony):
         return generated_ants
 
 
-# 22% egocentric, 15% altercentric, 45% flexible, 18% bad conflict handlers
+# 22% egocentric, 15% altercentric, 45% flexible, 18% bad conflict
 class ControlSampleColony(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
@@ -80,8 +83,8 @@ class ControlSampleColony(AntColony):
         return create_sample(number_of_ants, 0.22, 0.15, 0.45, 0.18, city_graph)
 
 
-# 3% egocentric, 46% altercentric, 23% flexible, 28% bad conflict handlers
-class AltercentricCondition(AntColony):
+# 3% egocentric, 46% altercentric, 23% good conflict, 28% bad conflict
+class HighAltercentricityCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
@@ -90,8 +93,8 @@ class AltercentricCondition(AntColony):
         return create_sample(number_of_ants, 0.03, 0.46, 0.23, 0.28, city_graph)
 
 
-# 6% egocentric, 6% altercentric, 63% flexible, 25% bad conflict handlers
-class ConflictHandlingCondition(AntColony):
+# 6% egocentric, 6% altercentric, 63% good conflict, 25% bad conflict
+class LowAltercentricityCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
@@ -105,10 +108,10 @@ def get_population_fullname(abbreviation):
         return 'Classic Ants'
     elif abbreviation == 'cs':
         return 'Control Sample'
-    elif abbreviation == 'ac':
-        return 'Altercentric Condition'
-    elif abbreviation == 'ch':
-        return 'Conflict Handling Condition'
+    elif abbreviation == 'ha':
+        return 'High Altercentricity Condition'
+    elif abbreviation == 'la':
+        return 'Low Altercentricity Condition'
     else:
         raise RuntimeError('Unknown population: ' + abbreviation)
 
@@ -125,6 +128,8 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, b
     for _ in range(int(math.ceil(total_number_of_ants * gc_fraction))):
         generated_ants.append(GoodConflictAnt(city_graph, generate_random_path(city_graph.cities)))
 
+    # BCAnts really sucks so we ignore bc_fraction coefficient
+    # For low total number of ants population might not contain any BCAnts
     for _ in range(total_number_of_ants - len(generated_ants)):
         generated_ants.append(BadConflictAnt(city_graph, generate_random_path(city_graph.cities)))
 
