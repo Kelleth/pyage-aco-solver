@@ -7,7 +7,7 @@ for iterations in 100
 do
 	for ants in 20 50 100
 	do
-		for type in cs ac gc ca
+		for type in cs la ha ca
 		do
 			TITLE=$(printf 'File: %s, Type: %s, Iterations: %d, Ants: %d' $CITIES $type $iterations $ants)
 			FILENAME=$(printf 'outputs/%s_%d_%d_%s' $CITIES $ants $iterations $type)

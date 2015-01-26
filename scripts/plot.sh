@@ -13,7 +13,7 @@ do
 	do
 		for ants in 20 50 100
 		do
-			for type in cs ac gc
+			for type in cs la ha
 			do
 				TITLE=$(printf 'File: %s, Type: %s, Iterations: %d, Ants: %d' $CITIES $type $iterations $ants)
 				FITNESS_FILENAME=$(printf 'outputs/%s_%d_%d_%s_avg' $CITIES $ants $iterations $type)
