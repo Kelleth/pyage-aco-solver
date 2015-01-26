@@ -83,37 +83,43 @@ def generate_fitness_output(population_results, iterations, f):
 
 def compute_average_distance_for_population(results):
     distance_list = [result.best_distance for result in results]
-
-    avg_distance = numpy.average(distance_list)
-    stdev_distance = numpy.std(distance_list)
-
-    return avg_distance, stdev_distance
+    return compute_average_values(distance_list)
 
 
 def compute_average_time_for_population(results):
     time_list = [result.computation_time for result in results]
-
-    avg_time = numpy.average(time_list)
-    stdev_time = numpy.std(time_list)
-
-    return avg_time, stdev_time
+    return compute_average_values(time_list)
 
 
 def generate_stats_output(population_results, f):
-    stats_header = 'Stat kind' + separator + separator.join(generate_header_items()) + '\n'
+    stats_header = 'Stat' + separator + separator.join(generate_header_items()) + '\n'
     f.write(stats_header)
 
     f.write('Best distance')
     for _, value in population_results.iteritems():
         avg_distance, stdev_distance = compute_average_distance_for_population(value)
-        f.write(separator + str(avg_distance) + separator + str(stdev_distance))
+        f.write(average_values_to_output_format(avg_distance, stdev_distance))
     f.write('\n')
 
     f.write('Computation time')
     for _, value in population_results.iteritems():
         avg_time, stdev_time = compute_average_time_for_population(value)
-        f.write(separator + str(avg_time) + separator + str(stdev_time))
+        f.write(average_values_to_output_format(avg_time, stdev_time))
     f.write('\n')
+
+
+def compute_average_values(values_list):
+    if values_list:
+        return numpy.average(values_list), numpy.std(values_list)
+    else:
+        return None, None
+
+
+def average_values_to_output_format(avg, stdev):
+    if avg is None or stdev is None:
+        return separator + separator
+    else:
+        return separator + str(avg) + separator + str(stdev)
 
 
 def main():
@@ -127,7 +133,7 @@ def main():
 
     ants_count = int(args[0])
     iterations = int(args[1])
-    cities_filename = args[3]
+    cities_filename = args[2]
     directory = args[3]
 
     prefix = cities_filename + '_' + str(ants_count) + '_' + str(iterations) + '_'
