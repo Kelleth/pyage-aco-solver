@@ -9,11 +9,11 @@ from aco_solver.algorithm.results import ResultConverter
 from aco_solver.utils.cities_reader import CitiesReader
 from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentricityCondition, \
     LowAltercentricityCondition, \
-    ClassicAntColony
+    ClassicAntColony, ParametrizedColony
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None):
     colony = None
 
     if type == "ca":  # Classical Ants
@@ -28,6 +28,9 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
     elif type == "la":  # Low Altercentricity Condition
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
+    elif type == "pc":  # Parametrized Colony
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict)
 
     result = colony.start_simulation()
     # to avoid problems with deep recursion while serializing large objects with pickle
@@ -40,7 +43,8 @@ def create_graph_with_default_pheromone_value(cities_distances, positions, rho, 
 
 
 def main():
-    usage = "usage: %prog [options] number_of_ants iterations dataset_name"
+    usage = "usage: %prog [options] number_of_ants iterations dataset_name [-e egocentric_no -a altercentric_no" \
+            " -gc goodconflict_no -bc badconflict_no]"
 
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--type", default="cs", type="string", dest="type")
@@ -55,6 +59,16 @@ def main():
                       dest="q")
     parser.add_option("-p", "--p", default="1", type="int", help="number of processes [default: %default]",
                       dest="p")
+    parser.add_option("-w", "--egocentric", default="0.25", type="float",
+                      help="percent of egocentric ants in colony [default: %default]", dest="egocentric")
+    parser.add_option("-x", "--altercentric", default="0.25", type="float",
+                      help="percent of altercentric ants in colony [default: %default]", dest="altercentric")
+    parser.add_option("-y", "--goodConflict", default="0.25", type="float",
+                      help="percent of good conflict ants in colony [default: %default]", dest="goodConflict")
+    parser.add_option("-z", "--badConflict", default="0.25", type="float",
+                      help="percent of bad conflict ants in colony [default: %default]", dest="badConflict")
+    parser.add_option("-o", "--outputdir", default="outputs/", type="string",
+                      help="output directory [default: %default]", dest="outputdir")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -77,9 +91,15 @@ def main():
     for i in range(options.p):
         pipes.append(Pipe(False))
     for i in range(options.p):
-        processes.append(Process(target=start_simulation, args=(
-            ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-            options.beta, pipes[i][1],)))
+        if options.type == "pc":
+            processes.append(Process(target=start_simulation, args=(
+                ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+                options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
+                options.badConflict)))
+        else:
+            processes.append(Process(target=start_simulation, args=(
+                ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+                options.beta, pipes[i][1])))
     for i in range(options.p):
         processes[i].start()
 
@@ -93,7 +113,7 @@ def main():
 
         result_list.append(present_result)
 
-    output_directory_name = "outputs/"
+    output_directory_name = options.outputdir
     if not os.path.exists(output_directory_name):
         os.makedirs(output_directory_name)
 

@@ -103,6 +103,16 @@ class LowAltercentricityCondition(AntColony):
         return create_sample(number_of_ants, 0.06, 0.06, 0.63, 0.25, city_graph)
 
 
+# percentage quantity of populations in colony are provided by parameters
+class ParametrizedColony(AntColony):
+    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict):
+        ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict)
+        AntColony.__init__(self, graph, ants, iterations)
+
+    def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict):
+        return create_sample(number_of_ants, egocentric, altercentric, goodConflict, badConflict, city_graph)
+
+
 def get_population_fullname(abbreviation):
     if abbreviation == 'ca':
         return 'Classic Ants'
@@ -112,6 +122,8 @@ def get_population_fullname(abbreviation):
         return 'High Altercentricity Condition'
     elif abbreviation == 'la':
         return 'Low Altercentricity Condition'
+    elif abbreviation == 'pc':
+        return 'Parametrized Colony Sample'
     else:
         raise RuntimeError('Unknown population: ' + abbreviation)
 
