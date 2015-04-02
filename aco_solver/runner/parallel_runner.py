@@ -13,7 +13,7 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentri
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None):
     colony = None
 
     if type == "ca":  # Classical Ants
@@ -30,7 +30,7 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict)
+        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
 
     result = colony.start_simulation()
     # to avoid problems with deep recursion while serializing large objects with pickle
@@ -67,6 +67,8 @@ def main():
                       help="percent of good conflict ants in colony [default: %default]", dest="goodConflict")
     parser.add_option("-z", "--badConflict", default="0.25", type="float",
                       help="percent of bad conflict ants in colony [default: %default]", dest="badConflict")
+    parser.add_option("-v", "--classic", default="0.0", type="float",
+                      help="percent of classic ants in colony [default: %default]", dest="classic")
     parser.add_option("-o", "--outputdir", default="outputs/", type="string",
                       help="output directory [default: %default]", dest="outputdir")
 
@@ -95,7 +97,7 @@ def main():
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
-                options.badConflict)))
+                options.badConflict, options.classic)))
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,

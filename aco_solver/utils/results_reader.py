@@ -5,7 +5,6 @@ separator = ';'
 
 def read_file(directory, filename):
     f = open(directory + '/' + filename, 'r')
-
     details = []
     lines = f.readlines()
 
