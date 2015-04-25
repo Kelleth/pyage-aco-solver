@@ -18,7 +18,7 @@ class AntColony(object):
         self.best_path = None
         self.best_path_iteration = None
 
-    def start_simulation(self):
+    def start_simulation(self, probability):
         start_time = time.time()
         fitness = Fitness()
 
@@ -27,7 +27,7 @@ class AntColony(object):
             random.shuffle(self.ants)
 
             for ant in self.ants:
-                new_path = ant.find_path()
+                new_path = ant.find_path(probability)
 
                 if self.best_path is None or new_path < self.best_path:
                     self.best_path = new_path

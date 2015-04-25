@@ -13,7 +13,7 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentri
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, propability, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None):
     colony = None
 
     if type == "ca":  # Classical Ants
@@ -32,7 +32,8 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
 
-    result = colony.start_simulation()
+    print "Propability is: " + str(propability)
+    result = colony.start_simulation(propability)
     # to avoid problems with deep recursion while serializing large objects with pickle
     sys.setrecursionlimit(30000)
     pipe.send(pickle.dumps(result))
@@ -71,6 +72,8 @@ def main():
                       help="percent of classic ants in colony [default: %default]", dest="classic")
     parser.add_option("-o", "--outputdir", default="outputs/", type="string",
                       help="output directory [default: %default]", dest="outputdir")
+    parser.add_option("-c", "--probability", default="0", type="int",
+                      help="probability, than ant acts randomly [default: %default]", dest="probability")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -96,12 +99,12 @@ def main():
         if options.type == "pc":
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
+                options.beta, pipes[i][1], options.probability, options.egocentric, options.altercentric, options.goodConflict,
                 options.badConflict, options.classic)))
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1])))
+                options.beta, pipes[i][1], options.probability)))
     for i in range(options.p):
         processes[i].start()
 
