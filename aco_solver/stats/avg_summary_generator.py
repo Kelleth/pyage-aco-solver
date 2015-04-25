@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['pc', 'cs', 'ca']
+ant_populations = ['cs', 'ca', 'ha', 'la', 'pc']
 
 
 def generate_header_items():
@@ -25,11 +25,8 @@ def generate_header_items():
 def list_files_with_data(prefix, population_abbreviation, output_directory):
     pattern = prefix + population_abbreviation + '_(\d+).dat'
 
-    print(pattern)
-
     files = [f for f in os.listdir(output_directory) \
              if os.path.isfile(os.path.join(output_directory, f)) and re.match(pattern, f)]
-    print files
 
     return files
 
@@ -143,7 +140,6 @@ def main():
     populations_results = dict()
     for ant_type in ant_populations:
         type_results = []
-        print list_files_with_data(prefix, ant_type, directory)
         for filename in list_files_with_data(prefix, ant_type, directory):
             type_results.append(read_file(directory, filename))
 
