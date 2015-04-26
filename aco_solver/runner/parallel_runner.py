@@ -72,7 +72,7 @@ def main():
                       help="percent of classic ants in colony [default: %default]", dest="classic")
     parser.add_option("-o", "--outputdir", default="outputs/", type="string",
                       help="output directory [default: %default]", dest="outputdir")
-    parser.add_option("-c", "--probability", default="0", type="int",
+    parser.add_option("-c", "--probability", default="0.0", type="float",
                       help="probability, than ant acts randomly [default: %default]", dest="probability")
 
     (options, args) = parser.parse_args()

@@ -68,9 +68,8 @@ class ShuffleAnt(Ant):
         super(ShuffleAnt, self).__init__(graph, path)
 
     def chose_next_connection(self, present_city, visited_cities, probability):
-        acts_randomly = random.randint(0, 100)
+        acts_randomly = random.random()
         if acts_randomly < probability:
-            print "RANDOM! Percent: " + str(acts_randomly)
             next_connection = None
             # fixme - the way it is done really sucks
             while not next_connection:
@@ -84,8 +83,6 @@ class ShuffleAnt(Ant):
 
             return next_connection
         else:
-            print "NORMAL! Percent: " + str(acts_randomly) + "\n"
-            print "CHOOSE NEXT CONNECTION - NORMAL\n"
             connections_attractiveness = []
 
             for connection in present_city.connection_list:
