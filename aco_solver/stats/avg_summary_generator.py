@@ -145,6 +145,9 @@ def main():
 
         populations_results[ant_type] = type_results
 
+    # print "POPULATION RESULTS:"
+    # print populations_results
+
     f = open(directory + '/' + prefix + 'avg_summary.dat', 'w')
     generate_stats_output(populations_results, f)
     f.write('\n')
