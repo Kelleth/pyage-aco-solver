@@ -162,15 +162,59 @@ class EgocentricAnt(ShuffleAnt):
 
 # These good at conflict handling will wait and observe the others.
 class GoodConflictAnt(ShuffleAnt):
-    def __init__(self, graph, path):
+    def __init__(self, graph, path, ec_pheromone_factor, ac_pheromone_factor,
+                 gc_pheromone_factor, bc_pheromone_factor):
+        #self.ec_pheromone_factor = ec_pheromone_factor
+        #self.ac_pheromone_factor = ac_pheromone_factor
+        #self.gc_pheromone_factor = gc_pheromone_factor
+        #self.bc_pheromone_factor = bc_pheromone_factor       
+        factor_to_use = 24.0
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.ec_pheromone_factor = rand
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.ac_pheromone_factor = random.random()
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.gc_pheromone_factor = random.random()
+        self.bc_pheromone_factor = factor_to_use
         super(GoodConflictAnt, self).__init__(graph, path)
+        #print self.ec_pheromone_factor, self.ac_pheromone_factor, self.gc_pheromone_factor, self.bc_pheromone_factor
 
     def visit(self, connection, pheromone_value):
         connection.pheromone.update_gc_pheromone(pheromone_value)
 
     def calculate_connection_attractiveness(self, connection):
-        return ((14.0 * connection.pheromone.ec_pheromone + 2.0 * connection.pheromone.ac_pheromone  #
-                 + 2.5 * connection.pheromone.gc_pheromone + 0.5 * connection.pheromone.bc_pheromone) / 4.0) ** 2.0
+        return ((self.ec_pheromone_factor * connection.pheromone.ec_pheromone    #
+                 + self.ac_pheromone_factor * connection.pheromone.ac_pheromone  #
+                 + self.gc_pheromone_factor * connection.pheromone.gc_pheromone  #
+                 + self.bc_pheromone_factor * connection.pheromone.bc_pheromone) / 4.0) ** 2
+
+class RandomizedGoodConflictAnt(ShuffleAnt):
+    def __init__(self, graph, path):
+        factor_to_use = 24.0
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.ec_pheromone_factor = rand
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.ac_pheromone_factor = random.random()
+        rand = random.random() * factor_to_use
+        factor_to_use -= rand
+        self.gc_pheromone_factor = random.random()
+        self.bc_pheromone_factor = factor_to_use
+        super(RandomizedGoodConflictAnt, self).__init__(graph, path)
+        #print self.ec_pheromone_factor, self.ac_pheromone_factor, self.gc_pheromone_factor, self.bc_pheromone_factor
+
+    def visit(self, connection, pheromone_value):
+        connection.pheromone.update_gc_pheromone(pheromone_value)
+
+    def calculate_connection_attractiveness(self, connection):
+        return ((self.ec_pheromone_factor * connection.pheromone.ec_pheromone    #
+                 + self.ac_pheromone_factor * connection.pheromone.ac_pheromone  #
+                 + self.gc_pheromone_factor * connection.pheromone.gc_pheromone  #
+                 + self.bc_pheromone_factor * connection.pheromone.bc_pheromone) / 4.0) ** 2
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)

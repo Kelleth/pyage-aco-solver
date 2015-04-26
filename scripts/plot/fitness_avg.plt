@@ -2,7 +2,7 @@ set key autotitle columnheader
 set datafile separator ";"
 set xlabel "Iteration"
 set ylabel "Path length"
-set xrange [1:100]
+set xrange [0:100]
 set yrange [7000:14500]
 set title TITLE font "Verdana,40" 
 set terminal pdf color linewidth 3 size 16,9 enhanced font 'Verdana,25'

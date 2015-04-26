@@ -13,24 +13,24 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentri
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, ec_pheromone_factor = 14.0, ac_pheromone_factor = 2.0, gc_pheromone_factor = 2.5, bc_pheromone_factor = 0.5):
     colony = None
-
+    #print type, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor
     if type == "ca":  # Classical Ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01)
-        colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
+        colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
     elif type == "cs":  # Control Sample
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ControlSampleColony(ants_count, graph, iterations)
+        colony = ControlSampleColony(ants_count, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
     elif type == "ha":  # High Altercentricity Condition
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = HighAltercentricityCondition(ants_count, graph, iterations)
+        colony = HighAltercentricityCondition(ants_count, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
     elif type == "la":  # Low Altercentricity Condition
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = LowAltercentricityCondition(ants_count, graph, iterations)
+        colony = LowAltercentricityCondition(ants_count, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
     elif type == "pc":  # Parametrized Colony
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
+        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
 
     result = colony.start_simulation()
     # to avoid problems with deep recursion while serializing large objects with pickle
@@ -71,6 +71,14 @@ def main():
                       help="percent of classic ants in colony [default: %default]", dest="classic")
     parser.add_option("-o", "--outputdir", default="outputs/", type="string",
                       help="output directory [default: %default]", dest="outputdir")
+    parser.add_option("-g", "--ecPheromoneFactor", default="14.00", type="float",
+                      help="Factor of egocentric ants pheromone for good at conflicts [default: %default]", dest="ecPheromoneFactor")
+    parser.add_option("-k", "--acPheromoneFactor", default="2.0", type="float",
+                      help="Factor of altercentric ants pheromone for good at conflicts [default: %default]", dest="acPheromoneFactor")
+    parser.add_option("-i", "--gcPheromoneFactor", default="2.5", type="float",
+                      help="Factor of good at conflict ants pheromone for good at conflicts [default: %default]", dest="gcPheromoneFactor")
+    parser.add_option("-j", "--bcPheromoneFactor", default="0.5", type="float",
+                      help="Factor of bad at conflict ants pheromone for good at conflicts [default: %default]", dest="bcPheromoneFactor")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -101,7 +109,8 @@ def main():
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1])))
+                options.beta, pipes[i][1], options.ecPheromoneFactor, options.acPheromoneFactor, options.gcPheromoneFactor,
+                options.bcPheromoneFactor)))
     for i in range(options.p):
         processes[i].start()
 

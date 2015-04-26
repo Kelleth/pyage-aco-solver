@@ -62,7 +62,7 @@ class AntColony(object):
 
 # Only classic ants
 class ClassicAntColony(AntColony):
-    def __init__(self, number_of_ants, graph, alpha, beta, iterations):
+    def __init__(self, number_of_ants, graph, alpha, beta, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
         ants = self.__generate_population(number_of_ants, graph, alpha, beta)
         AntColony.__init__(self, graph, ants, iterations)
 
@@ -75,42 +75,46 @@ class ClassicAntColony(AntColony):
 
 # 22% egocentric, 15% altercentric, 45% flexible, 18% bad conflict
 class ControlSampleColony(AntColony):
-    def __init__(self, number_of_ants, graph, iterations):
-        ants = self.__generate_population(number_of_ants, graph)
+    def __init__(self, number_of_ants, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        
+        #print '1 ',ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor
+        ants = self.__generate_population(number_of_ants, graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
         AntColony.__init__(self, graph, ants, iterations)
 
-    def __generate_population(self, number_of_ants, city_graph):
-        return create_sample(number_of_ants, 0.22, 0.15, 0.45, 0.18, 0.0, city_graph)
+    def __generate_population(self, number_of_ants, city_graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+
+        #print '2 ', ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor
+        return create_sample(number_of_ants, 0.22, 0.15, 0.45, 0.18, 0.0, city_graph, 0.0, 0.0, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
 
 
 # 3% egocentric, 46% altercentric, 23% good conflict, 28% bad conflict
 class HighAltercentricityCondition(AntColony):
-    def __init__(self, number_of_ants, graph, iterations):
-        ants = self.__generate_population(number_of_ants, graph)
+    def __init__(self, number_of_ants, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        ants = self.__generate_population(number_of_ants, graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
         AntColony.__init__(self, graph, ants, iterations)
 
-    def __generate_population(self, number_of_ants, city_graph):
-        return create_sample(number_of_ants, 0.03, 0.46, 0.23, 0.28, 0.0, city_graph)
+    def __generate_population(self, number_of_ants, city_graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        return create_sample(number_of_ants, 0.03, 0.46, 0.23, 0.28, 0.0, city_graph, 0.0, 0.0, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
 
 
 # 6% egocentric, 6% altercentric, 63% good conflict, 25% bad conflict
 class LowAltercentricityCondition(AntColony):
-    def __init__(self, number_of_ants, graph, iterations):
-        ants = self.__generate_population(number_of_ants, graph)
+    def __init__(self, number_of_ants, graph, iterations, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        ants = self.__generate_population(number_of_ants, graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
         AntColony.__init__(self, graph, ants, iterations)
 
-    def __generate_population(self, number_of_ants, city_graph):
-        return create_sample(number_of_ants, 0.06, 0.06, 0.63, 0.25, 0.0, city_graph)
+    def __generate_population(self, number_of_ants, city_graph, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        return create_sample(number_of_ants, 0.06, 0.06, 0.63, 0.25, 0.0, city_graph, 0.0, 0.0, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
 
 
 # percentage quantity of populations in colony are provided by parameters
 class ParametrizedColony(AntColony):
-    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic = 0.0, alpha = 0.0, beta = 0.0):
-        ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
+    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic = 0.0, alpha = 0.0, beta = 0.0, ec_pheromone_factor = 14.0, ac_pheromone_factor = 2.0, gc_pheromone_factor = 2.5, bc_pheromone_factor = 0.5):
+        ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
         AntColony.__init__(self, graph, ants, iterations)
 
-    def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta):
-        return create_sample(number_of_ants, egocentric, altercentric, goodConflict, badConflict, classic, city_graph, alpha, beta)
+    def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor):
+        return create_sample(number_of_ants, egocentric, altercentric, goodConflict, badConflict, classic, city_graph, alpha, beta, ec_pheromone_factor, ac_pheromone_factor, gc_pheromone_factor, bc_pheromone_factor)
 
 
 def get_population_fullname(abbreviation):
@@ -128,9 +132,11 @@ def get_population_fullname(abbreviation):
         raise RuntimeError('Unknown population: ' + abbreviation)
 
 #0.22, 0.15, 0.45, 0.18, 0.0
-def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction, city_graph, alpha = 0.0, beta = 0.0):
+def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction,
+                 city_graph, alpha = 0.0, beta = 0.0, ec_pheromone_factor_gc = 14.0, ac_pheromone_factor_gc = 2.0,
+                 gc_pheromone_factor_gc = 2.5, bc_pheromone_factor_gc = 0.5):
     generated_ants = []
-
+    #print '3 ', ec_pheromone_factor_gc, ac_pheromone_factor_gc, gc_pheromone_factor_gc, bc_pheromone_factor_gc
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
         generated_ants.append(EgocentricAnt(city_graph, generate_random_path(city_graph.cities)))
 
@@ -138,7 +144,7 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, b
         generated_ants.append(AltercentricAnt(city_graph, generate_random_path(city_graph.cities)))
 
     for _ in range(int(math.ceil(total_number_of_ants * gc_fraction))):
-        generated_ants.append(GoodConflictAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(GoodConflictAnt(city_graph, generate_random_path(city_graph.cities), ec_pheromone_factor_gc, ac_pheromone_factor_gc, gc_pheromone_factor_gc, bc_pheromone_factor_gc))
 
     for _ in range(int(math.ceil(total_number_of_ants * classic_fraction))):
         generated_ants.append(ClassicAnt(city_graph, generate_random_path(city_graph.cities), alpha, beta))
