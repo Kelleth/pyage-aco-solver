@@ -37,19 +37,25 @@ class AntColony(object):
             for ant in self.ants:
                 new_path = ant.find_path()
 
-                if self.best_path is None or new_path < self.best_path:
+                is_better = self.best_path is not None and new_path < self.best_path
+
+                if self.best_path is None or is_better:
+                    if is_better:
+                        ant.energy += 1
                     self.best_path = new_path
                     self.best_path_iteration = iteration + 1
                     self.graph.update_pheromones(ant)
                     fitness.update_fitness(ant)
-                    if random.random() <= 0.2:
-                        ant.evolve_smarter(evolutionDict)
+                    if ant.energy > 0:
+                        if random.random() <= 0.2:
+                            ant.evolve_dumber(evolutionDict)
+                            ant.energy -= 1
                 else:
                     self.graph.update_pheromones(ant)
                     fitness.update_fitness(ant)
-                    if random.random() <= 0.2:
-                        ant.evolve_dumber(evolutionDict)
 
+                    if random.random() <= 0.2:
+                        ant.evolve_smarter(evolutionDict)
 
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()

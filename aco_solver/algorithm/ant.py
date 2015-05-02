@@ -8,6 +8,7 @@ class Ant(object):
     def __init__(self, graph, path):
         self.graph = graph
         self.path = path
+        self.energy = 0
 
     def evolve(self, new_type):
         self.__class__ = new_type

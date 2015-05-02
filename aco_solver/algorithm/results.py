@@ -111,8 +111,11 @@ class ResultConverter(object):
                     if result.fitness.map[key] and len(result.fitness.map[key]) - 1 >= fitness_iteration:
                         iteration_fitness.append(result.fitness.map[key][fitness_iteration])
 
-                mean = numpy.mean(iteration_fitness)
-                stdev = numpy.std(iteration_fitness)
+                mean = ""
+                stdev = ""
+                if iteration_fitness:
+                    mean = numpy.mean(iteration_fitness)
+                    stdev = numpy.std(iteration_fitness)
 
                 avg_fitness_map[key].append((mean, stdev, ))
 
