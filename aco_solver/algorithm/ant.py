@@ -9,6 +9,17 @@ class Ant(object):
         self.graph = graph
         self.path = path
 
+    def evolve(self, new_type):
+        self.__class__ = new_type
+
+    def evolve_smarter(self, evolutionDict):
+        position = evolutionDict[self.__class__]
+        self.evolve(position.smarter_ant_type)
+
+    def evolve_dumber(self, evolutionDict):
+        position = evolutionDict[self.__class__]
+        self.evolve(position.dumber_ant_type)
+
     def find_path(self):
         start_city = self.__choose_start_city()
         connection_list = []
@@ -175,8 +186,10 @@ class GoodConflictAnt(ShuffleAnt):
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)
 class BadConflictAnt(Ant):
-    def __init__(self, graph, path):
+    def __init__(self, graph, path, distance_influence=3.0, pheromone_influence=2.0):
         super(BadConflictAnt, self).__init__(graph, path)
+        self.distance_influence = distance_influence
+        self.pheromone_influence = pheromone_influence
 
     def visit(self, connection, pheromone_value):
         connection.pheromone.update_bc_pheromone(pheromone_value)

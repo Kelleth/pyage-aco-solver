@@ -106,8 +106,10 @@ class ResultConverter(object):
             for key in fitness_keys:
                 if len(self.result_list[0].fitness.map[key]) == 0:
                     continue
-
-                iteration_fitness = [result.fitness.map[key][fitness_iteration] for result in self.result_list]
+                iteration_fitness = []
+                for result in self.result_list:
+                    if result.fitness.map[key] and len(result.fitness.map[key]) - 1 >= fitness_iteration:
+                        iteration_fitness.append(result.fitness.map[key][fitness_iteration])
 
                 mean = numpy.mean(iteration_fitness)
                 stdev = numpy.std(iteration_fitness)
@@ -171,7 +173,7 @@ class Fitness(object):
 
             for key in sorted(self.map):
                 fitness = ''
-                if self.map[key]:
+                if self.map[key] and len(self.map[key]) - 1 >= i:
                     if current_best[key] is None or self.map[key][i] < current_best[key]:
                         current_best[key] = self.map[key][i]
                     fitness = str(current_best[key])
@@ -190,7 +192,7 @@ class Fitness(object):
 
             for key in sorted(self.map):
                 fitness = ''
-                if self.map[key]:
+                if self.map[key] and len(self.map[key]) != 0 and len(self.map[key]) - 1 >= i:
                     fitness = str(self.map[key][i])
 
                 output_string += fitness_separator + fitness

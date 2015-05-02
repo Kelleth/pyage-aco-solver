@@ -5,6 +5,7 @@ import math
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 from aco_solver.algorithm.commons import Path
 from aco_solver.algorithm.results import Result, Fitness
+from aco_solver.algorithm.evolution_condition import AntTypePosition, EvolutionDict
 
 
 
@@ -21,6 +22,13 @@ class AntColony(object):
     def start_simulation(self):
         start_time = time.time()
         fitness = Fitness()
+        evolutionDict = EvolutionDict()
+        #evolutionDict = {}
+        #evolutionDict[BadConflictAnt] = AntTypePosition(EgocentricAnt, BadConflictAnt)
+        #evolutionDict[EgocentricAnt] = AntTypePosition(AltercentricAnt, BadConflictAnt)
+        #evolutionDict[AltercentricAnt] = AntTypePosition(ClassicAnt, EgocentricAnt)
+        #evolutionDict[ClassicAnt] = AntTypePosition(GoodConflictAnt, AltercentricAnt)
+        #evolutionDict[GoodConflictAnt] = AntTypePosition(GoodConflictAnt, ClassicAnt)
 
         for iteration in range(self.iterations):
             # shuffle ants
@@ -32,9 +40,16 @@ class AntColony(object):
                 if self.best_path is None or new_path < self.best_path:
                     self.best_path = new_path
                     self.best_path_iteration = iteration + 1
+                    self.graph.update_pheromones(ant)
+                    fitness.update_fitness(ant)
+                    if random.random() <= 0.2:
+                        ant.evolve_smarter(evolutionDict)
+                else:
+                    self.graph.update_pheromones(ant)
+                    fitness.update_fitness(ant)
+                    if random.random() <= 0.2:
+                        ant.evolve_dumber(evolutionDict)
 
-                self.graph.update_pheromones(ant)
-                fitness.update_fitness(ant)
 
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
