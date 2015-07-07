@@ -38,8 +38,7 @@ class AntColony(object):
 
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
-
-        return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations)
+        return Result(fitness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)
 
     def __repr__(self):
         output = 'Colony population:\n'
@@ -105,8 +104,9 @@ class LowAltercentricityCondition(AntColony):
 
 # percentage quantity of populations in colony are provided by parameters
 class ParametrizedColony(AntColony):
-    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic = 0.0, alpha = 0.0, beta = 0.0):
+    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic = 0.0, alpha = 0.0, beta = 0.0, name = None):
         ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
+        self.name = name
         AntColony.__init__(self, graph, ants, iterations)
 
     def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta):

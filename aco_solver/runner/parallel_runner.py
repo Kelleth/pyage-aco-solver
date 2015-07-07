@@ -13,7 +13,7 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentri
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
 
     if type == "ca":  # Classical Ants
@@ -30,7 +30,7 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
-        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
+        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
 
     result = colony.start_simulation()
     # to avoid problems with deep recursion while serializing large objects with pickle
@@ -71,6 +71,8 @@ def main():
                       help="percent of classic ants in colony [default: %default]", dest="classic")
     parser.add_option("-o", "--outputdir", default="outputs/", type="string",
                       help="output directory [default: %default]", dest="outputdir")
+    parser.add_option("-n", "--paremetrizedName", default="pc", type="string",
+                      help="name of parametrized colony [default: %default", dest="name")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -97,7 +99,7 @@ def main():
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
-                options.badConflict, options.classic)))
+                options.badConflict, options.classic, options.name)))
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
@@ -119,41 +121,54 @@ def main():
     if not os.path.exists(output_directory_name):
         os.makedirs(output_directory_name)
 
+    type_name = options.type
+    if (options.name != 'pc'):
+      type_name = options.name
+      f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_config.dat', 'w')
+      config = 'Egocentric: ' + str(options.egocentric) + '\nAltercentric: ' + str(options.altercentric) + '\nGood at conflict: ' + str(options.goodConflict) + '\nBad at conflict: ' + str(options.badConflict)
+      f.write(config)
+      f.close()
+
     for i in range(len(result_list)):
         f = open(output_directory_name + cities_filename + '_'
                  + str(ants_count) + '_'
                  + str(iterations) + '_'
-                 + options.type + '_' + str(i) + '.dat', 'w')
+                 + type_name + '_' + str(i) + '.dat', 'w')
         f.write(str(result_list[i]))
         f.close()
 
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
              + str(iterations) + '_'
-             + options.type + '_best.dat', 'w')
+             + type_name + '_best.dat', 'w')
     f.write(str(best_result))
     f.close()
 
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
              + str(iterations) + '_'
-             + options.type + '_fitness.dat', 'w')
+             + type_name + '_fitness.dat', 'w')
     f.write(best_result.fitness_to_string())
     f.close()
 
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
              + str(iterations) + '_'
-             + options.type + '_path.dat', 'w')
+             + type_name + '_path.dat', 'w')
     f.write(str(best_result.best_path.get_points_gnuplot()))
     f.close()
 
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
              + str(iterations) + '_'
-             + options.type + '_avg.dat', 'w')
+             + type_name + '_avg.dat', 'w')
     f.write(ResultConverter(result_list).covert_to_avg_results())
     f.close()
+
+    
 
     for i in range(options.p):
         processes[i].join()

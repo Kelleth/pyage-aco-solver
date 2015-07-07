@@ -8,12 +8,13 @@ fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, Altercentric
 
 
 class Result(object):
-    def __init__(self, fitness, computation_time, best_path, best_iteration, max_iterations):
+    def __init__(self, fitness, computation_time, best_path, best_iteration, max_iterations, name):
         self.fitness = fitness
         self.computation_time = computation_time
         self.best_path = best_path
         self.best_iteration = best_iteration
         self.max_iterations = max_iterations
+        self.name = name;
 
     def __str__(self):
         output_string = 'Best distance: '
