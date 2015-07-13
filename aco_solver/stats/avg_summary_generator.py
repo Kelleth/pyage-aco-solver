@@ -26,8 +26,8 @@ def generate_header_items():
     return header
 
 
-def list_files_with_data(prefix, population_abbreviation, output_directory):
-    pattern = prefix + population_abbreviation + '_(\d+).dat'
+def list_files_with_data(prefix, name, output_directory):
+    pattern = prefix + name + '_(\d+).dat'
 
     files = [f for f in os.listdir(output_directory) \
              if os.path.isfile(os.path.join(output_directory, f)) and re.match(pattern, f)]
@@ -162,20 +162,27 @@ def main():
     parser = OptionParser(usage=usage)
 
     (options, args) = parser.parse_args()
-    if len(args) != 5:
+    if len(args) < 4 or len(args) > 5:
         parser.error("Incorrect number of arguments")
 
     ants_count = int(args[0])
     iterations = int(args[1])
     cities_filename = args[2]
     directory = args[3]
-    name = args[4]
+    if len(args) == 5:
+        name = args[4]
+    else:
+        name = None
 
     prefix = cities_filename + '_' + str(ants_count) + '_' + str(iterations) + '_'
     populations_results = dict()
     for ant_type in ant_populations:
         type_results = []
-        for filename in list_files_with_data(prefix, ant_type, directory):
+
+        if name is None:
+            name = ant_type
+
+        for filename in list_files_with_data(prefix, name, directory):
             type_results.append(read_file(directory, filename, name))
 
         populations_results[ant_type] = type_results
