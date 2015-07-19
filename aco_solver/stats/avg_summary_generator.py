@@ -11,6 +11,10 @@ from aco_solver.utils.results_reader import read_file
 separator = ';'
 ant_populations = ['pc']
 
+# backup of stats and fitness values from first column in avg result
+# used to calculate common quartiles, average, min and max values
+stats_values = []
+fitness_values = []
 
 def generate_header_items():
     header = []
@@ -47,7 +51,40 @@ def find_best_result(result_map, iteration):
     return best_distance
 
 
-def compute_average_fitness_for_population(results, iterations):
+def generate_population_box_and_whiskers_values(fitnesses, f_box_and_whiskers_global):
+    f_box_and_whiskers_global.write('avg;min;first_quartile;third_quartile;max\n')
+
+    if fitnesses is None or not fitnesses:
+        empty = ''
+        f_box_and_whiskers_global.write(empty + separator + empty + separator + empty +
+                                        separator + empty + separator + empty + '\n')
+    else:
+        avg_fitness = str(numpy.average(fitnesses))
+        min_fitness = str(numpy.amin(fitnesses))
+        first_quartile_fitness = str(numpy.percentile(fitnesses, 25))
+        third_quartile_fitness = str(numpy.percentile(fitnesses, 75))
+        max_fitness = str(numpy.amax(fitnesses))
+
+        f_box_and_whiskers_global.write(avg_fitness + separator + min_fitness + separator + first_quartile_fitness +
+                                        separator + third_quartile_fitness + separator + max_fitness + '\n')
+
+
+def generate_population_box_and_whiskers_last_iter_values(avg_fitness_last, min_fitness_last,
+                                                          first_quartile_fitness_last, third_quartile_fitness_last,
+                                                          max_fitness_last, f_box_and_whiskers_last_iter):
+
+    f_box_and_whiskers_last_iter.write('avg;min;first_quartile;third_quartile;max\n')
+    avg_fitness = str(avg_fitness_last)
+    min_fitness = str(min_fitness_last)
+    first_quartile_fitness = str(first_quartile_fitness_last)
+    third_quartile_fitness = str(third_quartile_fitness_last)
+    max_fitness = str(max_fitness_last)
+
+    f_box_and_whiskers_last_iter.write(avg_fitness + separator + min_fitness + separator + first_quartile_fitness +
+                                       separator + third_quartile_fitness + separator + max_fitness + '\n')
+
+
+def compute_average_fitness_for_population(results, iterations, f_box_and_whiskers_global, f_box_and_whiskers_last_iter):
     avg_fitness = []
     stdev_fitness = []
     min_fitness = []
@@ -66,10 +103,26 @@ def compute_average_fitness_for_population(results, iterations):
             third_quartile_fitness.append(numpy.percentile(fitness, 75))
             max_fitness.append(numpy.amax(fitness))
 
+    generate_population_box_and_whiskers_values(avg_fitness, f_box_and_whiskers_global)
+
+    if len(avg_fitness) == 0 or len(min_fitness) == 0 or len(first_quartile_fitness) == 0 or len(third_quartile_fitness) == 0 or len(max_fitness) == 0:
+        empty = ''
+        generate_population_box_and_whiskers_last_iter_values(empty, empty, empty, empty, empty, f_box_and_whiskers_last_iter)
+    else:
+        avg_fitness_last = avg_fitness[-1]
+        min_fitness_last = min_fitness[-1]
+        first_quartile_fitness_last = first_quartile_fitness[-1]
+        third_quartile_fitness_last = third_quartile_fitness[-1]
+        max_fitness_last = max_fitness[-1]
+
+        generate_population_box_and_whiskers_last_iter_values(avg_fitness_last, min_fitness_last,
+                                                              first_quartile_fitness_last, third_quartile_fitness_last,
+                                                              max_fitness_last, f_box_and_whiskers_last_iter)
+
     return avg_fitness, stdev_fitness, min_fitness, first_quartile_fitness, third_quartile_fitness, max_fitness
 
 # TODO: refactor this code
-def generate_fitness_output(population_results, iterations, f):
+def generate_fitness_output(population_results, iterations, f, f_box_and_whiskers_global, f_box_and_whiskers_last_iter):
     fitness_header = 'Iteration' + separator + separator.join(generate_header_items()) + '\n'
 
     f.write(fitness_header)
@@ -77,7 +130,7 @@ def generate_fitness_output(population_results, iterations, f):
     populations_fitness = []
     for _, value in population_results.iteritems():
         avg_fitness, stdev_fitness, min_fitness, first_quartile_fitness, third_quartile_fitness, max_fitness\
-            = compute_average_fitness_for_population(value, iterations)
+            = compute_average_fitness_for_population(value, iterations, f_box_and_whiskers_global, f_box_and_whiskers_last_iter)
         populations_fitness.append((avg_fitness, stdev_fitness, min_fitness, first_quartile_fitness,
                                     third_quartile_fitness, max_fitness))
 
@@ -179,7 +232,7 @@ def main():
     for ant_type in ant_populations:
         type_results = []
 
-        if name is None:
+        if ant_type != 'pc' or name is None:
             name = ant_type
 
         for filename in list_files_with_data(prefix, name, directory):
@@ -187,11 +240,17 @@ def main():
 
         populations_results[ant_type] = type_results
 
-    f = open(directory + '/' + prefix + 'avg_summary.dat', 'w')
+    f = open(directory + '/' + prefix + name + '_avg_summary.dat', 'w')
     generate_stats_output(populations_results, f)
     f.write('\n')
-    generate_fitness_output(populations_results, iterations, f)
+    f_box_and_whiskers_global = open(directory + '/' + prefix + name + '_avg_box_and_whiskers_global.dat', 'w')
+    f_box_and_whiskers_last_iter = open(directory + '/' + prefix + name + '_avg_box_and_whiskers_last_iter.dat', 'w')
+
+    generate_fitness_output(populations_results, iterations, f, f_box_and_whiskers_global, f_box_and_whiskers_last_iter)
+
     f.close()
+    f_box_and_whiskers_global.close()
+    f_box_and_whiskers_last_iter.close()
 
 
 if __name__ == "__main__":
