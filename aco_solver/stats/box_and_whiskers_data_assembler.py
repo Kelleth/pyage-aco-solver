@@ -21,9 +21,9 @@ def main():
     else:
         name = None
 
-    merged_global = open(directory + '/eil51_100_100_avg_box_and_whiskers_global_merged.dat', 'w')
+    merged_global = open(directory + '/' + dataset_name + '_100_100_avg_box_and_whiskers_global_merged.dat', 'w')
     merged_global.write('number;name;avg;min;first_quartile;third_quartile;max\n')
-    merged_last_iter = open(directory + '/eil51_100_100_avg_box_and_whiskers_last_iter_merged.dat', 'w')
+    merged_last_iter = open(directory + '/' + dataset_name + '_100_100_avg_box_and_whiskers_last_iter_merged.dat', 'w')
     merged_last_iter.write('number;name;avg;min;first_quartile;third_quartile;max\n')
 
     for i in xrange(len(populations)):
