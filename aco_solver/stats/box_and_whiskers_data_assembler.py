@@ -1,7 +1,7 @@
 from optparse import OptionParser
 
 #list of populations' names to be merged
-populations = ['a', 'eq']
+populations = ['a', 'awithout', 'eq', 'eqwithout', 'c', 'cwithout', 'd', 'dwithout', 'ca', 'cs', 'ha', 'la']
 
 def main():
     usage = "Usage: %prog number_of_ants iterations dataset_name output_directory"
@@ -21,10 +21,10 @@ def main():
     else:
         name = None
 
-    merged_global = open(directory + '/' + dataset_name + '_100_100_avg_box_and_whiskers_global_merged.dat', 'w')
-    merged_global.write('number;name;avg;min;first_quartile;third_quartile;max\n')
-    merged_last_iter = open(directory + '/' + dataset_name + '_100_100_avg_box_and_whiskers_last_iter_merged.dat', 'w')
-    merged_last_iter.write('number;name;avg;min;first_quartile;third_quartile;max\n')
+    merged_global = open(directory + '/' + cities_filename + '_' + str(ants_count) + '_' + str(iterations) + '_avg_box_and_whiskers_global_merged.dat', 'w')
+    merged_global.write('number;name;avg;min;first_quartile;third_quartile;median;max\n')
+    merged_last_iter = open(directory + '/' + cities_filename + '_' + str(ants_count) + '_' + str(iterations) + '_avg_box_and_whiskers_last_iter_merged.dat', 'w')
+    merged_last_iter.write('number;name;avg;min;first_quartile;third_quartile;median;max\n')
 
     for i in xrange(len(populations)):
         population = populations[i]

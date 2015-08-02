@@ -64,6 +64,7 @@ class ClassicAntColony(AntColony):
     def __init__(self, number_of_ants, graph, alpha, beta, iterations):
         ants = self.__generate_population(number_of_ants, graph, alpha, beta)
         AntColony.__init__(self, graph, ants, iterations)
+        self.name = 'ca'
 
     def __generate_population(self, number_of_ants, city_graph, alpha, beta):
         generated_ants = []
@@ -77,6 +78,7 @@ class ControlSampleColony(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
+        self.name = 'cs'
 
     def __generate_population(self, number_of_ants, city_graph):
         return create_sample(number_of_ants, 0.22, 0.15, 0.45, 0.18, 0.0, city_graph)
