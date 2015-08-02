@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['pc']
+ant_populations = []
 
 # backup of stats and fitness values from first column in avg result
 # used to calculate common quartiles, average, min and max values
@@ -215,15 +215,16 @@ def main():
     parser = OptionParser(usage=usage)
 
     (options, args) = parser.parse_args()
-    if len(args) < 4 or len(args) > 5:
+    if len(args) < 5 or len(args) > 6:
         parser.error("Incorrect number of arguments")
 
     ants_count = int(args[0])
     iterations = int(args[1])
     cities_filename = args[2]
     directory = args[3]
-    if len(args) == 5:
-        name = args[4]
+    ant_populations.append(args[4])
+    if len(args) == 6:
+        name = args[5]
     else:
         name = None
 
