@@ -1,7 +1,7 @@
 from optparse import OptionParser
 
 #list of populations' names to be merged
-populations = ['a', 'awithout', 'eq', 'eqwithout', 'c', 'cwithout', 'd', 'dwithout', 'ca', 'cs', 'ha', 'la']
+populations = ['awithout', 'ca']
 
 def main():
     usage = "Usage: %prog number_of_ants iterations dataset_name output_directory"

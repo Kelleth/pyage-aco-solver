@@ -1,5 +1,5 @@
 set datafile separator ";"
-set xrange[-0.5:11.5]
+set xrange[-0.5:1.5]
 #set yrange[0:1000]
 #set autoscale x
 set autoscale y
