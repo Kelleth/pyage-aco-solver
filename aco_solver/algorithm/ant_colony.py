@@ -89,6 +89,7 @@ class HighAltercentricityCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
+        self.name = 'ha'
 
     def __generate_population(self, number_of_ants, city_graph):
         return create_sample(number_of_ants, 0.03, 0.46, 0.23, 0.28, 0.0, city_graph)
@@ -99,6 +100,7 @@ class LowAltercentricityCondition(AntColony):
     def __init__(self, number_of_ants, graph, iterations):
         ants = self.__generate_population(number_of_ants, graph)
         AntColony.__init__(self, graph, ants, iterations)
+        self.name = 'la'
 
     def __generate_population(self, number_of_ants, city_graph):
         return create_sample(number_of_ants, 0.06, 0.06, 0.63, 0.25, 0.0, city_graph)
