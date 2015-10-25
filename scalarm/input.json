@@ -1,0 +1,11 @@
+{
+	"ants":"20",
+	"iterations":"20",
+	"city":"eil51",
+	"ptype":"pc",
+	"egocentric":"0.6",
+	"altercentric":"0.2",
+	"goodConflict":"0.2",
+	"badConflict":"0.0",
+	"name":"awithout"
+}
