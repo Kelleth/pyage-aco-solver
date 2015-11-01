@@ -4,7 +4,7 @@ import math
 
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 from aco_solver.algorithm.commons import Path
-from aco_solver.algorithm.results import Result, Fitness, Diversity
+from aco_solver.algorithm.results import Result, Fitness, Diversity, Attractiveness
 
 
 
@@ -22,6 +22,7 @@ class AntColony(object):
         start_time = time.time()
         fitness = Fitness()
         diversity = Diversity()
+        attractiveness = Attractiveness()
 
         for iteration in range(self.iterations):
             # shuffle ants
@@ -37,7 +38,9 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            diversity.update_diversity_list(self.graph.calculate_diversity())
+            diversity, attractiveness_list = self.graph.calculate_diversity_and_attractiveness()
+            diversity.update_diversity_list(diversity)
+            attractiveness.update_attractiveness_data(attractiveness_list)
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
         return Result(fitness, diversity, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)

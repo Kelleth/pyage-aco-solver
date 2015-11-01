@@ -17,19 +17,19 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
     colony = None
 
     if type == "ca":  # Classical Ants
-        graph = Graph(distance_matrix, positions, rho, q, 0.01)
+        graph = Graph(distance_matrix, positions, rho, q, 0.01, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
     elif type == "cs":  # Control Sample
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
         colony = ControlSampleColony(ants_count, graph, iterations)
     elif type == "ha":  # High Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
         colony = HighAltercentricityCondition(ants_count, graph, iterations)
     elif type == "la":  # Low Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q)
+        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
 
     result = colony.start_simulation()
@@ -38,8 +38,8 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
     pipe.send(pickle.dumps(result))
 
 
-def create_graph_with_default_pheromone_value(cities_distances, positions, rho, q):
-    return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0)
+def create_graph_with_default_pheromone_value(cities_distances, positions, rho, q, alpha, beta):
+    return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0, alpha, beta)
 
 
 def main():
@@ -173,6 +173,13 @@ def main():
              + str(iterations) + '_'
              + type_name + '_diversity.dat', 'w')
     f.write(ResultConverter(result_list).convert_diversity_results())
+    f.close()
+
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_attractiveness_avg_std.dat', 'w')
+    f.write(ResultConverter(result_list).convert_attractiveness_avg_std_results())
     f.close()
 
     for i in range(options.p):

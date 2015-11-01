@@ -8,9 +8,10 @@ fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, Altercentric
 
 
 class Result(object):
-    def __init__(self, fitness, diversity, computation_time, best_path, best_iteration, max_iterations, name):
+    def __init__(self, fitness, diversity, attractiveness, computation_time, best_path, best_iteration, max_iterations, name):
         self.fitness = fitness
         self.diversity = diversity
+        self.attractiveness = attractiveness
         self.computation_time = computation_time
         self.best_path = best_path
         self.best_iteration = best_iteration
@@ -86,9 +87,17 @@ class ResultConverter(object):
 
     def convert_diversity_results(self):
         output_string = ''
-        diversity_list = self.result_list[0].diversity
+        diversity = self.result_list[0].diversity
         for i in range(self.result_list[0].max_iterations):
-            output_string += str(i) + ',' + diversity_list.get_diversity_value(i) + '\n'
+            output_string += str(i) + ',' + diversity.get_diversity_value(i) + '\n'
+
+        return output_string
+
+    def convert_attractiveness_avg_std_results(self):
+        output_string = ''
+        attractiveness = self.result_list[0].attractiveness
+        for i in range(self.result_list[0].max_iterations):
+            output_string += str(i) + ',' + attractiveness.get_avg_attractiveness(i) + ',' + attractiveness.get_std_attractiveness(i) + '\n'
 
         return output_string
 
@@ -126,6 +135,28 @@ class ResultConverter(object):
                 avg_fitness_map[key].append((mean, stdev, ))
 
         return avg_fitness_map
+
+
+class Attractiveness(object):
+    def __init__(self):
+        self.attractiveness_lists = list()
+        self.avg_attractiveness_list = list()
+        self.std_attractiveness_list = list()
+
+    def update_attractiveness_data(self, attractiveness_list):
+        self.attractiveness_lists.append(attractiveness_list)
+        self.avg_attractiveness_list.append(numpy.mean(attractiveness_list))
+        self.std_attractiveness_list.append(numpy.std(attractiveness_list))
+
+    def get_attractiveness_list(self, iteration):
+        return self.attractiveness_lists[iteration - 1]
+
+    def get_avg_attractiveness(self, iteration):
+        return self.avg_attractiveness_list[iteration - 1]
+
+    def get_std_attractiveness(self, iteration):
+        return self.std_attractiveness_list[iteration - 1]
+
 
 
 class Diversity(object):

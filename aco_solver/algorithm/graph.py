@@ -1,5 +1,5 @@
 class Graph(object):
-    def __init__(self, distance_matrix, positions, pheromone_evaporation, pheromone_deposit, init_pheromone_value):
+    def __init__(self, distance_matrix, positions, pheromone_evaporation, pheromone_deposit, init_pheromone_value, attractiveness_alpha, attractiveness_beta):
         number_of_cities = len(distance_matrix)
 
         cities = []
@@ -20,6 +20,9 @@ class Graph(object):
         self.pheromone_evaporation = pheromone_evaporation
         self.pheromone_deposit = pheromone_deposit
 
+        self.attractiveness_alpha = attractiveness_alpha
+        self.attractiveness_beta = attractiveness_beta
+
     def update_pheromones(self, ant):
         # increase value for visited connections
         path = ant.path
@@ -32,15 +35,18 @@ class Graph(object):
             for connection in city.connection_list:
                 connection.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
-    def calculate_diversity(self):
+    def calculate_diversity_and_attractiveness(self):
         connections_with_pheromone = 0
         connections_number = 0
+        attractiveness_list = []
         for city in self.cities:
             for connection in city.connection_list:
                 connections_number += 1
-                if connection.pheromone > 0:
+                attractiveness = connection.pheromone.total_pheromone ** self.attractiveness_alpha * (1.0 / connection.distance) ** self.attractiveness_beta
+                attractiveness_list.append(attractiveness)
+                if connection.pheromone.total_pheromone > 0:
                     connections_with_pheromone += 1
-        return (connections_with_pheromone / connections_number) * 100
+        return (connections_with_pheromone / connections_number) * 100, attractiveness_list
 
 
 
