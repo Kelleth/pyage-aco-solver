@@ -8,7 +8,8 @@ fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, Altercentric
 
 
 class Result(object):
-    def __init__(self, fitness, diversity, attractiveness, computation_time, best_path, best_iteration, max_iterations, name):
+    def __init__(self, fitness, diversity, attractiveness, computation_time, best_path, best_iteration, max_iterations,
+                 name):
         self.fitness = fitness
         self.diversity = diversity
         self.attractiveness = attractiveness
@@ -89,7 +90,7 @@ class ResultConverter(object):
         output_string = ''
         diversity = self.result_list[0].diversity
         for i in range(self.result_list[0].max_iterations):
-            output_string += str(i) + ',' + diversity.get_diversity_value(i) + '\n'
+            output_string += str(i) + ',' + str(diversity.get_diversity_value(i)) + '\n'
 
         return output_string
 
@@ -97,7 +98,8 @@ class ResultConverter(object):
         output_string = ''
         attractiveness = self.result_list[0].attractiveness
         for i in range(self.result_list[0].max_iterations):
-            output_string += str(i) + ',' + attractiveness.get_avg_attractiveness(i) + ',' + attractiveness.get_std_attractiveness(i) + '\n'
+            output_string += str(i) + ',' + str(attractiveness.get_avg_attractiveness(i)) + ',' + str(
+                attractiveness.get_std_attractiveness(i)) + '\n'
 
         return output_string
 
@@ -145,8 +147,8 @@ class Attractiveness(object):
 
     def update_attractiveness_data(self, attractiveness_list):
         self.attractiveness_lists.append(attractiveness_list)
-        self.avg_attractiveness_list.append(numpy.mean(attractiveness_list))
-        self.std_attractiveness_list.append(numpy.std(attractiveness_list))
+        self.avg_attractiveness_list.append(round(numpy.mean(attractiveness_list), 5))
+        self.std_attractiveness_list.append(round(numpy.std(attractiveness_list), 5))
 
     def get_attractiveness_list(self, iteration):
         return self.attractiveness_lists[iteration - 1]
@@ -158,7 +160,6 @@ class Attractiveness(object):
         return self.std_attractiveness_list[iteration - 1]
 
 
-
 class Diversity(object):
     def __init__(self):
         self.list = list()
@@ -168,7 +169,6 @@ class Diversity(object):
 
     def get_diversity_value(self, iteration):
         return self.list[iteration - 1]
-
 
 
 class Fitness(object):
