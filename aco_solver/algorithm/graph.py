@@ -32,6 +32,20 @@ class Graph(object):
             for connection in city.connection_list:
                 connection.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
+    def calculate_diversity(self):
+        connections_with_pheromone = 0
+        connections_number = 0
+        for city in self.cities:
+            for connection in city.connection_list:
+                connections_number += 1
+                if connection.pheromone > 0:
+                    connections_with_pheromone += 1
+        return (connections_with_pheromone / connections_number) * 100
+
+
+
+
+
 
 class City(object):
     def __init__(self, city_id, position, init_pheromone_value, connection_list=None):

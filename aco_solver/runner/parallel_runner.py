@@ -168,7 +168,12 @@ def main():
     f.write(ResultConverter(result_list).covert_to_avg_results())
     f.close()
 
-    
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_diversity.dat', 'w')
+    f.write(ResultConverter(result_list).convert_diversity_results())
+    f.close()
 
     for i in range(options.p):
         processes[i].join()

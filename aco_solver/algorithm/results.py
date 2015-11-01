@@ -8,8 +8,9 @@ fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, Altercentric
 
 
 class Result(object):
-    def __init__(self, fitness, computation_time, best_path, best_iteration, max_iterations, name):
+    def __init__(self, fitness, diversity, computation_time, best_path, best_iteration, max_iterations, name):
         self.fitness = fitness
+        self.diversity = diversity
         self.computation_time = computation_time
         self.best_path = best_path
         self.best_iteration = best_iteration
@@ -83,6 +84,15 @@ class ResultConverter(object):
 
         return output_string
 
+    def convert_diversity_results(self):
+        output_string = ''
+        diversity_list = self.result_list[0].diversity
+        for i in range(self.result_list[0].max_iterations):
+            output_string += str(i) + ',' + diversity_list.get_diversity_value(i) + '\n'
+
+        return output_string
+
+
     def __compute_avg_distance(self):
         distances = [result.best_path.distance for result in self.result_list]
         mean = numpy.mean(distances)
@@ -118,6 +128,18 @@ class ResultConverter(object):
         return avg_fitness_map
 
 
+class Diversity(object):
+    def __init__(self):
+        self.list = list()
+
+    def update_diversity_list(self, value):
+        self.list.append(value)
+
+    def get_diversity_value(self, iteration):
+        return self.list[iteration - 1]
+
+
+
 class Fitness(object):
     def __init__(self):
         self.current_iteration = 0
@@ -125,6 +147,9 @@ class Fitness(object):
         self.map = dict()
         for key in fitness_keys:
             self.map[key] = []
+
+    def get_iteration(self):
+        return self.current_iteration
 
     def increase_iteration(self):
         self.current_iteration += 1
