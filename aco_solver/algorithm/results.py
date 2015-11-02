@@ -99,7 +99,6 @@ class ResultConverter(object):
 
     def convert_attractiveness_avg_std_results(self):
         output_string = ''
-        print(self.result_list[0].attractiveness)
         for i in range(self.result_list[0].max_iterations):
             curr_iter_attractivenesses = [result.attractiveness.get_avg_attractiveness(i) for result in self.result_list]
             output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractivenesses)) + ',' + str(numpy.std(curr_iter_attractivenesses)) \
