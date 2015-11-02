@@ -15,7 +15,6 @@ from aco_solver.algorithm.graph import Graph
 
 def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
-
     if type == "ca":  # Classical Ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)

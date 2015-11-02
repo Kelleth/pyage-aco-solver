@@ -23,6 +23,8 @@ class Graph(object):
         self.attractiveness_alpha = attractiveness_alpha
         self.attractiveness_beta = attractiveness_beta
 
+        self.init_pheromone_value = init_pheromone_value
+
     def update_pheromones(self, ant):
         # increase value for visited connections
         path = ant.path
@@ -44,9 +46,9 @@ class Graph(object):
                 connections_number += 1
                 attractiveness = connection.pheromone.total_pheromone ** self.attractiveness_alpha * (1.0 / connection.distance) ** self.attractiveness_beta
                 attractiveness_list.append(attractiveness)
-                if connection.pheromone.total_pheromone > 0:
+                if connection.pheromone.was_recently_updated(self.init_pheromone_value):
                     connections_with_pheromone += 1
-        return (connections_with_pheromone / connections_number) * 100, attractiveness_list
+        return (connections_with_pheromone / float(connections_number)) * 100, attractiveness_list
 
 
 
@@ -140,9 +142,29 @@ class Pheromone(object):
         self.unknown_pheromone *= factor
         self.__update_total_pheromone()
 
+    def was_recently_updated(self, init_pheromone_value):
+        return self.ac_pheromone > init_pheromone_value or self.ec_pheromone > init_pheromone_value \
+                               or self.gc_pheromone > init_pheromone_value or self.bc_pheromone > init_pheromone_value \
+                               or self.unknown_pheromone > init_pheromone_value
+
     def __update_total_pheromone(self):
         self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
                                + self.unknown_pheromone
+
+    def __str__(self):
+        output_str = 'AC: '
+        output_str += str(self.ac_pheromone) + '\n'
+        output_str += 'EC: '
+        output_str += str(self.ec_pheromone) + '\n'
+        output_str += 'GC: '
+        output_str += str(self.gc_pheromone) + '\n'
+        output_str += 'BC: '
+        output_str += str(self.bc_pheromone) + '\n'
+        output_str += 'Total: '
+        output_str += str(self.total_pheromone) + '\n'
+        output_str += 'Unknown: '
+        output_str += str(self.unknown_pheromone) + '\n'
+        return output_str
 
 
 # Average distance in graph is used to setup initial pheromone value

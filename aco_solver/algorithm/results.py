@@ -28,6 +28,8 @@ class Result(object):
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
         output_string += str(self.computation_time) + '\n'
+        output_string += 'Diversity: '
+        output_string += str(self.diversity) + '\n'
 
         output_string += str(self.fitness)
 
@@ -42,7 +44,8 @@ class Result(object):
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
         output_string += str(self.computation_time) + '\n'
-
+        output_string += 'Diversity: '
+        output_string += str(self.diversity) + '\n'
         output_string += self.fitness.fitness_to_string()
 
         return output_string
@@ -88,18 +91,19 @@ class ResultConverter(object):
 
     def convert_diversity_results(self):
         output_string = ''
-        diversity = self.result_list[0].diversity
         for i in range(self.result_list[0].max_iterations):
-            output_string += str(i) + ',' + str(diversity.get_diversity_value(i)) + '\n'
+            curr_iter_diversities = [result.diversity.get_diversity_value(i) for result in self.result_list]
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_diversities)) + ',' + str(numpy.std(curr_iter_diversities)) + '\n'
 
         return output_string
 
     def convert_attractiveness_avg_std_results(self):
         output_string = ''
-        attractiveness = self.result_list[0].attractiveness
+        print(self.result_list[0].attractiveness)
         for i in range(self.result_list[0].max_iterations):
-            output_string += str(i) + ',' + str(attractiveness.get_avg_attractiveness(i)) + ',' + str(
-                attractiveness.get_std_attractiveness(i)) + '\n'
+            curr_iter_attractivenesses = [result.attractiveness.get_avg_attractiveness(i) for result in self.result_list]
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractivenesses)) + ',' + str(numpy.std(curr_iter_attractivenesses)) \
+                           + '\n'
 
         return output_string
 
@@ -141,23 +145,26 @@ class ResultConverter(object):
 
 class Attractiveness(object):
     def __init__(self):
-        self.attractiveness_lists = list()
-        self.avg_attractiveness_list = list()
-        self.std_attractiveness_list = list()
+        self.attractiveness_lists = []
+        self.avg_attractiveness_list = []
+        self.std_attractiveness_list = []
 
     def update_attractiveness_data(self, attractiveness_list):
         self.attractiveness_lists.append(attractiveness_list)
-        self.avg_attractiveness_list.append(round(numpy.mean(attractiveness_list), 5))
-        self.std_attractiveness_list.append(round(numpy.std(attractiveness_list), 5))
+        self.avg_attractiveness_list.append(numpy.mean(attractiveness_list))
+        self.std_attractiveness_list.append(numpy.std(attractiveness_list))
 
     def get_attractiveness_list(self, iteration):
-        return self.attractiveness_lists[iteration - 1]
+        return self.attractiveness_lists[iteration]
 
     def get_avg_attractiveness(self, iteration):
-        return self.avg_attractiveness_list[iteration - 1]
+        return self.avg_attractiveness_list[iteration]
 
     def get_std_attractiveness(self, iteration):
-        return self.std_attractiveness_list[iteration - 1]
+        return self.std_attractiveness_list[iteration]
+
+    def __str__(self):
+        return str(self.attractiveness_lists)
 
 
 class Diversity(object):
@@ -168,7 +175,10 @@ class Diversity(object):
         self.list.append(value)
 
     def get_diversity_value(self, iteration):
-        return self.list[iteration - 1]
+        return self.list[iteration]
+
+    def __str__(self):
+        return str(self.list)
 
 
 class Fitness(object):
