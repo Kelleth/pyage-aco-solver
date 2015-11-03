@@ -99,9 +99,19 @@ class ResultConverter(object):
 
     def convert_attractiveness_avg_std_results(self):
         output_string = ''
+        #print(self.result_list[0].attractiveness)
         for i in range(self.result_list[0].max_iterations):
             curr_iter_attractivenesses = [result.attractiveness.get_avg_attractiveness(i) for result in self.result_list]
             output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractivenesses)) + ',' + str(numpy.std(curr_iter_attractivenesses)) \
+                           + '\n'
+
+        return output_string
+
+    def convert_attractiveness_ratio_results(self):
+        output_string = ''
+        for i in range(self.result_list[0].max_iterations):
+            curr_iter_attractiveness_ratios = [result.attractiveness.get_attractiveness_ratio(i) for result in self.result_list]
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractiveness_ratios)) + ',' + str(numpy.std(curr_iter_attractiveness_ratios)) \
                            + '\n'
 
         return output_string
@@ -145,13 +155,15 @@ class ResultConverter(object):
 class Attractiveness(object):
     def __init__(self):
         self.attractiveness_lists = []
+        self.attractiveness_ratios = []
         self.avg_attractiveness_list = []
         self.std_attractiveness_list = []
 
-    def update_attractiveness_data(self, attractiveness_list):
+    def update_attractiveness_data(self, attractiveness_list, attractiveness_ratio):
         self.attractiveness_lists.append(attractiveness_list)
         self.avg_attractiveness_list.append(numpy.mean(attractiveness_list))
         self.std_attractiveness_list.append(numpy.std(attractiveness_list))
+        self.attractiveness_ratios.append(attractiveness_ratio)
 
     def get_attractiveness_list(self, iteration):
         return self.attractiveness_lists[iteration]
@@ -162,8 +174,11 @@ class Attractiveness(object):
     def get_std_attractiveness(self, iteration):
         return self.std_attractiveness_list[iteration]
 
+    def get_attractiveness_ratio(self, iteration):
+        return self.attractiveness_ratios[iteration]
+
     def __str__(self):
-        return str(self.attractiveness_lists)
+        return str(self.attractiveness_lists) + '\n' + str(self.attractiveness_ratios)
 
 
 class Diversity(object):

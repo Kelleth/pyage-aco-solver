@@ -37,22 +37,29 @@ class Graph(object):
             for connection in city.connection_list:
                 connection.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
-    def calculate_diversity_and_attractiveness(self):
+    def calculate_diversity_and_attractiveness(self, best_path):
         connections_with_pheromone = 0
         connections_number = 0
         attractiveness_list = []
+        attractiveness_on_best_path = 0
+        attractiveness_outside_best_path = 0
         for city in self.cities:
             for connection in city.connection_list:
                 connections_number += 1
                 attractiveness = connection.pheromone.total_pheromone ** self.attractiveness_alpha * (1.0 / connection.distance) ** self.attractiveness_beta
                 attractiveness_list.append(attractiveness)
+
+                if best_path.contains_connection(connection):
+                    attractiveness_on_best_path += attractiveness
+                else:
+                    attractiveness_outside_best_path += attractiveness
+
                 if connection.pheromone.was_recently_updated(self.init_pheromone_value):
                     connections_with_pheromone += 1
-        return (connections_with_pheromone / float(connections_number)) * 100, attractiveness_list
 
-
-
-
+        diversity = (connections_with_pheromone / float(connections_number)) * 100
+        attractiveness_ratio = (attractiveness_on_best_path / float(attractiveness_outside_best_path)) * 100
+        return diversity, attractiveness_list, attractiveness_ratio
 
 
 class City(object):
@@ -61,6 +68,7 @@ class City(object):
             connection_list = []
 
         self.city_id = city_id
+        self.connection_no = 0
         self.connection_list = connection_list
         self.init_pheromone_value = init_pheromone_value
         self.position = position
@@ -70,9 +78,11 @@ class City(object):
             raise RuntimeError('Cannot add connection to itself')
 
         self.connection_list.append(connection)
+        self.connection_no += 1
 
     def create_and_add_connection(self, distance, destination_city):
-        self.add_connection(Connection(distance, destination_city, self.init_pheromone_value))
+        connection_id = str(self.city_id) + '_' + str(self.connection_no)
+        self.add_connection(Connection(connection_id, distance, destination_city, self.init_pheromone_value))
 
     def find_connection_to_city(self, city):
         for connection in self.connection_list:
@@ -94,10 +104,14 @@ class City(object):
 
 
 class Connection(object):
-    def __init__(self, distance, destination_city, init_pheromone_value):
+    def __init__(self, connection_id, distance, destination_city, init_pheromone_value):
+        self.connection_id = connection_id
         self.distance = distance
         self.destination_city = destination_city
         self.pheromone = Pheromone(init_pheromone_value)
+
+    def __eq__(self, other):
+        return self.connection_id == other.connection_id
 
     def accept_visitor(self, visitor, pheromone_value):
         visitor.visit(self, pheromone_value)
