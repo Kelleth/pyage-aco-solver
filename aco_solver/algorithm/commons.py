@@ -40,5 +40,8 @@ class Path(object):
 
         return '\n'.join(points)
 
+    def contains_connection(self, connection):
+        return connection in self.connection_list
+
     def __str__(self):
         return 'Distance {}, path {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])

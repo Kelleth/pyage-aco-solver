@@ -38,9 +38,9 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            diversity_percent, attractiveness_list = self.graph.calculate_diversity_and_attractiveness()
+            diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
             diversity.update_diversity_list(diversity_percent)
-            attractiveness.update_attractiveness_data(attractiveness_list)
+            attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
         return Result(fitness, diversity, attractiveness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)
