@@ -6,8 +6,9 @@ set ylabel "Path length"
 #set yrange [7000:13000]
 set autoscale y
 set autoscale x
-set title TITLE font "Verdana,40" 
-set terminal pdf color linewidth 3 size 16,9 enhanced font 'Verdana,25'
+set tics scale 2
+#set title TITLE font "Verdana,40" 
+set terminal pdf color linewidth 3 size 16,9 enhanced font 'Verdana,40'
 set output OUTPUTFILE
 plot FILENAME u 1:2 every ::4 w l linetype 1 lc rgb 'red' notitle, \
      "" u 1:6 every ::4 w l linetype 2 lc rgb 'black' notitle, \
