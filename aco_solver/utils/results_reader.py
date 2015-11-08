@@ -20,7 +20,7 @@ def read_file(directory, filename, name):
                 fitness.update_fitness_stats(headers[i], float(distance))
         fitness.increase_iteration()
     # fixme arguments passed to constructor have wrong types
-    result = results.Result(fitness, float(details[3]), details[1], details[2], 100, name)
+    result = results.Result(fitness, None, None, float(details[3]), details[1], details[2], 100, name)
     result.best_distance = float(details[0])  # workaround to store best distance value
     f.close()
     return result
