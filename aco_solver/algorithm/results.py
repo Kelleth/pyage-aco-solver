@@ -8,11 +8,13 @@ fitness_keys = sorted([ClassicAnt.__name__, EgocentricAnt.__name__, Altercentric
 
 
 class Result(object):
-    def __init__(self, fitness, diversity, attractiveness, computation_time, best_path, best_iteration, max_iterations,
+    def __init__(self, fitness, diversity, attractiveness, population_sizes, computation_time, best_path,
+                 best_iteration, max_iterations,
                  name):
         self.fitness = fitness
         self.diversity = diversity
         self.attractiveness = attractiveness
+        self.population_sizes = population_sizes
         self.computation_time = computation_time
         self.best_path = best_path
         self.best_iteration = best_iteration
@@ -79,7 +81,7 @@ class ResultConverter(object):
             for key in fitness_keys:
                 output_string += fitness_separator
 
-                if avg_fitness_map[key]:
+                if avg_fitness_map[key] and len(avg_fitness_map[key]) > i:
                     avg_fitness, stdev_fitness = avg_fitness_map[key][i]
                     output_string += str(avg_fitness) + fitness_separator + str(stdev_fitness)
                 else:
@@ -93,25 +95,48 @@ class ResultConverter(object):
         output_string = ''
         for i in range(self.result_list[0].max_iterations):
             curr_iter_diversities = [result.diversity.get_diversity_value(i) for result in self.result_list]
-            output_string += str(i) + ',' + str(numpy.mean(curr_iter_diversities)) + ',' + str(numpy.std(curr_iter_diversities)) + '\n'
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_diversities)) + ',' + str(
+                numpy.std(curr_iter_diversities)) + '\n'
 
         return output_string
 
     def convert_attractiveness_avg_std_results(self):
         output_string = ''
         for i in range(self.result_list[0].max_iterations):
-            curr_iter_attractivenesses = [result.attractiveness.get_avg_attractiveness(i) for result in self.result_list]
-            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractivenesses)) + ',' + str(numpy.std(curr_iter_attractivenesses)) \
-                           + '\n'
+            curr_iter_attractivenesses = [result.attractiveness.get_avg_attractiveness(i) for result in
+                                          self.result_list]
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractivenesses)) + ',' + str(
+                numpy.std(curr_iter_attractivenesses)) \
+                             + '\n'
 
         return output_string
 
     def convert_attractiveness_ratio_results(self):
         output_string = ''
         for i in range(self.result_list[0].max_iterations):
-            curr_iter_attractiveness_ratios = [result.attractiveness.get_attractiveness_ratio(i) for result in self.result_list]
-            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractiveness_ratios)) + ',' + str(numpy.std(curr_iter_attractiveness_ratios)) \
-                           + '\n'
+            curr_iter_attractiveness_ratios = [result.attractiveness.get_attractiveness_ratio(i) for result in
+                                               self.result_list]
+            output_string += str(i) + ',' + str(numpy.mean(curr_iter_attractiveness_ratios)) + ',' + str(
+                numpy.std(curr_iter_attractiveness_ratios)) \
+                             + '\n'
+
+        return output_string
+
+    def convert_population_sizes_results(self):
+        output_string = "Iteration" + fitness_separator
+        for fitness_key in fitness_keys:
+            output_string += fitness_key + fitness_separator
+            output_string += fitness_key + '_stdev' + fitness_separator
+        output_string += '\n'
+
+        for i in range(self.result_list[0].max_iterations):
+            output_string += str(i)
+            for key in fitness_keys:
+                curr_iter_population_size = [result.population_sizes.get_population_size(i, key) for result in
+                                             self.result_list]
+                output_string += ',' + str(numpy.mean(curr_iter_population_size)) \
+                                 + ',' + str(numpy.std(curr_iter_population_size))
+            output_string += '\n'
 
         return output_string
 
@@ -141,12 +166,14 @@ class ResultConverter(object):
                 if len(self.result_list[0].fitness.map[key]) == 0:
                     continue
 
-                iteration_fitness = [result.fitness.map[key][fitness_iteration] for result in self.result_list]
+                iteration_fitness = [result.fitness.map[key][fitness_iteration] for result in self.result_list if
+                                     len(result.fitness.map[key]) > fitness_iteration]
 
-                mean = numpy.mean(iteration_fitness)
-                stdev = numpy.std(iteration_fitness)
+                if len(iteration_fitness) != 0:
+                    mean = numpy.mean(iteration_fitness)
+                    stdev = numpy.std(iteration_fitness)
 
-                avg_fitness_map[key].append((mean, stdev, ))
+                    avg_fitness_map[key].append((mean, stdev, ))
 
         return avg_fitness_map
 
@@ -194,9 +221,28 @@ class Diversity(object):
         return str(self.list)
 
 
+class PopulationSizes(object):
+    def __init__(self):
+        self.map = dict()
+        for key in fitness_keys:
+            self.map[key] = []
+
+    def update_population_sizes(self, sizes_map):
+        for population in fitness_keys:
+            self.map[population].append(sizes_map[population])
+
+    def get_population_size(self, iteration, population):
+        population_size = 0
+        if self.map[population] and len(self.map[population]) > iteration:
+            population_size = self.map[population][iteration]
+        return population_size
+
+
 class Fitness(object):
     def __init__(self):
         self.current_iteration = 0
+        self.all_populations = [EgocentricAnt.__name__, AltercentricAnt.__name__, GoodConflictAnt.__name__,
+                                BadConflictAnt.__name__]
 
         self.map = dict()
         for key in fitness_keys:
@@ -207,6 +253,16 @@ class Fitness(object):
 
     def increase_iteration(self):
         self.current_iteration += 1
+
+    def get_current_best_and_worst_populations(self):
+        """:return best_population, worst_population"""
+        pop_fitness_map = dict()
+        for population in self.all_populations:
+            pop_fitness_per_iteration = self.map[population]
+            if pop_fitness_per_iteration and len(pop_fitness_per_iteration) > self.current_iteration:
+                pop_fitness_map[population] = self.map[population][self.current_iteration]
+
+        return min(pop_fitness_map, key=pop_fitness_map.get), max(pop_fitness_map, key=pop_fitness_map.get)
 
     def update_fitness(self, ant):
         fitness_list = self.map[ant.__class__.__name__]
@@ -251,7 +307,7 @@ class Fitness(object):
 
             for key in sorted(self.map):
                 fitness = ''
-                if self.map[key]:
+                if self.map[key] and len(self.map[key]) > i:
                     if current_best[key] is None or self.map[key][i] < current_best[key]:
                         current_best[key] = self.map[key][i]
                     fitness = str(current_best[key])
@@ -270,7 +326,7 @@ class Fitness(object):
 
             for key in sorted(self.map):
                 fitness = ''
-                if self.map[key]:
+                if self.map[key] and len(self.map[key]) > i:
                     fitness = str(self.map[key][i])
 
                 output_string += fitness_separator + fitness

@@ -4,7 +4,9 @@ import math
 
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 from aco_solver.algorithm.commons import Path
-from aco_solver.algorithm.results import Result, Fitness, Diversity, Attractiveness
+from aco_solver.algorithm.results import Result, Fitness, Diversity, Attractiveness, PopulationSizes
+
+populations = sorted([ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt])
 
 
 
@@ -18,11 +20,34 @@ class AntColony(object):
         self.best_path = None
         self.best_path_iteration = None
 
+    def make_emergence(self, fitness):
+        best_population, worst_population = fitness.get_current_best_and_worst_populations()
+        self.move_ant(worst_population, best_population)
+
+    def update_population_sizes_stats(self, population_sizes):
+        sizes_map = dict()
+        for pop in populations:
+            sizes_map[pop.__name__] = sum(1 for ant in self.ants if isinstance(ant, pop))
+
+        population_sizes.update_population_sizes(sizes_map)
+
+    def move_ant(self, worst_population, best_population):
+        """currently moves ant from worst population to best population"""
+
+        # find first occurrence of given ant type ...
+        ant_to_remove = next(ant for ant in self.ants if ant.__class__.__name__ == worst_population)
+        # ... and then convert ant to new type (emergence)
+        ant_to_add = globals()[best_population](ant_to_remove.graph, ant_to_remove.path)
+
+        self.ants.remove(ant_to_remove)
+        self.ants.append(ant_to_add)
+
     def start_simulation(self):
         start_time = time.time()
         fitness = Fitness()
         diversity = Diversity()
         attractiveness = Attractiveness()
+        population_sizes = PopulationSizes()
 
         for iteration in range(self.iterations):
             # shuffle ants
@@ -38,12 +63,17 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
+            self.make_emergence(fitness)
+            self.update_population_sizes_stats(population_sizes)
+
+            diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(
+                self.best_path)
             diversity.update_diversity_list(diversity_percent)
             attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
-        return Result(fitness, diversity, attractiveness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)
+        return Result(fitness, diversity, attractiveness, population_sizes, time.time() - start_time, self.best_path,
+                      self.best_path_iteration, self.iterations, self.name)
 
     def __repr__(self):
         output = 'Colony population:\n'
@@ -113,13 +143,17 @@ class LowAltercentricityCondition(AntColony):
 
 # percentage quantity of populations in colony are provided by parameters
 class ParametrizedColony(AntColony):
-    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic = 0.0, alpha = 0.0, beta = 0.0, name = None):
-        ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta)
+    def __init__(self, number_of_ants, graph, iterations, egocentric, altercentric, goodConflict, badConflict,
+                 classic=0.0, alpha=0.0, beta=0.0, name=None):
+        ants = self.__generate_population(number_of_ants, graph, egocentric, altercentric, goodConflict, badConflict,
+                                          classic, alpha, beta)
         self.name = name
         AntColony.__init__(self, graph, ants, iterations)
 
-    def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta):
-        return create_sample(number_of_ants, egocentric, altercentric, goodConflict, badConflict, classic, city_graph, alpha, beta)
+    def __generate_population(self, number_of_ants, city_graph, egocentric, altercentric, goodConflict, badConflict,
+                              classic, alpha, beta):
+        return create_sample(number_of_ants, egocentric, altercentric, goodConflict, badConflict, classic, city_graph,
+                             alpha, beta)
 
 
 def get_population_fullname(abbreviation):
@@ -136,8 +170,10 @@ def get_population_fullname(abbreviation):
     else:
         raise RuntimeError('Unknown population: ' + abbreviation)
 
-#0.22, 0.15, 0.45, 0.18, 0.0
-def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction, city_graph, alpha = 0.0, beta = 0.0):
+
+# 0.22, 0.15, 0.45, 0.18, 0.0
+def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction,
+                  city_graph, alpha=0.0, beta=0.0):
     generated_ants = []
 
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
