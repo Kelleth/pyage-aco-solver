@@ -30,8 +30,6 @@ class Result(object):
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
         output_string += str(self.computation_time) + '\n'
-        output_string += 'Diversity: '
-        output_string += str(self.diversity) + '\n'
 
         output_string += str(self.fitness)
 
@@ -46,8 +44,6 @@ class Result(object):
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
         output_string += str(self.computation_time) + '\n'
-        output_string += 'Diversity: '
-        output_string += str(self.diversity) + '\n'
         output_string += self.fitness.fitness_to_string()
 
         return output_string
