@@ -250,15 +250,23 @@ class Fitness(object):
     def increase_iteration(self):
         self.current_iteration += 1
 
-    def get_current_best_and_worst_populations(self):
-        """:return best_population, worst_population"""
+    def get_current_fitnesses(self):
         pop_fitness_map = dict()
         for population in self.all_populations:
             pop_fitness_per_iteration = self.map[population]
             if pop_fitness_per_iteration and len(pop_fitness_per_iteration) > self.current_iteration:
                 pop_fitness_map[population] = self.map[population][self.current_iteration]
+        return pop_fitness_map
 
+    def get_current_best_and_worst_populations(self):
+        """:return best_population, worst_population"""
+        pop_fitness_map = self.get_current_fitnesses()
         return min(pop_fitness_map, key=pop_fitness_map.get), max(pop_fitness_map, key=pop_fitness_map.get)
+
+    def get_current_global_fitness(self):
+        """:return minimum fitness as global fitness"""
+        pop_fitness_map = self.get_current_fitnesses()
+        return min(pop_fitness_map.itervalues())
 
     def update_fitness(self, ant):
         fitness_list = self.map[ant.__class__.__name__]

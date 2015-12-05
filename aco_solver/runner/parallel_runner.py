@@ -13,7 +13,8 @@ from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentri
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
+def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, swapCondition,
+                     egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
     if type == "ca":  # Classical Ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01, alpha, beta)
@@ -29,16 +30,18 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
         graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
-        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
+        colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict,
+                                    classic, alpha, beta, name)
 
-    result = colony.start_simulation()
+    result = colony.start_simulation(swapCondition)
     # to avoid problems with deep recursion while serializing large objects with pickle
     sys.setrecursionlimit(30000)
     pipe.send(pickle.dumps(result))
 
 
 def create_graph_with_default_pheromone_value(cities_distances, positions, rho, q, alpha, beta):
-    return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0, alpha, beta)
+    return Graph(cities_distances, positions, rho, q, (1.0 / graph.compute_average_distance(cities_distances)) ** 2.0,
+                 alpha, beta)
 
 
 def main():
@@ -72,6 +75,9 @@ def main():
                       help="output directory [default: %default]", dest="outputdir")
     parser.add_option("-n", "--paremetrizedName", default="pc", type="string",
                       help="name of parametrized colony [default: %default", dest="name")
+    parser.add_option("-s", "--swapCondition", default="0.1", type="float",
+                      help="percentage decrease of fitness required to make ants swap [default: %default]",
+                      dest="swapCondition")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -97,12 +103,12 @@ def main():
         if options.type == "pc":
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
+                options.beta, pipes[i][1], options.swapCondition, options.egocentric, options.altercentric, options.goodConflict,
                 options.badConflict, options.classic, options.name)))
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1])))
+                options.beta, pipes[i][1], options.swapCondition)))
     for i in range(options.p):
         processes[i].start()
 
@@ -122,14 +128,16 @@ def main():
 
     type_name = options.type
     if (options.name != 'pc'):
-      type_name = options.name
-      f = open(output_directory_name + cities_filename + '_'
-             + str(ants_count) + '_'
-             + str(iterations) + '_'
-             + type_name + '_config.dat', 'w')
-      config = 'Egocentric: ' + str(options.egocentric) + '\nAltercentric: ' + str(options.altercentric) + '\nGood at conflict: ' + str(options.goodConflict) + '\nBad at conflict: ' + str(options.badConflict)
-      f.write(config)
-      f.close()
+        type_name = options.name
+        f = open(output_directory_name + cities_filename + '_'
+                 + str(ants_count) + '_'
+                 + str(iterations) + '_'
+                 + type_name + '_config.dat', 'w')
+        config = 'Egocentric: ' + str(options.egocentric) + '\nAltercentric: ' + str(
+            options.altercentric) + '\nGood at conflict: ' + str(options.goodConflict) + '\nBad at conflict: ' + str(
+            options.badConflict)
+        f.write(config)
+        f.close()
 
     for i in range(len(result_list)):
         f = open(output_directory_name + cities_filename + '_'

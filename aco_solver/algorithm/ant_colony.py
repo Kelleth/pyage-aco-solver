@@ -42,12 +42,13 @@ class AntColony(object):
         self.ants.remove(ant_to_remove)
         self.ants.append(ant_to_add)
 
-    def start_simulation(self):
+    def start_simulation(self, swap_required_decrease):
         start_time = time.time()
         fitness = Fitness()
         diversity = Diversity()
         attractiveness = Attractiveness()
         population_sizes = PopulationSizes()
+        last_iter_global_fitness = None
 
         for iteration in range(self.iterations):
             # shuffle ants
@@ -63,8 +64,14 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            self.make_emergence(fitness)
+            if last_iter_global_fitness is None:
+                global_fitness_decrease = 0
+            else:
+                global_fitness_decrease = (last_iter_global_fitness - fitness.get_current_global_fitness()) / float(last_iter_global_fitness)
+            if global_fitness_decrease >= swap_required_decrease:
+                self.make_emergence(fitness)
             self.update_population_sizes_stats(population_sizes)
+            last_iter_global_fitness = fitness.get_current_global_fitness()
 
             diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(
                 self.best_path)
