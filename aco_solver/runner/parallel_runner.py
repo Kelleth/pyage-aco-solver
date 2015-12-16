@@ -6,29 +6,31 @@ import sys
 
 from aco_solver.algorithm import graph
 from aco_solver.algorithm.results import ResultConverter
-from aco_solver.utils.cities_reader import CitiesReader
+from aco_solver.utils.qap_reader import QAPReader
 from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentricityCondition, \
     LowAltercentricityCondition, \
     ClassicAntColony, ParametrizedColony
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
+def start_simulation(ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
+    positions = None
     if type == "ca":  # Classical Ants
-        graph = Graph(distance_matrix, positions, rho, q, 0.01, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.01, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
+    #TODO: fix all populations
     elif type == "cs":  # Control Sample
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
+        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ControlSampleColony(ants_count, graph, iterations)
     elif type == "ha":  # High Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
+        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = HighAltercentricityCondition(ants_count, graph, iterations)
     elif type == "la":  # Low Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
+        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
-        graph = create_graph_with_default_pheromone_value(distance_matrix, positions, rho, q, alpha, beta)
+        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
 
     result = colony.start_simulation()
@@ -46,7 +48,7 @@ def main():
             " -gc goodconflict_no -bc badconflict_no]"
 
     parser = OptionParser(usage=usage)
-    parser.add_option("-t", "--type", default="cs", type="string", dest="type")
+    parser.add_option("-t", "--type", default="ca", type="string", dest="type")
     parser.add_option("-a", "--alpha", default="3.0", type="float", help="pheromone influence [default: %default]",
                       dest="alpha")
     parser.add_option("-b", "--beta", default="2.0", type="float", help="distance influence [default: %default]",
@@ -56,7 +58,7 @@ def main():
                       dest="rho")
     parser.add_option("-q", "--q", default="2.0", type="float", help="pheromone deposit factor [default: %default]",
                       dest="q")
-    parser.add_option("-p", "--p", default="1", type="int", help="number of processes [default: %default]",
+    parser.add_option("-p", "--p", default="4", type="int", help="number of processes [default: %default]",
                       dest="p")
     parser.add_option("-w", "--egocentric", default="0.25", type="float",
                       help="percent of egocentric ants in colony [default: %default]", dest="egocentric")
@@ -81,10 +83,12 @@ def main():
     iterations = int(args[1])
     cities_filename = args[2]
 
-    cities_reader = CitiesReader(cities_filename)
+    cities_reader = QAPReader(cities_filename)
     cities_reader.read_file()
-    distance_matrix = cities_reader.create_distance_matrix()
-    positions = cities_reader.get_positions()
+    coupling_matrix = cities_reader.get_coupling_matrix()
+    distance_matrix = cities_reader.get_distance_matrix()
+    flow_matrix = cities_reader.get_flow_matrix()
+    flow_potencials = cities_reader.get_flow_potentials()
 
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
 
@@ -95,13 +99,14 @@ def main():
         pipes.append(Pipe(False))
     for i in range(options.p):
         if options.type == "pc":
+            #TODO: fix this
             processes.append(Process(target=start_simulation, args=(
-                ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+                ants_count, iterations, coupling_matrix, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
                 options.badConflict, options.classic, options.name)))
         else:
             processes.append(Process(target=start_simulation, args=(
-                ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
+                ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potencials, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1])))
     for i in range(options.p):
         processes[i].start()
@@ -153,12 +158,13 @@ def main():
     f.write(best_result.fitness_to_string())
     f.close()
 
-    f = open(output_directory_name + cities_filename + '_'
-             + str(ants_count) + '_'
-             + str(iterations) + '_'
-             + type_name + '_path.dat', 'w')
-    f.write(str(best_result.best_path.get_points_gnuplot()))
-    f.close()
+    #TODO: necessary?
+    #f = open(output_directory_name + cities_filename + '_'
+    #         + str(ants_count) + '_'
+    #         + str(iterations) + '_'
+    #         + type_name + '_path.dat', 'w')
+    #f.write(str(best_result.best_path.get_points_gnuplot()))
+    #f.close()
 
     f = open(output_directory_name + cities_filename + '_'
              + str(ants_count) + '_'
@@ -167,26 +173,27 @@ def main():
     f.write(ResultConverter(result_list).covert_to_avg_results())
     f.close()
 
-    f = open(output_directory_name + cities_filename + '_'
-             + str(ants_count) + '_'
-             + str(iterations) + '_'
-             + type_name + '_diversity.dat', 'w')
-    f.write(ResultConverter(result_list).convert_diversity_results())
-    f.close()
+    #TODO: fix metrics for QAP
+    #f = open(output_directory_name + cities_filename + '_'
+    #         + str(ants_count) + '_'
+    #         + str(iterations) + '_'
+    #         + type_name + '_diversity.dat', 'w')
+    #f.write(ResultConverter(result_list).convert_diversity_results())
+    #f.close()
 
-    f = open(output_directory_name + cities_filename + '_'
-             + str(ants_count) + '_'
-             + str(iterations) + '_'
-             + type_name + '_attractiveness_avg_std.dat', 'w')
-    f.write(ResultConverter(result_list).convert_attractiveness_avg_std_results())
-    f.close()
+    #f = open(output_directory_name + cities_filename + '_'
+    #         + str(ants_count) + '_'
+    #         + str(iterations) + '_'
+    #         + type_name + '_attractiveness_avg_std.dat', 'w')
+    #f.write(ResultConverter(result_list).convert_attractiveness_avg_std_results())
+    #f.close()
 
-    f = open(output_directory_name + cities_filename + '_'
-             + str(ants_count) + '_'
-             + str(iterations) + '_'
-             + type_name + '_attractiveness_ratio.dat', 'w')
-    f.write(ResultConverter(result_list).convert_attractiveness_ratio_results())
-    f.close()
+    #f = open(output_directory_name + cities_filename + '_'
+    #         + str(ants_count) + '_'
+    #         + str(iterations) + '_'
+    #         + type_name + '_attractiveness_ratio.dat', 'w')
+    #f.write(ResultConverter(result_list).convert_attractiveness_ratio_results())
+    #f.close()
 
     for i in range(options.p):
         processes[i].join()

@@ -10,22 +10,19 @@ class Ant(object):
         self.path = path
 
     def find_path(self):
-        start_city = self.__choose_start_city()
-        connection_list = []
-        cities_visited = [start_city]
+        chosen_locations = []
 
-        present_city = start_city
-        # Main loop - visits all cities
-        while len(connection_list) != len(self.path.connection_list):
-            next_connection = self.chose_next_connection(present_city, cities_visited)
-            connection_list.append(next_connection)
-            cities_visited.append(next_connection.destination_city)
-            present_city = next_connection.destination_city
+        for i in self.graph.flow_potencials_indexes_decreasing:
+            possible_factory_assignments = [row[i] for row in self.graph.assignments]
+            location = self.choose_next_location(possible_factory_assignments, chosen_locations)
+            chosen_locations.append(location)
 
-        self.path = Path(start_city, connection_list)
+        assignment_list = dict(zip(chosen_locations, self.graph.flow_potencials_indexes_decreasing)).values()
+        self.path = Path(assignment_list, self.graph)
         return self.path
 
     # By default ant chooses city which path has best attractiveness (greedy approach) - overridden in ShuffleAnt
+    #TODO: this is wrong for QAP
     def chose_next_connection(self, present_city, visited_cities):
         chosen_connection = None
         chosen_connection_attractiveness = -1
@@ -44,17 +41,20 @@ class Ant(object):
 
         return chosen_connection
 
+    def choose_next_location(self, factory_id, possible_assignments, chosen_locations):
+        pass
+
     # Override in subclasses to provide attractiveness value based on ant kind
     def calculate_connection_attractiveness(self, connection):
         return 0
 
     # Visitor pattern used to update pheromone value while visiting paths without using "instance of"
     # By default unknown pheromone (which isn't assigned to any ant species) is updated
-    def visit(self, connection, pheromone_value):
-        connection.pheromone.update_unknown_pheromone(pheromone_value)
+    def visit(self, assignment, pheromone_value):
+        assignment.pheromone.update_unknown_pheromone(pheromone_value)
 
-    def __choose_start_city(self):
-        return random.choice(self.graph.cities)
+    def __choose_start_factory(self):
+        return random.choice(random.choice(self.graph.assignments))
 
     def __repr__(self):
         return 'Distance: %s Path: %s' % (self.path.distance, self.path)
@@ -67,6 +67,7 @@ class ShuffleAnt(Ant):
     def __init__(self, graph, path):
         super(ShuffleAnt, self).__init__(graph, path)
 
+    #TODO: this is wrong for QAP
     def chose_next_connection(self, present_city, visited_cities):
         connections_attractiveness = []
 
@@ -88,18 +89,37 @@ class ShuffleAnt(Ant):
 
         raise RuntimeError("City not found")
 
+    def choose_next_location(self, possible_assignments, chosen_locations):
+        assignments_attractiveness = []
+
+        for assignment in possible_assignments:
+            if assignment.location_id in chosen_locations:
+                assignments_attractiveness.append(0.0)
+            else:
+                assignments_attractiveness.append(
+                    self.calculate_connection_attractiveness(assignment))
+
+        assignment_probabilities = self.calculate_assignment_probability(assignments_attractiveness)
+        value = random.random()
+
+        for i in range(len(assignment_probabilities) - 1):
+            if assignment_probabilities[i] <= value < assignment_probabilities[i + 1]:
+                return i
+
+        raise RuntimeError("City not found")
+
     @staticmethod
-    def calculate_connection_probability(connections_attractiveness):
-        attractiveness_sum = float(sum(connections_attractiveness))
+    def calculate_assignment_probability(assignments_attractiveness):
+        attractiveness_sum = float(sum(assignments_attractiveness))
 
         connections_probability = []
 
         if attractiveness_sum > 0:
-            for i in range(len(connections_attractiveness)):
-                connections_probability.append(connections_attractiveness[i] / attractiveness_sum)
+            for i in range(len(assignments_attractiveness)):
+                connections_probability.append(assignments_attractiveness[i] / attractiveness_sum)
         else:
-            for i in range(len(connections_attractiveness)):
-                connections_probability.append(1.0 / len(connections_attractiveness))
+            for i in range(len(assignments_attractiveness)):
+                connections_probability.append(1.0 / len(assignments_attractiveness))
 
         converted_form = [0.0]
         for probability in connections_probability:
@@ -116,11 +136,12 @@ class ClassicAnt(ShuffleAnt):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone.total_pheromone ** self.pheromone_influence * \
-               (1.0 / connection.distance) ** self.distance_influence
+    def calculate_connection_attractiveness(self, assignment):
+        return assignment.pheromone.total_pheromone ** self.pheromone_influence * \
+               (1.0 / assignment.coupling_value) ** self.distance_influence
 
 
+#TODO: fix all other implementations
 # Always chooses path with best attractiveness - used only for tests
 class GreedyAnt(Ant):
     def __init__(self, graph, path, pheromone_influence, distance_influence):

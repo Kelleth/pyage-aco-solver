@@ -38,9 +38,10 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
-            diversity.update_diversity_list(diversity_percent)
-            attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
+            #TODO: fix metrics for QAP
+            # diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
+            # diversity.update_diversity_list(diversity_percent)
+            # attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
         return Result(fitness, diversity, attractiveness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)
@@ -71,10 +72,10 @@ class ClassicAntColony(AntColony):
         AntColony.__init__(self, graph, ants, iterations)
         self.name = 'ca'
 
-    def __generate_population(self, number_of_ants, city_graph, alpha, beta):
+    def __generate_population(self, number_of_ants, graph, alpha, beta):
         generated_ants = []
         for _ in range(number_of_ants):
-            generated_ants.append(ClassicAnt(city_graph, generate_random_path(city_graph.cities), alpha, beta))
+            generated_ants.append(ClassicAnt(graph, generate_random_path(graph), alpha, beta))
         return generated_ants
 
 
@@ -161,19 +162,8 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, b
     return generated_ants
 
 
-def generate_random_path(available_cities):
-    shuffled_cities = list(available_cities)
-    random.shuffle(shuffled_cities)
+def generate_random_path(graph):
+    shuffled_assignments = [x for x in range(len(graph.assignments))]
+    random.shuffle(shuffled_assignments)
 
-    start_city = shuffled_cities.pop(0)
-
-    connection_list = []
-    present_city = start_city
-
-    while shuffled_cities:
-        next_city = shuffled_cities.pop(0)
-        connection_list.append(present_city.find_connection_to_city(next_city))
-
-        present_city = next_city
-
-    return Path(start_city, connection_list)
+    return Path(shuffled_assignments, graph)

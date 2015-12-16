@@ -20,10 +20,10 @@ class Result(object):
         self.name = name;
 
     def __str__(self):
-        output_string = 'Best distance: '
-        output_string += str(self.best_path.distance) + '\n'
+        output_string = 'Best fitness: '
+        output_string += str(self.best_path.fitness) + '\n'
         output_string += 'Best path: '
-        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
+        output_string += str(self.best_path.assignment_list) + '\n'
         output_string += 'Best iteration: '
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
@@ -37,9 +37,9 @@ class Result(object):
 
     def fitness_to_string(self):
         output_string = 'Best distance: '
-        output_string += str(self.best_path.distance) + '\n'
+        output_string += str(self.best_path.fitness) + '\n'
         output_string += 'Best path: '
-        output_string += str([city.city_id for city in self.best_path.get_cities_list()]) + '\n'
+        output_string += str(self.best_path.assignment_list) + '\n'
         output_string += 'Best iteration: '
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
@@ -117,9 +117,9 @@ class ResultConverter(object):
 
 
     def __compute_avg_distance(self):
-        distances = [result.best_path.distance for result in self.result_list]
-        mean = numpy.mean(distances)
-        stdev = numpy.std(distances)
+        fitnesses = [result.best_path.fitness for result in self.result_list]
+        mean = numpy.mean(fitnesses)
+        stdev = numpy.std(fitnesses)
 
         return mean, stdev
 
@@ -215,11 +215,11 @@ class Fitness(object):
         if len(fitness_list) > self.current_iteration:
             current_best = fitness_list[self.current_iteration]
 
-        ant_distance = ant.path.distance
+        ant_fitness = ant.path.fitness
         if current_best is None:
-            fitness_list.append(ant_distance)
-        elif ant_distance < current_best:
-            fitness_list[self.current_iteration] = ant_distance
+            fitness_list.append(ant_fitness)
+        elif ant_fitness < current_best:
+            fitness_list[self.current_iteration] = ant_fitness
 
     def update_fitness_stats(self, ant_name, ant_distance):
         fitness_list = self.map[ant_name]

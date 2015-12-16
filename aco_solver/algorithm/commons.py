@@ -1,16 +1,14 @@
 # Represents ant path
 class Path(object):
-    def __init__(self, start_city, connection_list):
-        self.start_city = start_city
-        self.connection_list = connection_list
-        self.distance = self.calculate_distance(connection_list)
+    def __init__(self, assignment_list, graph):
+        self.assignment_list = assignment_list
+        self.fitness = self.calculate_assignment_fitness(graph.flow_matrix, graph.locations_connections, assignment_list)
 
-    def calculate_distance(self, connection_list):
-        total_distance = 0.0
+    def calculate_assignment_fitness(self, flow_matrix, connection_list, assignment_list):
+        total_fitness = 0.0
         for connection in connection_list:
-            total_distance += connection.distance
-        total_distance += connection_list[-1].destination_city.find_connection_to_city(self.start_city).distance
-        return total_distance
+            total_fitness += connection.distance * flow_matrix[assignment_list[connection.source_location]][assignment_list[connection.destination_location]]
+        return total_fitness
 
     def get_cities_list(self):
         cities = [self.start_city]
@@ -18,15 +16,19 @@ class Path(object):
         cities.append(self.start_city)
         return cities
 
+    def get_assignments(self):
+        return self.assignment_list
+
     # Comparing by distance
     def __cmp__(self, other):
-        if self.distance < other.distance:
+        if self.fitness < other.fitness:
             return -1
-        elif self.distance > other.distance:
+        elif self.fitness > other.fitness:
             return 1
         else:
             return 0
 
+    #TODO: probably wont be used for QAP
     def get_points(self):
         points = []
         for city in self.get_cities_list():
@@ -44,4 +46,4 @@ class Path(object):
         return connection in self.connection_list
 
     def __str__(self):
-        return 'Distance {}, path {}'.format(self.distance, [city.city_id for city in self.get_cities_list()])
+        return 'Fitness {}, assignments {}'.format(self.fitness, self.assignment_list)
