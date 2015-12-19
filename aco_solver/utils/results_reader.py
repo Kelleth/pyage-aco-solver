@@ -9,10 +9,10 @@ def read_file(directory, filename, name):
     lines = f.readlines()
 
     fitness = results.Fitness()
-    for read_line in lines[:4]:
+    for read_line in lines[:5]:
         details.append(read_line.split(":")[1].strip())
-    headers = lines[4].strip().split(separator)
-    for read_line in lines[5:]:
+    headers = lines[5].strip().split(separator)
+    for read_line in lines[6:]:
         distances = read_line.strip().split(separator)
         for i in range(1, 6):
             distance = distances[i]
