@@ -258,6 +258,18 @@ class Fitness(object):
                 pop_fitness_map[population] = self.map[population][self.current_iteration]
         return pop_fitness_map
 
+    def get_emergence_population_pairs(self):
+        """:return pair [better_population, worsr_population] to emergence swap"""
+        population_pairs = []
+        pop_fitness_map = self.get_current_fitnesses()
+        sorted_pop_fitness_map = sorted(pop_fitness_map, key=pop_fitness_map.get)
+        for idx in range(len(sorted_pop_fitness_map) - 1):
+            first_el = sorted_pop_fitness_map[idx]
+            second_el = sorted_pop_fitness_map[idx+1]
+            population_pairs.append([first_el, second_el])
+        return population_pairs
+
+
     def get_current_best_and_worst_populations(self):
         """:return best_population, worst_population"""
         pop_fitness_map = self.get_current_fitnesses()
@@ -266,6 +278,7 @@ class Fitness(object):
     def get_current_global_fitness(self):
         """:return minimum fitness as global fitness"""
         pop_fitness_map = self.get_current_fitnesses()
+        # return numpy.mean(pop_fitness_map.values())
         return min(pop_fitness_map.itervalues())
 
     def update_fitness(self, ant):

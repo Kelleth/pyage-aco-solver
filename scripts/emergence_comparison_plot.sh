@@ -14,9 +14,11 @@ do
 		for ants in 100
 		do
 			AVG_FILENAME=$(printf 'outputs/population_sizes/%s_%d_%d_a_avg_summary' $CITIES $ants $iterations)
+			AVG_FILENAME_WITH_STD=$(printf '%s_with_std' $AVG_FILENAME)
 			AVG_FILENAME2=$(printf 'outputs/population_sizes/%s_%d_%d_awithout_avg_summary' $CITIES $ants $iterations)
 			AVG_FILENAME3=$(printf 'outputs/population_sizes/%s_%d_%d_ca_avg_summary' $CITIES $ants $iterations)
 			gnuplot -e "TITLE='FITNESS WITH EMERGENCE'; FILENAME2='$AVG_FILENAME2.dat'; FILENAME3='$AVG_FILENAME3.dat'; FILENAME='$AVG_FILENAME.dat'; OUTPUTFILE='$AVG_FILENAME.pdf'; OPTIMAL='$OPTIMAL'" scripts/plot/emergence_comparison.plt
+			gnuplot -e "TITLE='FITNESS WITH EMERGENCE'; FILENAME2='$AVG_FILENAME2.dat'; FILENAME3='$AVG_FILENAME3.dat'; FILENAME='$AVG_FILENAME.dat'; OUTPUTFILE='$AVG_FILENAME_WITH_STD.pdf'; OPTIMAL='$OPTIMAL'" scripts/plot/emergence_comparison_with_std.plt
 		done
 	done
 done

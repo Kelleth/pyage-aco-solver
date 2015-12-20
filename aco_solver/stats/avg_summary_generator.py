@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['ca', 'pc']
+ant_populations = ['pc']
 
 # backup of stats and fitness values from first column in avg result
 # used to calculate common quartiles, average, min and max values
@@ -193,8 +193,7 @@ def generate_stats_output(population_results, f):
 
     f.write('Computation time')
     for _, value in population_results.iteritems():
-        avg_time, stdev_time, min_time, first_quartile_time, third_quartile_time, median_time, max_time\
-            = compute_average_time_for_population(value)
+        avg_time, stdev_time, min_time, first_quartile_time, third_quartile_time, median_time, max_time = compute_average_time_for_population(value)
         f.write(average_values_to_output_format(avg_time, stdev_time, min_time, first_quartile_time,
                                                 third_quartile_time, median_time, max_time))
     f.write('\n')

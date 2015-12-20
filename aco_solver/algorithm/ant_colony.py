@@ -21,8 +21,10 @@ class AntColony(object):
         self.best_path_iteration = None
 
     def make_emergence(self, fitness):
-        best_population, worst_population = fitness.get_current_best_and_worst_populations()
-        self.move_ant(worst_population, best_population)
+        # best_population, worst_population = fitness.get_current_best_and_worst_populations()
+        population_pairs = fitness.get_emergence_population_pairs()
+        for pair in population_pairs:
+            self.move_ant(pair[0], pair[1])
 
     def update_population_sizes_stats(self, population_sizes):
         sizes_map = dict()
@@ -30,6 +32,7 @@ class AntColony(object):
             sizes_map[pop.__name__] = sum(1 for ant in self.ants if isinstance(ant, pop))
 
         population_sizes.update_population_sizes(sizes_map)
+        print sizes_map
 
     def move_ant(self, worst_population, best_population):
         """currently moves ant from worst population to best population"""
@@ -68,7 +71,7 @@ class AntColony(object):
                 global_fitness_decrease = 0
             else:
                 global_fitness_decrease = (last_iter_global_fitness - fitness.get_current_global_fitness()) / float(last_iter_global_fitness)
-            if global_fitness_decrease >= swap_required_decrease:
+            if global_fitness_decrease < swap_required_decrease:
                 self.make_emergence(fitness)
             self.update_population_sizes_stats(population_sizes)
             last_iter_global_fitness = fitness.get_current_global_fitness()
