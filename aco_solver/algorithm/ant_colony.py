@@ -38,10 +38,9 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            #TODO: fix metrics for QAP
-            # diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
-            # diversity.update_diversity_list(diversity_percent)
-            # attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
+            diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
+            diversity.update_diversity_list(diversity_percent)
+            attractiveness.update_attractiveness_data(attractiveness_list, attractiveness_ratio)
             self.graph.evaporate_pheromones()
             fitness.increase_iteration()
         return Result(fitness, diversity, attractiveness, time.time() - start_time, self.best_path, self.best_path_iteration, self.iterations, self.name)
@@ -138,25 +137,25 @@ def get_population_fullname(abbreviation):
         raise RuntimeError('Unknown population: ' + abbreviation)
 
 #0.22, 0.15, 0.45, 0.18, 0.0
-def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction, city_graph, alpha = 0.0, beta = 0.0):
+def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, bc_fraction, classic_fraction, graph, alpha = 0.0, beta = 0.0):
     generated_ants = []
 
     for _ in range(int(math.ceil(total_number_of_ants * ec_fraction))):
-        generated_ants.append(EgocentricAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(EgocentricAnt(graph, generate_random_path(graph)))
 
     for _ in range(int(math.ceil(total_number_of_ants * ac_fraction))):
-        generated_ants.append(AltercentricAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(AltercentricAnt(graph, generate_random_path(graph)))
 
     for _ in range(int(math.ceil(total_number_of_ants * gc_fraction))):
-        generated_ants.append(GoodConflictAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(GoodConflictAnt(graph, generate_random_path(graph)))
 
     for _ in range(int(math.ceil(total_number_of_ants * classic_fraction))):
-        generated_ants.append(ClassicAnt(city_graph, generate_random_path(city_graph.cities), alpha, beta))
+        generated_ants.append(ClassicAnt(graph, generate_random_path(graph), alpha, beta))
 
     # BCAnts really sucks so we ignore bc_fraction coefficient
     # For low total number of ants population might not contain any BCAnts
     for _ in range(total_number_of_ants - len(generated_ants)):
-        generated_ants.append(BadConflictAnt(city_graph, generate_random_path(city_graph.cities)))
+        generated_ants.append(BadConflictAnt(graph, generate_random_path(graph)))
 
     random.shuffle(generated_ants)
     return generated_ants

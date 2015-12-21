@@ -149,9 +149,9 @@ class GreedyAnt(Ant):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone ** self.pheromone_influence * \
-               (1.0 / connection.distance) ** self.distance_influence
+    def calculate_connection_attractiveness(self, assignment):
+        return assignment.pheromone ** self.pheromone_influence * \
+               (1.0 / assignment.coupling_value) ** self.distance_influence
 
 
 # The individuals who are "altercentric" would follow the mass
@@ -160,11 +160,11 @@ class AltercentricAnt(ShuffleAnt):
         super(AltercentricAnt, self).__init__(graph, path)
         self.pheromone_influence = pheromone_influence
 
-    def visit(self, connection, pheromone_value):
-        connection.pheromone.update_ac_pheromone(pheromone_value)
+    def visit(self, assignment, pheromone_value):
+        assignment.pheromone.update_ac_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, connection):
-        return connection.pheromone.total_pheromone ** self.pheromone_influence
+    def calculate_connection_attractiveness(self, assignment):
+        return assignment.pheromone.total_pheromone ** self.pheromone_influence
 
 
 # The individuals who are "egocentric" would be more creative to try to find a new solution,
@@ -174,11 +174,11 @@ class EgocentricAnt(ShuffleAnt):
         super(EgocentricAnt, self).__init__(graph, path)
         self.distance_influence = distance_influence
 
-    def visit(self, connection, pheromone_value):
-        connection.pheromone.update_ec_pheromone(pheromone_value)
+    def visit(self, assignment, pheromone_value):
+        assignment.pheromone.update_ec_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, connection):
-        return (1.0 / connection.distance) ** self.distance_influence
+    def calculate_connection_attractiveness(self, assignment):
+        return (1.0 / assignment.coupling_value) ** self.distance_influence
 
 
 # These good at conflict handling will wait and observe the others.
@@ -186,12 +186,12 @@ class GoodConflictAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(GoodConflictAnt, self).__init__(graph, path)
 
-    def visit(self, connection, pheromone_value):
-        connection.pheromone.update_gc_pheromone(pheromone_value)
+    def visit(self, assignment, pheromone_value):
+        assignment.pheromone.update_gc_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, connection):
-        return ((14.0 * connection.pheromone.ec_pheromone + 2.0 * connection.pheromone.ac_pheromone  #
-                 + 2.5 * connection.pheromone.gc_pheromone + 0.5 * connection.pheromone.bc_pheromone) / 4.0) ** 2.0
+    def calculate_connection_attractiveness(self, assignment):
+        return ((14.0 * assignment.pheromone.ec_pheromone + 2.0 * assignment.pheromone.ac_pheromone  #
+                 + 2.5 * assignment.pheromone.gc_pheromone + 0.5 * assignment.pheromone.bc_pheromone) / 4.0) ** 2.0
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)
@@ -199,20 +199,12 @@ class BadConflictAnt(Ant):
     def __init__(self, graph, path):
         super(BadConflictAnt, self).__init__(graph, path)
 
-    def visit(self, connection, pheromone_value):
-        connection.pheromone.update_bc_pheromone(pheromone_value)
+    def visit(self, assignment, pheromone_value):
+        assignment.pheromone.update_bc_pheromone(pheromone_value)
 
-    def chose_next_connection(self, present_city, visited_cities):
-        next_connection = None
+    def choose_next_location(self, possible_assignments, chosen_locations):
+        next_location = None
+        all_locations = xrange(len(self.graph.assignments))
+        possible_locations = list(set(all_locations) - set(chosen_locations))
 
-        # fixme - the way it is done really sucks
-        while not next_connection:
-            random_connection = random.choice(present_city.connection_list)
-            destination_city = random_connection.destination_city
-
-            if destination_city == present_city or destination_city in visited_cities:
-                continue
-            else:
-                next_connection = random_connection
-
-        return next_connection
+        return random.choice(possible_locations)

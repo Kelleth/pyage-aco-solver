@@ -10,12 +10,6 @@ class Path(object):
             total_fitness += connection.distance * flow_matrix[assignment_list[connection.source_location]][assignment_list[connection.destination_location]]
         return total_fitness
 
-    def get_cities_list(self):
-        cities = [self.start_city]
-        cities.extend(connection.destination_city for connection in self.connection_list)
-        cities.append(self.start_city)
-        return cities
-
     def get_assignments(self):
         return self.assignment_list
 
@@ -28,22 +22,8 @@ class Path(object):
         else:
             return 0
 
-    #TODO: probably wont be used for QAP
-    def get_points(self):
-        points = []
-        for city in self.get_cities_list():
-            points.append(city.get_position())
-        return points
-
-    def get_points_gnuplot(self):
-        points = []
-        for city in self.get_cities_list():
-            points.append(city.get_position_string())
-
-        return '\n'.join(points)
-
-    def contains_connection(self, connection):
-        return connection in self.connection_list
+    def contains_assignment(self, assignment):
+        return self.assignment_list[assignment.location_id] == assignment.factory_id
 
     def __str__(self):
         return 'Fitness {}, assignments {}'.format(self.fitness, self.assignment_list)

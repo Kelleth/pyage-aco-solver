@@ -68,19 +68,19 @@ class Graph(object):
         attractiveness_list = []
         attractiveness_on_best_path = 0
         attractiveness_outside_best_path = 0
-        for city in self.assignments:
-            for connection in city.connection_list:
+        for assignment_per_location in self.assignments:
+            for assignment in assignment_per_location:
                 connections_number += 1
-                attractiveness = connection.pheromone.total_pheromone ** self.attractiveness_alpha * (
-                                                                                                         1.0 / connection.distance) ** self.attractiveness_beta
+                attractiveness = assignment.pheromone.total_pheromone ** self.attractiveness_alpha * (
+                                                                                                         1.0 / assignment.coupling_value) ** self.attractiveness_beta
                 attractiveness_list.append(attractiveness)
 
-                if best_path.contains_connection(connection):
+                if best_path.contains_assignment(assignment):
                     attractiveness_on_best_path += attractiveness
                 else:
                     attractiveness_outside_best_path += attractiveness
 
-                if connection.pheromone.was_recently_updated(self.init_pheromone_value):
+                if assignment.pheromone.was_recently_updated(self.init_pheromone_value):
                     connections_with_pheromone += 1
 
         diversity = (connections_with_pheromone / float(connections_number)) * 100
@@ -100,15 +100,6 @@ class Assignment(object):
         self.connection_list = connection_list
         self.init_pheromone_value = init_pheromone_value
         self.pheromone = Pheromone(init_pheromone_value)
-
-    def find_connection_to_city(self, city):
-        for connection in self.connection_list:
-            if connection.destination_city == city:
-                return connection
-        raise RuntimeError('Connection from city {} to city {} not found'.format(self.location_id, city.city_id))
-
-    def get_position_string(self):
-        return str(self.location_id)
 
     def accept_visitor(self, visitor, pheromone_value):
         visitor.visit(self, pheromone_value)

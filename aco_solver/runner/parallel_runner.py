@@ -17,20 +17,24 @@ def start_simulation(ants_count, iterations, coupling_matrix, distance_matrix, f
     colony = None
     positions = None
     if type == "ca":  # Classical Ants
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.01, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
     #TODO: fix all populations
     elif type == "cs":  # Control Sample
-        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        #graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ControlSampleColony(ants_count, graph, iterations)
     elif type == "ha":  # High Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = HighAltercentricityCondition(ants_count, graph, iterations)
     elif type == "la":  # Low Altercentricity Condition
-        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
-        graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
 
     result = colony.start_simulation()
@@ -173,27 +177,26 @@ def main():
     f.write(ResultConverter(result_list).covert_to_avg_results())
     f.close()
 
-    #TODO: fix metrics for QAP
-    #f = open(output_directory_name + cities_filename + '_'
-    #         + str(ants_count) + '_'
-    #         + str(iterations) + '_'
-    #         + type_name + '_diversity.dat', 'w')
-    #f.write(ResultConverter(result_list).convert_diversity_results())
-    #f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_diversity.dat', 'w')
+    f.write(ResultConverter(result_list).convert_diversity_results())
+    f.close()
 
-    #f = open(output_directory_name + cities_filename + '_'
-    #         + str(ants_count) + '_'
-    #         + str(iterations) + '_'
-    #         + type_name + '_attractiveness_avg_std.dat', 'w')
-    #f.write(ResultConverter(result_list).convert_attractiveness_avg_std_results())
-    #f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_attractiveness_avg_std.dat', 'w')
+    f.write(ResultConverter(result_list).convert_attractiveness_avg_std_results())
+    f.close()
 
-    #f = open(output_directory_name + cities_filename + '_'
-    #         + str(ants_count) + '_'
-    #         + str(iterations) + '_'
-    #         + type_name + '_attractiveness_ratio.dat', 'w')
-    #f.write(ResultConverter(result_list).convert_attractiveness_ratio_results())
-    #f.close()
+    f = open(output_directory_name + cities_filename + '_'
+             + str(ants_count) + '_'
+             + str(iterations) + '_'
+             + type_name + '_attractiveness_ratio.dat', 'w')
+    f.write(ResultConverter(result_list).convert_attractiveness_ratio_results())
+    f.close()
 
     for i in range(options.p):
         processes[i].join()
