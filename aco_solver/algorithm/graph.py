@@ -84,7 +84,10 @@ class Graph(object):
                     connections_with_pheromone += 1
 
         diversity = (connections_with_pheromone / float(connections_number)) * 100
-        attractiveness_ratio = (attractiveness_on_best_path / float(attractiveness_outside_best_path)) * 100
+        if attractiveness_outside_best_path == 0:
+            attractiveness_ratio = 100
+        else:
+            attractiveness_ratio = (attractiveness_on_best_path / float(attractiveness_outside_best_path)) * 100
         return diversity, attractiveness_list, attractiveness_ratio
 
 

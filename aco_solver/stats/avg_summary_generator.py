@@ -206,7 +206,7 @@ def compute_average_values(values_list):
         return numpy.average(values_list), numpy.std(values_list), numpy.amin(values_list), \
             numpy.percentile(values_list, 25), numpy.percentile(values_list, 75), numpy.median(values_list), numpy.amax(values_list)
     else:
-        return None, None, None, None, None, None
+        return None, None, None, None, None, None, None
 
 # TODO: reformat this code
 def average_values_to_output_format(avg, stdev, min, first_quartile, third_quartile, median, max):
