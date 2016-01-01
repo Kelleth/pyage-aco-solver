@@ -137,7 +137,7 @@ class ClassicAnt(ShuffleAnt):
         self.distance_influence = distance_influence
 
     def calculate_connection_attractiveness(self, assignment):
-        return assignment.pheromone.total_pheromone ** self.pheromone_influence * \
+        return assignment.pheromone.unknown_pheromone ** self.pheromone_influence * \
                (1.0 / assignment.coupling_value) ** self.distance_influence
 
 

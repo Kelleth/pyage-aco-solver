@@ -1,15 +1,21 @@
 #!/bin/bash
 
-cd ../aco_solver/stats/
+cd ../
 
-for city in kra30a
+for city in wil50
 do
-	for iteration in 100
+	for iteration in 1000
 	do
-		for population in ca
+		for population in ca #cs la ha ca egocentric altercentric goodAtConflict badAtConflict eq ego alter good bad eqWithoutBad egoWithoutBad alterWithoutBad goodWithoutBad
 		do
-			echo $iteration, $city, $population
-			python avg_summary_generator.py 20 $iteration $city ../../outputs/ $population
+		    for ants in 20
+		    do
+		        for j in {5..6}
+		        do
+                    echo $ants, $iteration, $city, $population, $j
+                    python -m aco_solver.stats.avg_summary_generator $ants $iteration $city outputs/parametrized_$j/ $population
+                done
+            done
 		done
 	done
 done

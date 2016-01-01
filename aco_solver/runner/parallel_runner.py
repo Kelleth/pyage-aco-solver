@@ -17,9 +17,8 @@ def start_simulation(ants_count, iterations, coupling_matrix, distance_matrix, f
     colony = None
     positions = None
     if type == "ca":  # Classical Ants
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.01, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
-    #TODO: fix all populations
     elif type == "cs":  # Control Sample
         graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
         #graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
@@ -53,16 +52,16 @@ def main():
 
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--type", default="ca", type="string", dest="type")
-    parser.add_option("-a", "--alpha", default="2.0", type="float", help="pheromone influence [default: %default]",
+    parser.add_option("-a", "--alpha", default="3.0", type="float", help="pheromone influence [default: %default]",
                       dest="alpha")
-    parser.add_option("-b", "--beta", default="1.0", type="float", help="distance influence [default: %default]",
+    parser.add_option("-b", "--beta", default="2.0", type="float", help="distance influence [default: %default]",
                       dest="beta")
     parser.add_option("-r", "--rho", default="0.01", type="float",
                       help="pheromone evaporation coefficient [default: %default]",
                       dest="rho")
     parser.add_option("-q", "--q", default="2.0", type="float", help="pheromone deposit factor [default: %default]",
                       dest="q")
-    parser.add_option("-p", "--p", default="30", type="int", help="number of processes [default: %default]",
+    parser.add_option("-p", "--p", default="8", type="int", help="number of processes [default: %default]",
                       dest="p")
     parser.add_option("-w", "--egocentric", default="0.25", type="float",
                       help="percent of egocentric ants in colony [default: %default]", dest="egocentric")
@@ -105,7 +104,7 @@ def main():
         if options.type == "pc":
             #TODO: fix this
             processes.append(Process(target=start_simulation, args=(
-                ants_count, iterations, coupling_matrix, options.rho, options.q, options.type, options.alpha,
+                ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potencials, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
                 options.badConflict, options.classic, options.name)))
         else:

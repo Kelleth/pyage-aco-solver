@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['ca', 'pc']
+ant_populations = ['ca']
 
 # backup of stats and fitness values from first column in avg result
 # used to calculate common quartiles, average, min and max values

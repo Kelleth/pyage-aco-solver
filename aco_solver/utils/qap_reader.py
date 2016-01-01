@@ -16,11 +16,11 @@ class QAPReader:
             f.readline()
             for i in xrange(self.size):
                 line = [int(x) for x in f.readline().split()]
-                self.flow_matrix.append(line)
+                self.distance_matrix.append(line)
             f.readline()
             for i in xrange(self.size):
                 line = [int(x) for x in f.readline().split()]
-                self.distance_matrix.append(line)
+                self.flow_matrix.append(line)
 
         for i in xrange(self.size):
             pot_d = 0

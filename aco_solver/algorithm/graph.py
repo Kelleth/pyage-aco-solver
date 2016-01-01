@@ -71,7 +71,7 @@ class Graph(object):
         for assignment_per_location in self.assignments:
             for assignment in assignment_per_location:
                 connections_number += 1
-                attractiveness = assignment.pheromone.total_pheromone ** self.attractiveness_alpha * (
+                attractiveness = assignment.pheromone.unknown_pheromone ** self.attractiveness_alpha * (
                                                                                                          1.0 / assignment.coupling_value) ** self.attractiveness_beta
                 attractiveness_list.append(attractiveness)
 
@@ -123,14 +123,14 @@ class Connection(object):
 
 class Pheromone(object):
     def __init__(self, init_value):
-        self.ac_pheromone = init_value
-        self.ec_pheromone = init_value
-        self.gc_pheromone = init_value
-        self.bc_pheromone = init_value
+        #self.ac_pheromone = init_value
+        #self.ec_pheromone = init_value
+        #self.gc_pheromone = init_value
+        #self.bc_pheromone = init_value
         self.unknown_pheromone = init_value
 
-        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
-                               + self.unknown_pheromone
+        #self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+        #                       + self.unknown_pheromone
 
     def update_ac_pheromone(self, value):
         self.ac_pheromone += value
@@ -150,24 +150,25 @@ class Pheromone(object):
 
     def update_unknown_pheromone(self, value):
         self.unknown_pheromone += value
-        self.__update_total_pheromone()
+        #self.__update_total_pheromone()
 
     def evaporate(self, factor):
-        self.ac_pheromone *= factor
-        self.ec_pheromone *= factor
-        self.gc_pheromone *= factor
-        self.bc_pheromone *= factor
+        #self.ac_pheromone *= factor
+        #self.ec_pheromone *= factor
+        #self.gc_pheromone *= factor
+        #self.bc_pheromone *= factor
         self.unknown_pheromone *= factor
-        self.__update_total_pheromone()
+        #self.__update_total_pheromone()
 
     def was_recently_updated(self, init_pheromone_value):
-        return self.ac_pheromone > init_pheromone_value or self.ec_pheromone > init_pheromone_value \
-               or self.gc_pheromone > init_pheromone_value or self.bc_pheromone > init_pheromone_value \
-               or self.unknown_pheromone > init_pheromone_value
+        #return self.ac_pheromone > init_pheromone_value or self.ec_pheromone > init_pheromone_value \
+               #or self.gc_pheromone > init_pheromone_value or self.bc_pheromone > init_pheromone_value \
+                #or self.unknown_pheromone > init_pheromone_value
+        return self.unknown_pheromone > init_pheromone_value
 
-    def __update_total_pheromone(self):
-        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
-                               + self.unknown_pheromone
+    #def __update_total_pheromone(self):
+    #    self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+    #                           + self.unknown_pheromone
 
     def __str__(self):
         output_str = 'AC: '
