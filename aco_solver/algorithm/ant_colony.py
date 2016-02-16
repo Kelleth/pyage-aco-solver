@@ -1,13 +1,14 @@
 import random
 import time
 import math
+import numpy
 
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 from aco_solver.algorithm.commons import Path
 from aco_solver.algorithm.results import Result, Fitness, Diversity, Attractiveness, PopulationSizes
 
 populations = sorted([ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt])
-
+population_pairs_asc = [True, False]
 
 
 # Template class for different populations/colonies
@@ -20,11 +21,15 @@ class AntColony(object):
         self.best_path = None
         self.best_path_iteration = None
 
-    def make_emergence(self, fitness):
+    def make_emergence(self, fitness, ant_to_move_no):
         # best_population, worst_population = fitness.get_current_best_and_worst_populations()
         population_pairs = fitness.get_emergence_population_pairs()
+        print population_pairs
+        if random.choice(population_pairs_asc):
+            population_pairs.reverse()
         for pair in population_pairs:
-            self.move_ant(pair[0], pair[1])
+            for i in range(ant_to_move_no):
+                self.move_ant(pair[0], pair[1])
 
     def update_population_sizes_stats(self, population_sizes):
         sizes_map = dict()
@@ -32,18 +37,20 @@ class AntColony(object):
             sizes_map[pop.__name__] = sum(1 for ant in self.ants if isinstance(ant, pop))
 
         population_sizes.update_population_sizes(sizes_map)
-        print sizes_map
 
     def move_ant(self, worst_population, best_population):
         """currently moves ant from worst population to best population"""
 
-        # find first occurrence of given ant type ...
-        ant_to_remove = next(ant for ant in self.ants if ant.__class__.__name__ == worst_population)
-        # ... and then convert ant to new type (emergence)
-        ant_to_add = globals()[best_population](ant_to_remove.graph, ant_to_remove.path)
+        worst_type_ant_exists_in_list = any(ant.__class__.__name__ == worst_population for ant in self.ants)
 
-        self.ants.remove(ant_to_remove)
-        self.ants.append(ant_to_add)
+        if worst_type_ant_exists_in_list:
+            # find first occurrence of given ant type ...
+            ant_to_remove = next(ant for ant in self.ants if ant.__class__.__name__ == worst_population)
+            # ... and then convert ant to new type (emergence)
+            ant_to_add = globals()[best_population](ant_to_remove.graph, ant_to_remove.path)
+
+            self.ants.remove(ant_to_remove)
+            self.ants.append(ant_to_add)
 
     def start_simulation(self, swap_required_decrease):
         start_time = time.time()
@@ -72,7 +79,9 @@ class AntColony(object):
             else:
                 global_fitness_decrease = (last_iter_global_fitness - fitness.get_current_global_fitness()) / float(last_iter_global_fitness)
             if global_fitness_decrease < swap_required_decrease:
-                self.make_emergence(fitness)
+                # ant_to_move_no = max(1, int(numpy.floor(global_fitness_decrease*100)))
+                ant_to_move_no = 1
+                self.make_emergence(fitness, ant_to_move_no)
             self.update_population_sizes_stats(population_sizes)
             last_iter_global_fitness = fitness.get_current_global_fitness()
 

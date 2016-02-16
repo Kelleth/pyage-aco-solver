@@ -19,7 +19,7 @@ class Result(object):
         self.best_path = best_path
         self.best_iteration = best_iteration
         self.max_iterations = max_iterations
-        self.name = name;
+        self.name = name
 
     def __str__(self):
         output_string = 'Best distance: '
@@ -259,7 +259,7 @@ class Fitness(object):
         return pop_fitness_map
 
     def get_emergence_population_pairs(self):
-        """:return pair [better_population, worsr_population] to emergence swap"""
+        """:return pair [better_population, worst_population] to emergence swap"""
         population_pairs = []
         pop_fitness_map = self.get_current_fitnesses()
         sorted_pop_fitness_map = sorted(pop_fitness_map, key=pop_fitness_map.get)
@@ -268,7 +268,6 @@ class Fitness(object):
             second_el = sorted_pop_fitness_map[idx+1]
             population_pairs.append([first_el, second_el])
         return population_pairs
-
 
     def get_current_best_and_worst_populations(self):
         """:return best_population, worst_population"""
