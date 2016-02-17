@@ -26,13 +26,17 @@ class AntColony(object):
         for pair in population_pairs:
             self.move_ant(pair[0], pair[1])
 
+    def make_ants_competition(self, fitness):
+        competition_pair = fitness.get_competition_pair()
+        if competition_pair is not None:
+            self.move_ant(competition_pair[1], competition_pair[0])
+
     def update_population_sizes_stats(self, population_sizes):
         sizes_map = dict()
         for pop in populations:
             sizes_map[pop.__name__] = sum(1 for ant in self.ants if isinstance(ant, pop))
 
         population_sizes.update_population_sizes(sizes_map)
-        print sizes_map
 
     def move_ant(self, worst_population, best_population):
         """currently moves ant from worst population to best population"""
@@ -45,13 +49,12 @@ class AntColony(object):
         self.ants.remove(ant_to_remove)
         self.ants.append(ant_to_add)
 
-    def start_simulation(self, swap_required_decrease):
+    def start_simulation(self, swap_required_decrease, period):
         start_time = time.time()
         fitness = Fitness()
         diversity = Diversity()
         attractiveness = Attractiveness()
         population_sizes = PopulationSizes()
-        last_iter_global_fitness = None
 
         for iteration in range(self.iterations):
             # shuffle ants
@@ -67,14 +70,9 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            if last_iter_global_fitness is None:
-                global_fitness_decrease = 0
-            else:
-                global_fitness_decrease = (last_iter_global_fitness - fitness.get_current_global_fitness()) / float(last_iter_global_fitness)
-            if global_fitness_decrease < swap_required_decrease:
-                self.make_emergence(fitness)
+            if (iteration + 1) % period == 0:
+                self.make_ants_competition(fitness)
             self.update_population_sizes_stats(population_sizes)
-            last_iter_global_fitness = fitness.get_current_global_fitness()
 
             diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(
                 self.best_path)

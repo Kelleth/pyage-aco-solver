@@ -1,4 +1,5 @@
 import numpy
+import random
 
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 
@@ -259,7 +260,7 @@ class Fitness(object):
         return pop_fitness_map
 
     def get_emergence_population_pairs(self):
-        """:return pair [better_population, worsr_population] to emergence swap"""
+        """:return pair [better_population, worst_population] to emergence swap"""
         population_pairs = []
         pop_fitness_map = self.get_current_fitnesses()
         sorted_pop_fitness_map = sorted(pop_fitness_map, key=pop_fitness_map.get)
@@ -269,6 +270,16 @@ class Fitness(object):
             population_pairs.append([first_el, second_el])
         return population_pairs
 
+    def get_competition_pair(self):
+        """:returns [better, worst] list
+        randomly chosen pair of ants to competition (better population takes ants from worse population)"""
+        pop_fitness_map = self.get_current_fitnesses()
+        if pop_fitness_map < 2:
+            return None
+        else:
+            pair = random.sample(pop_fitness_map, 2)
+            result = {k: pop_fitness_map[k] for k in pair}
+            return sorted(result, key=result.get)
 
     def get_current_best_and_worst_populations(self):
         """:return best_population, worst_population"""

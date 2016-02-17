@@ -14,7 +14,7 @@ from aco_solver.algorithm.graph import Graph
 
 
 def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q, type, alpha, beta, pipe, swapCondition,
-                     egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
+                     period, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
     if type == "ca":  # Classical Ants
         graph = Graph(distance_matrix, positions, rho, q, 0.01, alpha, beta)
@@ -33,7 +33,7 @@ def start_simulation(ants_count, iterations, distance_matrix, positions, rho, q,
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict,
                                     classic, alpha, beta, name)
 
-    result = colony.start_simulation(swapCondition)
+    result = colony.start_simulation(swapCondition, period)
     # to avoid problems with deep recursion while serializing large objects with pickle
     sys.setrecursionlimit(30000)
     pipe.send(pickle.dumps(result))
@@ -78,6 +78,8 @@ def main():
     parser.add_option("-s", "--swapCondition", default="0.1", type="float",
                       help="percentage decrease of fitness required to make ants swap [default: %default]",
                       dest="swapCondition")
+    parser.add_option("-c", "--period", default="4", type="int",
+                      help="Period of performing some emergence on ants set [default: %default]", dest="period")
 
     (options, args) = parser.parse_args()
     if len(args) != 3:
@@ -103,12 +105,13 @@ def main():
         if options.type == "pc":
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1], options.swapCondition, options.egocentric, options.altercentric, options.goodConflict,
+                options.beta, pipes[i][1], options.swapCondition, options.period, options.egocentric, options.altercentric,
+                options.goodConflict,
                 options.badConflict, options.classic, options.name)))
         else:
             processes.append(Process(target=start_simulation, args=(
                 ants_count, iterations, distance_matrix, positions, options.rho, options.q, options.type, options.alpha,
-                options.beta, pipes[i][1], options.swapCondition)))
+                options.beta, pipes[i][1], options.swapCondition, options.period)))
     for i in range(options.p):
         processes[i].start()
 
