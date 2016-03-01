@@ -6,33 +6,33 @@ import sys
 
 from aco_solver.algorithm import graph
 from aco_solver.algorithm.results import ResultConverter
-from aco_solver.utils.qap_reader import QAPReader
+from aco_solver.utils.mkp_reader import MKPReader
 from aco_solver.algorithm.ant_colony import ControlSampleColony, HighAltercentricityCondition, \
     LowAltercentricityCondition, \
     ClassicAntColony, ParametrizedColony
 from aco_solver.algorithm.graph import Graph
 
 
-def start_simulation(ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
+def start_simulation(ants_count, iterations, instance, rho, q, type, alpha, beta, pipe, egocentric=None, altercentric=None, goodConflict=None, badConflict=None, classic=None, name=None):
     colony = None
     positions = None
     if type == "ca":  # Classical Ants
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.01, alpha, beta)
+        graph = Graph(instance, rho, q, 0.01, alpha, beta)
         colony = ClassicAntColony(ants_count, graph, alpha, beta, iterations)
     elif type == "cs":  # Control Sample
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        graph = Graph(instance, rho, q, 0.05, alpha, beta)
         #graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ControlSampleColony(ants_count, graph, iterations)
     elif type == "ha":  # High Altercentricity Condition
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        graph = Graph(instance, rho, q, 0.05, alpha, beta)
         # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = HighAltercentricityCondition(ants_count, graph, iterations)
     elif type == "la":  # Low Altercentricity Condition
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        graph = Graph(instance, rho, q, 0.05, alpha, beta)
         # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = LowAltercentricityCondition(ants_count, graph, iterations)
     elif type == "pc":  # Parametrized Colony
-        graph = Graph(coupling_matrix, distance_matrix, flow_matrix, flow_potentials, rho, q, 0.05, alpha, beta)
+        graph = Graph(instance, rho, q, 0.05, alpha, beta)
         # graph = create_graph_with_default_pheromone_value(coupling_matrix, positions, rho, q, alpha, beta)
         colony = ParametrizedColony(ants_count, graph, iterations, egocentric, altercentric, goodConflict, badConflict, classic, alpha, beta, name)
 
@@ -52,16 +52,16 @@ def main():
 
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--type", default="ca", type="string", dest="type")
-    parser.add_option("-a", "--alpha", default="3.0", type="float", help="pheromone influence [default: %default]",
+    parser.add_option("-a", "--alpha", default="1.0", type="float", help="pheromone influence [default: %default]",
                       dest="alpha")
-    parser.add_option("-b", "--beta", default="2.0", type="float", help="distance influence [default: %default]",
+    parser.add_option("-b", "--beta", default="5.0", type="float", help="distance influence [default: %default]",
                       dest="beta")
     parser.add_option("-r", "--rho", default="0.01", type="float",
                       help="pheromone evaporation coefficient [default: %default]",
                       dest="rho")
-    parser.add_option("-q", "--q", default="2.0", type="float", help="pheromone deposit factor [default: %default]",
+    parser.add_option("-q", "--q", default="1.0", type="float", help="pheromone deposit factor [default: %default]",
                       dest="q")
-    parser.add_option("-p", "--p", default="8", type="int", help="number of processes [default: %default]",
+    parser.add_option("-p", "--p", default="1", type="int", help="number of processes [default: %default]",
                       dest="p")
     parser.add_option("-w", "--egocentric", default="0.25", type="float",
                       help="percent of egocentric ants in colony [default: %default]", dest="egocentric")
@@ -86,12 +86,8 @@ def main():
     iterations = int(args[1])
     cities_filename = args[2]
 
-    cities_reader = QAPReader(cities_filename)
+    cities_reader = MKPReader(cities_filename)
     cities_reader.read_file()
-    coupling_matrix = cities_reader.get_coupling_matrix()
-    distance_matrix = cities_reader.get_distance_matrix()
-    flow_matrix = cities_reader.get_flow_matrix()
-    flow_potencials = cities_reader.get_flow_potentials()
 
     print "File:", cities_filename, "Type:", options.type, "Ants:", ants_count, "Iterations:", iterations
 
@@ -104,12 +100,12 @@ def main():
         if options.type == "pc":
             #TODO: fix this
             processes.append(Process(target=start_simulation, args=(
-                ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potencials, options.rho, options.q, options.type, options.alpha,
+                ants_count, iterations, cities_reader, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1], options.egocentric, options.altercentric, options.goodConflict,
                 options.badConflict, options.classic, options.name)))
         else:
             processes.append(Process(target=start_simulation, args=(
-                ants_count, iterations, coupling_matrix, distance_matrix, flow_matrix, flow_potencials, options.rho, options.q, options.type, options.alpha,
+                ants_count, iterations, cities_reader, options.rho, options.q, options.type, options.alpha,
                 options.beta, pipes[i][1])))
     for i in range(options.p):
         processes[i].start()

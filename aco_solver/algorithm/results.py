@@ -23,7 +23,7 @@ class Result(object):
         output_string = 'Best fitness: '
         output_string += str(self.best_path.fitness) + '\n'
         output_string += 'Best path: '
-        output_string += str(self.best_path.assignment_list) + '\n'
+        output_string += str(self.best_path.item_list) + '\n'
         output_string += 'Best iteration: '
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
@@ -39,7 +39,7 @@ class Result(object):
         output_string = 'Best distance: '
         output_string += str(self.best_path.fitness) + '\n'
         output_string += 'Best path: '
-        output_string += str(self.best_path.assignment_list) + '\n'
+        output_string += str(self.best_path.item_list) + '\n'
         output_string += 'Best iteration: '
         output_string += str(self.best_iteration) + '\n'
         output_string += 'Computation time: '
@@ -218,7 +218,7 @@ class Fitness(object):
         ant_fitness = ant.path.fitness
         if current_best is None:
             fitness_list.append(ant_fitness)
-        elif ant_fitness < current_best:
+        elif ant_fitness > current_best:
             fitness_list[self.current_iteration] = ant_fitness
 
     def update_fitness_stats(self, ant_name, ant_distance):
@@ -230,7 +230,7 @@ class Fitness(object):
 
         if current_best is None:
             fitness_list.append(ant_distance)
-        elif ant_distance < current_best:
+        elif ant_distance > current_best:
             fitness_list[self.current_iteration] = ant_distance
 
     def fitness_to_string(self):
@@ -252,7 +252,7 @@ class Fitness(object):
             for key in sorted(self.map):
                 fitness = ''
                 if self.map[key]:
-                    if current_best[key] is None or self.map[key][i] < current_best[key]:
+                    if current_best[key] is None or self.map[key][i] > current_best[key]:
                         current_best[key] = self.map[key][i]
                     fitness = str(current_best[key])
 

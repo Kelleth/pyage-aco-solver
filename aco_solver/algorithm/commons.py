@@ -1,17 +1,17 @@
 # Represents ant path
 class Path(object):
-    def __init__(self, assignment_list, graph):
-        self.assignment_list = assignment_list
-        self.fitness = self.calculate_assignment_fitness(graph.flow_matrix, graph.locations_connections, assignment_list)
+    def __init__(self, item_list, graph):
+        self.item_list = item_list
+        self.fitness = self.calculate_knapsacks_fitness(graph, item_list)
 
-    def calculate_assignment_fitness(self, flow_matrix, connection_list, assignment_list):
+    def calculate_knapsacks_fitness(self, graph, assignment_list):
         total_fitness = 0.0
-        for connection in connection_list:
-            total_fitness += connection.distance * flow_matrix[assignment_list[connection.source_location]][assignment_list[connection.destination_location]]
+        for item_id, item_taken in enumerate(self.item_list):
+            total_fitness += item_taken * graph.items[item_id].profit
         return total_fitness
 
-    def get_assignments(self):
-        return self.assignment_list
+    def get_items(self):
+        return self.item_list
 
     # Comparing by distance
     def __cmp__(self, other):
@@ -22,8 +22,8 @@ class Path(object):
         else:
             return 0
 
-    def contains_assignment(self, assignment):
-        return self.assignment_list[assignment.location_id] == assignment.factory_id
+    def contains_item(self, item):
+        return self.item_list[item.id] == 1
 
     def __str__(self):
-        return 'Fitness {}, assignments {}'.format(self.fitness, self.assignment_list)
+        return 'Fitness {}, items {}'.format(self.fitness, self.item_list)

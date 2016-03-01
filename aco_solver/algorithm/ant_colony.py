@@ -31,11 +31,11 @@ class AntColony(object):
             for ant in self.ants:
                 new_path = ant.find_path()
 
-                if self.best_path is None or new_path < self.best_path:
+                if self.best_path is None or new_path > self.best_path:
+                    self.graph.last_best_path = self.best_path
                     self.best_path = new_path
                     self.best_path_iteration = iteration + 1
 
-                #self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
             diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(self.best_path)
@@ -68,7 +68,7 @@ class AntColony(object):
 
 # Only classic ants
 class ClassicAntColony(AntColony):
-    def __init__(self, number_of_ants, graph, alpha, beta, iterations):
+    def  __init__(self, number_of_ants, graph, alpha, beta, iterations):
         ants = self.__generate_population(number_of_ants, graph, alpha, beta)
         AntColony.__init__(self, graph, ants, iterations)
         self.name = 'ca'
@@ -164,7 +164,7 @@ def create_sample(total_number_of_ants, ec_fraction, ac_fraction, gc_fraction, b
 
 
 def generate_random_path(graph):
-    shuffled_assignments = [x for x in range(len(graph.assignments))]
-    random.shuffle(shuffled_assignments)
+    shuffled_items = [x for x in range(len(graph.items))]
+    random.shuffle(shuffled_items)
 
-    return Path(shuffled_assignments, graph)
+    return Path(shuffled_items, graph)

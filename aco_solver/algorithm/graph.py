@@ -1,46 +1,20 @@
 class Graph(object):
-    def __init__(self, coupling_matrix, distance_matrix, flow_matrix, flow_potentials, pheromone_evaporation, pheromone_deposit, init_pheromone_value,
+    def __init__(self, instance, pheromone_evaporation, pheromone_deposit, init_pheromone_value,
                  attractiveness_alpha, attractiveness_beta):
         #TODO: remove unused objects/lists
-        self.coupling_matrix = coupling_matrix
-        self.distance_matrix = distance_matrix
-        self.flow_matrix = flow_matrix
-        self.flow_potencials = flow_potentials
-        self.flow_potencials_indexes_decreasing = sorted(range(len(flow_potentials)), key = flow_potentials.__getitem__, reverse=True)
+        self.constraints = instance.constraints
+        self.constraint_count = len(instance.constraints)
 
-        number_of_assignments = len(coupling_matrix)
-        number_of_locations = len(distance_matrix)
-        number_of_factories = len(flow_matrix)
+        items = []
+        for i in range(instance.item_count):
+            item_constraints = [x[i] for x in instance.constraint_item_matrix]
 
-        assignments = []
-        for location_id in xrange(number_of_assignments):
-            assignments_factories = []
-            for factory_id in xrange(number_of_assignments):
-                assignments_factories.append(
-                    Assignment(location_id, factory_id, coupling_matrix[location_id][factory_id], init_pheromone_value))
-            assignments.append(assignments_factories)
+            heuristic = instance.item_profits[i] / sum([float(item_constraints[x]) /float(self.constraints[x]) for x in range(self.constraint_count) ])
 
-        locations_connections = []
-        for i in range(number_of_locations):
-            for j in range(number_of_locations):
-                if i == j:
-                    continue
+            items.append(Item(item_constraints, init_pheromone_value, instance.item_profits[i], i, heuristic))
 
-                locations_connections.append(Connection(distance_matrix[i][j], i, j))
-
-        factories_connections = []
-        for i in range(number_of_factories):
-            for j in range(number_of_factories):
-                if i == j:
-                    continue
-
-                factories_connections.append(Connection(flow_matrix[i][j], i, j))
-
-        self.assignments = assignments
-        self.number_of_assignments = number_of_assignments
-
-        self.locations_connections = locations_connections
-        self.factories_connections = factories_connections
+        self.items = items
+        self.item_count = instance.item_count
 
         self.pheromone_evaporation = pheromone_evaporation
         self.pheromone_deposit = pheromone_deposit
@@ -53,14 +27,18 @@ class Graph(object):
     def update_pheromones(self, ant):
         # increase value for visited connections
         path = ant.path
-        for location_id, factory_id in enumerate(path.assignment_list):
-            self.assignments[location_id][factory_id].accept_visitor(ant, self.pheromone_deposit / path.fitness)
+        if self.last_best_path is None:
+            pheromone_fitness_denominator = 1.0 + path.fitness
+        else:
+            pheromone_fitness_denominator = 1.0 + self.last_best_path.fitness - path.fitness
+        for item_id, item_taken in enumerate(path.item_list):
+            if item_taken == 1:
+                self.items[item_id].accept_visitor(ant, self.pheromone_deposit / pheromone_fitness_denominator)
 
     def evaporate_pheromones(self):
         # pheromone evaporation
-        for location_assignment_list in self.assignments:
-            for assignment in location_assignment_list:
-                assignment.pheromone.evaporate(1.0 - self.pheromone_evaporation)
+        for item in self.items:
+            item.pheromone.evaporate(1.0 - self.pheromone_evaporation)
 
     def calculate_diversity_and_attractiveness(self, best_path):
         connections_with_pheromone = 0
@@ -68,20 +46,18 @@ class Graph(object):
         attractiveness_list = []
         attractiveness_on_best_path = 0
         attractiveness_outside_best_path = 0
-        for assignment_per_location in self.assignments:
-            for assignment in assignment_per_location:
-                connections_number += 1
-                attractiveness = assignment.pheromone.unknown_pheromone ** self.attractiveness_alpha * (
-                                                                                                         1.0 / assignment.coupling_value) ** self.attractiveness_beta
-                attractiveness_list.append(attractiveness)
+        for item in self.items:
+            connections_number += 1
+            attractiveness = item.pheromone.unknown_pheromone ** self.attractiveness_alpha * (1.0 / item.heuristic) ** self.attractiveness_beta
+            attractiveness_list.append(attractiveness)
 
-                if best_path.contains_assignment(assignment):
-                    attractiveness_on_best_path += attractiveness
-                else:
-                    attractiveness_outside_best_path += attractiveness
+            if best_path.contains_item(item):
+                attractiveness_on_best_path += attractiveness
+            else:
+                attractiveness_outside_best_path += attractiveness
 
-                if assignment.pheromone.was_recently_updated(self.init_pheromone_value):
-                    connections_with_pheromone += 1
+            if item.pheromone.was_recently_updated(self.init_pheromone_value):
+                connections_with_pheromone += 1
 
         diversity = (connections_with_pheromone / float(connections_number)) * 100
         if attractiveness_outside_best_path == 0:
@@ -113,6 +89,23 @@ class Assignment(object):
         else:
             return False
 
+class Item(object):
+    def __init__(self, constraints, init_pheromone_value, profit, id, heuristic):
+        self.constraints = constraints
+        self.pheromone = Pheromone(init_pheromone_value)
+        self.profit = profit
+        self.id = id
+        self.heuristic = heuristic
+
+    def accept_visitor(self, visitor, pheromone_value):
+        visitor.visit(self, pheromone_value)
+
+    def __eq__(self, other):
+        if isinstance(other, Item):
+            return self.constraints == other.constraints and self.profit == other.profit
+        else:
+            return False
+
 #TODO: necessary?
 class Connection(object):
     def __init__(self, distance, source_location, destination_location):
@@ -123,14 +116,14 @@ class Connection(object):
 
 class Pheromone(object):
     def __init__(self, init_value):
-        #self.ac_pheromone = init_value
-        #self.ec_pheromone = init_value
-        #self.gc_pheromone = init_value
-        #self.bc_pheromone = init_value
+        self.ac_pheromone = init_value
+        self.ec_pheromone = init_value
+        self.gc_pheromone = init_value
+        self.bc_pheromone = init_value
         self.unknown_pheromone = init_value
 
-        #self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
-        #                       + self.unknown_pheromone
+        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+                               + self.unknown_pheromone
 
     def update_ac_pheromone(self, value):
         self.ac_pheromone += value
@@ -150,25 +143,25 @@ class Pheromone(object):
 
     def update_unknown_pheromone(self, value):
         self.unknown_pheromone += value
-        #self.__update_total_pheromone()
+        self.__update_total_pheromone()
 
     def evaporate(self, factor):
-        #self.ac_pheromone *= factor
-        #self.ec_pheromone *= factor
-        #self.gc_pheromone *= factor
-        #self.bc_pheromone *= factor
+        self.ac_pheromone *= factor
+        self.ec_pheromone *= factor
+        self.gc_pheromone *= factor
+        self.bc_pheromone *= factor
         self.unknown_pheromone *= factor
-        #self.__update_total_pheromone()
+        self.__update_total_pheromone()
 
     def was_recently_updated(self, init_pheromone_value):
-        #return self.ac_pheromone > init_pheromone_value or self.ec_pheromone > init_pheromone_value \
-               #or self.gc_pheromone > init_pheromone_value or self.bc_pheromone > init_pheromone_value \
-                #or self.unknown_pheromone > init_pheromone_value
-        return self.unknown_pheromone > init_pheromone_value
+        return self.ac_pheromone > init_pheromone_value or self.ec_pheromone > init_pheromone_value \
+               or self.gc_pheromone > init_pheromone_value or self.bc_pheromone > init_pheromone_value \
+               or self.unknown_pheromone > init_pheromone_value
+        #return self.unknown_pheromone > init_pheromone_value
 
-    #def __update_total_pheromone(self):
-    #    self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
-    #                           + self.unknown_pheromone
+    def __update_total_pheromone(self):
+        self.total_pheromone = self.ac_pheromone + self.ec_pheromone + self.gc_pheromone + self.bc_pheromone \
+                               + self.unknown_pheromone
 
     def __str__(self):
         output_str = 'AC: '

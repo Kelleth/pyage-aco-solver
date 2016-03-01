@@ -10,42 +10,33 @@ class Ant(object):
         self.path = path
 
     def find_path(self):
-        chosen_locations = []
+        self.current_constraints = [x for x in self.graph.constraints]
+        chosen_items = [0 for x in range(self.graph.item_count)]
 
-        for i in self.graph.flow_potencials_indexes_decreasing:
-            possible_factory_assignments = [row[i] for row in self.graph.assignments]
-            location = self.choose_next_location(possible_factory_assignments, chosen_locations)
-            chosen_locations.append(location)
+        start_item = self.__choose_start_item()
 
-        assignment_list = dict(zip(chosen_locations, self.graph.flow_potencials_indexes_decreasing)).values()
-        self.path = Path(assignment_list, self.graph)
+        chosen_items[start_item.id] = 1
+        self.current_constraints = [self.current_constraints[x] - start_item.constraints[x] for x in range(self.graph.constraint_count)]
+
+        forbidden_items = []
+
+        while True:
+            item = self.choose_next_item(self.graph.items, chosen_items, forbidden_items)
+            if item == -1:
+                break
+            chosen_items[item] = 1
+            self.current_constraints = [self.current_constraints[x] - self.graph.items[item].constraints[x] for x in range(self.graph.constraint_count)]
+            if (chosen_items.count(1) + len(forbidden_items) == self.graph.item_count):
+                break
+
+        self.path = Path(chosen_items, self.graph)
         return self.path
 
-    # By default ant chooses city which path has best attractiveness (greedy approach) - overridden in ShuffleAnt
-    #TODO: this is wrong for QAP
-    def chose_next_connection(self, present_city, visited_cities):
-        chosen_connection = None
-        chosen_connection_attractiveness = -1
-
-        for connection in present_city.connection_list:
-            destination_city = connection.destination_city
-
-            if destination_city == present_city or destination_city in visited_cities:
-                continue
-            else:
-                path_attractiveness = self.calculate_connection_attractiveness(connection)
-
-                if path_attractiveness > chosen_connection_attractiveness:
-                    chosen_connection = connection
-                    chosen_connection_attractiveness = path_attractiveness
-
-        return chosen_connection
-
-    def choose_next_location(self, factory_id, possible_assignments, chosen_locations):
+    def choose_next_item(self, items, chosen_items, forbidden_items):
         pass
 
     # Override in subclasses to provide attractiveness value based on ant kind
-    def calculate_connection_attractiveness(self, connection):
+    def calculate_item_attractiveness(self, item, current_constraints):
         return 0
 
     # Visitor pattern used to update pheromone value while visiting paths without using "instance of"
@@ -53,8 +44,8 @@ class Ant(object):
     def visit(self, assignment, pheromone_value):
         assignment.pheromone.update_unknown_pheromone(pheromone_value)
 
-    def __choose_start_factory(self):
-        return random.choice(random.choice(self.graph.assignments))
+    def __choose_start_item(self):
+        return random.choice(self.graph.items)
 
     def __repr__(self):
         return 'Distance: %s Path: %s' % (self.path.distance, self.path)
@@ -67,59 +58,43 @@ class ShuffleAnt(Ant):
     def __init__(self, graph, path):
         super(ShuffleAnt, self).__init__(graph, path)
 
-    #TODO: this is wrong for QAP
-    def chose_next_connection(self, present_city, visited_cities):
-        connections_attractiveness = []
-
-        for connection in present_city.connection_list:
-            destination_city = connection.destination_city
-
-            if destination_city == present_city or destination_city in visited_cities:
-                connections_attractiveness.append(0.0)
+    def choose_next_item(self, items, chosen_items, forbidden_items):
+        items_attractiveness = []
+        found_element = False
+        for item in items:
+            if chosen_items[item.id] == 1 or item.id in forbidden_items:
+                items_attractiveness.append(0.0)
+            elif self.violates_constraints(item):
+                items_attractiveness.append(0.0)
+                forbidden_items.append(item.id)
             else:
-                connections_attractiveness.append(
-                    self.calculate_connection_attractiveness(connection))
+                found_element = True
+                items_attractiveness.append(self.calculate_item_attractiveness(item, self.current_constraints))
 
-        connection_probabilities = self.calculate_connection_probability(connections_attractiveness)
+        if not found_element:
+            return -1
+        item_probabilities = self.calculate_item_probability(items_attractiveness)
         value = random.random()
 
-        for i in range(len(connection_probabilities) - 1):
-            if connection_probabilities[i] <= value < connection_probabilities[i + 1]:
-                return present_city.connection_list[i]
-
-        raise RuntimeError("City not found")
-
-    def choose_next_location(self, possible_assignments, chosen_locations):
-        assignments_attractiveness = []
-
-        for assignment in possible_assignments:
-            if assignment.location_id in chosen_locations:
-                assignments_attractiveness.append(0.0)
-            else:
-                assignments_attractiveness.append(
-                    self.calculate_connection_attractiveness(assignment))
-
-        assignment_probabilities = self.calculate_assignment_probability(assignments_attractiveness)
-        value = random.random()
-
-        for i in range(len(assignment_probabilities) - 1):
-            if assignment_probabilities[i] <= value < assignment_probabilities[i + 1]:
+        for i in range(len(item_probabilities) - 1):
+            if item_probabilities[i] <= value < item_probabilities[i + 1]:
                 return i
 
-        raise RuntimeError("City not found")
+    def violates_constraints(self, item):
+        return min([self.current_constraints[x] - item.constraints[x] for x in range(self.graph.constraint_count)]) < 0
 
     @staticmethod
-    def calculate_assignment_probability(assignments_attractiveness):
-        attractiveness_sum = float(sum(assignments_attractiveness))
+    def calculate_item_probability(item_attractiveness):
+        attractiveness_sum = float(sum(item_attractiveness))
 
         connections_probability = []
 
         if attractiveness_sum > 0:
-            for i in range(len(assignments_attractiveness)):
-                connections_probability.append(assignments_attractiveness[i] / attractiveness_sum)
+            for i in range(len(item_attractiveness)):
+                connections_probability.append(item_attractiveness[i] / attractiveness_sum)
         else:
-            for i in range(len(assignments_attractiveness)):
-                connections_probability.append(1.0 / len(assignments_attractiveness))
+            for i in range(len(item_attractiveness)):
+                connections_probability.append(1.0 / len(item_attractiveness))
 
         converted_form = [0.0]
         for probability in connections_probability:
@@ -136,9 +111,9 @@ class ClassicAnt(ShuffleAnt):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_connection_attractiveness(self, assignment):
-        return assignment.pheromone.unknown_pheromone ** self.pheromone_influence * \
-               (1.0 / assignment.coupling_value) ** self.distance_influence
+    def calculate_item_attractiveness(self, item, current_constraints):
+        return item.pheromone.unknown_pheromone ** self.pheromone_influence * \
+               (item.heuristic) ** self.distance_influence
 
 
 #TODO: fix all other implementations
@@ -149,7 +124,7 @@ class GreedyAnt(Ant):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_connection_attractiveness(self, assignment):
+    def calculate_item_attractiveness(self, assignment, current_constraints):
         return assignment.pheromone ** self.pheromone_influence * \
                (1.0 / assignment.coupling_value) ** self.distance_influence
 
@@ -163,7 +138,7 @@ class AltercentricAnt(ShuffleAnt):
     def visit(self, assignment, pheromone_value):
         assignment.pheromone.update_ac_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, assignment):
+    def calculate_item_attractiveness(self, assignment, current_constraints):
         return assignment.pheromone.total_pheromone ** self.pheromone_influence
 
 
@@ -177,7 +152,7 @@ class EgocentricAnt(ShuffleAnt):
     def visit(self, assignment, pheromone_value):
         assignment.pheromone.update_ec_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, assignment):
+    def calculate_item_attractiveness(self, assignment, current_constraints):
         return (1.0 / assignment.coupling_value) ** self.distance_influence
 
 
@@ -189,7 +164,7 @@ class GoodConflictAnt(ShuffleAnt):
     def visit(self, assignment, pheromone_value):
         assignment.pheromone.update_gc_pheromone(pheromone_value)
 
-    def calculate_connection_attractiveness(self, assignment):
+    def calculate_item_attractiveness(self, assignment, current_constraints):
         return ((14.0 * assignment.pheromone.ec_pheromone + 2.0 * assignment.pheromone.ac_pheromone  #
                  + 2.5 * assignment.pheromone.gc_pheromone + 0.5 * assignment.pheromone.bc_pheromone) / 4.0) ** 2.0
 
