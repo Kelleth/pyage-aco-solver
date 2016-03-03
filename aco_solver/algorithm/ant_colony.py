@@ -22,14 +22,10 @@ class AntColony(object):
         self.best_path_iteration = None
 
     def make_emergence(self, fitness, ant_to_move_no):
-        # best_population, worst_population = fitness.get_current_best_and_worst_populations()
-        population_pairs = fitness.get_emergence_population_pairs()
-        print population_pairs
-        if random.choice(population_pairs_asc):
-            population_pairs.reverse()
-        for pair in population_pairs:
+        population_pair = fitness.get_populations_to_swap_depending_on_probability()
+        if len(population_pair) > 0:
             for i in range(ant_to_move_no):
-                self.move_ant(pair[0], pair[1])
+                self.move_ant(population_pair[0], population_pair[1])
 
     def update_population_sizes_stats(self, population_sizes):
         sizes_map = dict()
@@ -74,16 +70,11 @@ class AntColony(object):
                 self.graph.update_pheromones(ant)
                 fitness.update_fitness(ant)
 
-            if last_iter_global_fitness is None:
-                global_fitness_decrease = 0
-            else:
-                global_fitness_decrease = (last_iter_global_fitness - fitness.get_current_global_fitness()) / float(last_iter_global_fitness)
-            if global_fitness_decrease < swap_required_decrease:
-                # ant_to_move_no = max(1, int(numpy.floor(global_fitness_decrease*100)))
-                ant_to_move_no = 1
-                self.make_emergence(fitness, ant_to_move_no)
+            # ant_to_move_no = max(1, int(numpy.floor(global_fitness_decrease*100)))
+            ant_to_move_no = 1
+            self.make_emergence(fitness, ant_to_move_no)
+
             self.update_population_sizes_stats(population_sizes)
-            last_iter_global_fitness = fitness.get_current_global_fitness()
 
             diversity_percent, attractiveness_list, attractiveness_ratio = self.graph.calculate_diversity_and_attractiveness(
                 self.best_path)

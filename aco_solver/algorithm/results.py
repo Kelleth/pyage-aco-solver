@@ -1,4 +1,5 @@
 import numpy
+import random
 
 from aco_solver.algorithm.ant import ClassicAnt, EgocentricAnt, AltercentricAnt, GoodConflictAnt, BadConflictAnt
 
@@ -257,6 +258,48 @@ class Fitness(object):
             if pop_fitness_per_iteration and len(pop_fitness_per_iteration) > self.current_iteration:
                 pop_fitness_map[population] = self.map[population][self.current_iteration]
         return pop_fitness_map
+
+    def get_populations_to_swap_depending_on_probability(self):
+        """:returns [source_pop, destination_pop] swap condition"""
+        pop_fitness_map = self.get_current_fitnesses()
+        sorted_pop_fitness_map = sorted(pop_fitness_map, key=pop_fitness_map.get)
+
+        if len(sorted_pop_fitness_map) < 2:
+            return []
+        elif len(sorted_pop_fitness_map) == 2:
+            sorted_pop_fitness_map.reverse()
+            return sorted_pop_fitness_map
+        else:
+            pop_probabilities = []
+
+            best_fitness = pop_fitness_map[sorted_pop_fitness_map[0]]
+            diffs_sum = 0
+
+            for i in range(1, len(sorted_pop_fitness_map)):
+                pop = sorted_pop_fitness_map[i]
+                fitness_diff = pop_fitness_map[pop] - best_fitness
+
+                pop_probabilities.append(fitness_diff)
+                diffs_sum = diffs_sum + fitness_diff
+
+            rand_src_pop = random.uniform(0, diffs_sum)
+            rand_dest_pop = random.uniform(0, diffs_sum)
+
+            src_pop = None
+            dest_pop = None
+            pop_range = 0
+
+            for i in range(len(pop_probabilities)):
+                pop_range = pop_range + pop_probabilities[i]
+
+                if src_pop is None and pop_range >= rand_src_pop:
+                    src_pop = sorted_pop_fitness_map[i + 1]
+
+                if dest_pop is None and pop_range >= rand_dest_pop:
+                    # this operator ::-1 makes list reversed without affecting it
+                    dest_pop = sorted_pop_fitness_map[::-1][i+1]
+
+            return [src_pop, dest_pop]
 
     def get_emergence_population_pairs(self):
         """:return pair [better_population, worst_population] to emergence swap"""
