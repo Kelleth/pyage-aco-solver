@@ -1,20 +1,17 @@
 #!/bin/bash
-#              0        1    2    3    4      5       6       7      8      9      10    11
-#cities_arr=(berlin52 eil51 eil76 pr76 st70 kroA100 kroE100 lin105 rat195 kroB200 ts225 att532)
-#optimum_arr=(7542 426 538 108159 675 21282 22068 14379 2323 29437 126643 27686)
-cities_arr=(kra30a nug7 nug8 nug12)
-optimum_arr=(88900 148 214 578)
+cities_arr=(mkp1 mkp2 mkp3 mkp4)
+optimum_arr=(3800 6120 16537 24381)
 
 #cd ~/pyage-aco-solver/
 cd ..
 
-for i in 1 2 3
+for i in 3
 do
 	CITIES=${cities_arr[i]}
 	OPTIMAL=${optimum_arr[i]}
 	for iterations in 100
 	do
-		for ants in 10
+		for ants in 100
 		do
 			for type in ca
 			do
@@ -28,7 +25,7 @@ do
 				#gnuplot -e "TITLE='Path for: $TITLE'; FILENAME='$PATH_FILENAME.dat'; OUTPUTFILE='$PATH_FILENAME.pdf'" scripts/plot/path.plt
 			done
 			TITLE2=$(printf 'File: %s, Iterations: %d, Ants: %d' $CITIES $iterations $ants)
-			AVG_FILENAME=$(printf 'outputs/%s_%d_%d_ca_avg_summary' $CITIES $ants $iterations)
+			AVG_FILENAME=$(printf 'outputs/%s_%d_%d_la_avg_summary' $CITIES $ants $iterations)
 			gnuplot -e "TITLE='$TITLE2'; FILENAME='$AVG_FILENAME.dat'; OUTPUTFILE='$AVG_FILENAME.pdf'; OPTIMAL='$OPTIMAL'" scripts/plot/fitness_avg.plt
 		done
 	done

@@ -56,10 +56,10 @@ def main():
                       dest="alpha")
     parser.add_option("-b", "--beta", default="5.0", type="float", help="distance influence [default: %default]",
                       dest="beta")
-    parser.add_option("-r", "--rho", default="0.01", type="float",
+    parser.add_option("-r", "--rho", default="0.1", type="float",
                       help="pheromone evaporation coefficient [default: %default]",
                       dest="rho")
-    parser.add_option("-q", "--q", default="1.0", type="float", help="pheromone deposit factor [default: %default]",
+    parser.add_option("-q", "--q", default="0.1", type="float", help="pheromone deposit factor [default: %default]",
                       dest="q")
     parser.add_option("-p", "--p", default="1", type="int", help="number of processes [default: %default]",
                       dest="p")

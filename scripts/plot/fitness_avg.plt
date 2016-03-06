@@ -11,13 +11,11 @@ set tics scale 2
 set terminal pdf color linewidth 3 size 16,9 enhanced font 'Verdana,40'
 set output OUTPUTFILE
 plot FILENAME u 1:2 w l linetype 1 lc rgb 'red' notitle, \
-     "" u 1:4 w l linetype 2 lc rgb 'green' notitle, \
-     "" u 1:6 w l linetype 3 lc rgb 'blue' notitle, \
-     "" u 1:8 w l linetype 4 lc rgb 'magenta' notitle, \
-     "" u 1:10 w l linetype 5 lc rgb 'black' notitle, \
+     "" u 1:9 w l linetype 2 lc rgb 'green' notitle, \
+     "" u 1:16 w l linetype 3 lc rgb 'blue' notitle, \
+     "" u 1:23 w l linetype 4 lc rgb 'magenta' notitle, \
      "" u 1:2:3 w yerrorbars linetype 1 lc rgb 'red', \
-     "" u 1:4:5 w yerrorbars linetype 2 lc rgb 'green', \
-     "" u 1:6:7 w yerrorbars linetype 3 lc rgb 'blue', \
-     "" u 1:8:9 w yerrorbars linetype 4 lc rgb 'magenta', \
-     "" u 1:10:11 w yerrorbars linetype 5 lc rgb 'black', \
+     "" u 1:9:10 w yerrorbars linetype 2 lc rgb 'green', \
+     "" u 1:16:17 w yerrorbars linetype 3 lc rgb 'blue', \
+     "" u 1:23:24 w yerrorbars linetype 4 lc rgb 'magenta', \
      OPTIMAL+0 w l linetype 6 lc rgb 'gray' title "TSPLIB"

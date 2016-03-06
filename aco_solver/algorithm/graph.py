@@ -9,7 +9,7 @@ class Graph(object):
         for i in range(instance.item_count):
             item_constraints = [x[i] for x in instance.constraint_item_matrix]
 
-            heuristic = instance.item_profits[i] / sum([float(item_constraints[x]) /float(self.constraints[x]) for x in range(self.constraint_count) ])
+            heuristic = instance.item_profits[i] / sum([float(item_constraints[x]) / float(self.constraints[x]) for x in range(self.constraint_count) ])
 
             items.append(Item(item_constraints, init_pheromone_value, instance.item_profits[i], i, heuristic))
 
@@ -28,11 +28,11 @@ class Graph(object):
         # increase value for visited connections
         path = ant.path
         if self.last_best_path is None:
-            pheromone_fitness_denominator = 1.0 + path.fitness
+            pheromone_fitness_denominator = 1.0 # + path.fitness
         else:
-            pheromone_fitness_denominator = 1.0 + self.last_best_path.fitness - path.fitness
+            pheromone_fitness_denominator = 1.0 + ((self.last_best_path.fitness - path.fitness) / self.last_best_path.fitness)
         for item_id, item_taken in enumerate(path.item_list):
-            if item_taken == 1:
+            if item_taken == 1 and pheromone_fitness_denominator != 0:
                 self.items[item_id].accept_visitor(ant, self.pheromone_deposit / pheromone_fitness_denominator)
 
     def evaporate_pheromones(self):

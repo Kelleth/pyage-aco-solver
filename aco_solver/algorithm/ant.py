@@ -36,13 +36,16 @@ class Ant(object):
         pass
 
     # Override in subclasses to provide attractiveness value based on ant kind
-    def calculate_item_attractiveness(self, item, current_constraints):
+    def calculate_item_attractiveness(self, item):
         return 0
 
     # Visitor pattern used to update pheromone value while visiting paths without using "instance of"
     # By default unknown pheromone (which isn't assigned to any ant species) is updated
-    def visit(self, assignment, pheromone_value):
-        assignment.pheromone.update_unknown_pheromone(pheromone_value)
+    def visit(self, item, pheromone_value):
+        item.pheromone.update_unknown_pheromone(pheromone_value)
+
+    def violates_constraints(self, item):
+        return min([self.current_constraints[x] - item.constraints[x] for x in range(self.graph.constraint_count)]) < 0
 
     def __choose_start_item(self):
         return random.choice(self.graph.items)
@@ -69,7 +72,7 @@ class ShuffleAnt(Ant):
                 forbidden_items.append(item.id)
             else:
                 found_element = True
-                items_attractiveness.append(self.calculate_item_attractiveness(item, self.current_constraints))
+                items_attractiveness.append(self.calculate_item_attractiveness(item))
 
         if not found_element:
             return -1
@@ -80,8 +83,7 @@ class ShuffleAnt(Ant):
             if item_probabilities[i] <= value < item_probabilities[i + 1]:
                 return i
 
-    def violates_constraints(self, item):
-        return min([self.current_constraints[x] - item.constraints[x] for x in range(self.graph.constraint_count)]) < 0
+        return -2
 
     @staticmethod
     def calculate_item_probability(item_attractiveness):
@@ -111,7 +113,7 @@ class ClassicAnt(ShuffleAnt):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_item_attractiveness(self, item, current_constraints):
+    def calculate_item_attractiveness(self, item):
         return item.pheromone.unknown_pheromone ** self.pheromone_influence * \
                (item.heuristic) ** self.distance_influence
 
@@ -124,9 +126,9 @@ class GreedyAnt(Ant):
         self.pheromone_influence = pheromone_influence
         self.distance_influence = distance_influence
 
-    def calculate_item_attractiveness(self, assignment, current_constraints):
-        return assignment.pheromone ** self.pheromone_influence * \
-               (1.0 / assignment.coupling_value) ** self.distance_influence
+    def calculate_item_attractiveness(self, item):
+        return item.pheromone ** self.pheromone_influence * \
+               (item.heuristic) ** self.distance_influence
 
 
 # The individuals who are "altercentric" would follow the mass
@@ -135,11 +137,11 @@ class AltercentricAnt(ShuffleAnt):
         super(AltercentricAnt, self).__init__(graph, path)
         self.pheromone_influence = pheromone_influence
 
-    def visit(self, assignment, pheromone_value):
-        assignment.pheromone.update_ac_pheromone(pheromone_value)
+    def visit(self, item, pheromone_value):
+        item.pheromone.update_ac_pheromone(pheromone_value)
 
-    def calculate_item_attractiveness(self, assignment, current_constraints):
-        return assignment.pheromone.total_pheromone ** self.pheromone_influence
+    def calculate_item_attractiveness(self, item):
+        return item.pheromone.total_pheromone ** self.pheromone_influence
 
 
 # The individuals who are "egocentric" would be more creative to try to find a new solution,
@@ -149,11 +151,11 @@ class EgocentricAnt(ShuffleAnt):
         super(EgocentricAnt, self).__init__(graph, path)
         self.distance_influence = distance_influence
 
-    def visit(self, assignment, pheromone_value):
-        assignment.pheromone.update_ec_pheromone(pheromone_value)
+    def visit(self, item, pheromone_value):
+        item.pheromone.update_ec_pheromone(pheromone_value)
 
-    def calculate_item_attractiveness(self, assignment, current_constraints):
-        return (1.0 / assignment.coupling_value) ** self.distance_influence
+    def calculate_item_attractiveness(self, item):
+        return (item.heuristic) ** self.distance_influence
 
 
 # These good at conflict handling will wait and observe the others.
@@ -161,12 +163,12 @@ class GoodConflictAnt(ShuffleAnt):
     def __init__(self, graph, path):
         super(GoodConflictAnt, self).__init__(graph, path)
 
-    def visit(self, assignment, pheromone_value):
-        assignment.pheromone.update_gc_pheromone(pheromone_value)
+    def visit(self, item, pheromone_value):
+        item.pheromone.update_gc_pheromone(pheromone_value)
 
-    def calculate_item_attractiveness(self, assignment, current_constraints):
-        return ((14.0 * assignment.pheromone.ec_pheromone + 2.0 * assignment.pheromone.ac_pheromone  #
-                 + 2.5 * assignment.pheromone.gc_pheromone + 0.5 * assignment.pheromone.bc_pheromone) / 4.0) ** 2.0
+    def calculate_item_attractiveness(self, item):
+        return ((14.0 * item.pheromone.ec_pheromone + 2.0 * item.pheromone.ac_pheromone  #
+                 + 2.5 * item.pheromone.gc_pheromone + 0.5 * item.pheromone.bc_pheromone) / 4.0) ** 2.0
 
 
 # Those bad at conflict handling will behave impulsively (in effect randomly)
@@ -174,12 +176,11 @@ class BadConflictAnt(Ant):
     def __init__(self, graph, path):
         super(BadConflictAnt, self).__init__(graph, path)
 
-    def visit(self, assignment, pheromone_value):
-        assignment.pheromone.update_bc_pheromone(pheromone_value)
+    def visit(self, item, pheromone_value):
+        item.pheromone.update_bc_pheromone(pheromone_value)
 
-    def choose_next_location(self, possible_assignments, chosen_locations):
-        next_location = None
-        all_locations = xrange(len(self.graph.assignments))
-        possible_locations = list(set(all_locations) - set(chosen_locations))
-
-        return random.choice(possible_locations)
+    def choose_next_item(self, items, chosen_items, forbidden_items):
+        available_items = [item.id for item in items if not self.violates_constraints(item) and chosen_items[item.id] == 0 and item.id not in forbidden_items]
+        if not available_items:
+            return -1
+        return random.choice(available_items)

@@ -9,7 +9,7 @@ from aco_solver.utils.results_reader import read_file
 
 
 separator = ';'
-ant_populations = ['ca']
+ant_populations = ['cs', 'ca', 'ha', 'la']
 
 # backup of stats and fitness values from first column in avg result
 # used to calculate common quartiles, average, min and max values
@@ -46,7 +46,7 @@ def find_best_result(result_map, iteration):
     for _, fitness_list in result_map.iteritems():
         if len(fitness_list) <= iteration:
             continue
-        if best_distance is None or fitness_list[iteration] < best_distance:
+        if best_distance is None or fitness_list[iteration] > best_distance:
             best_distance = fitness_list[iteration]
 
     return best_distance
