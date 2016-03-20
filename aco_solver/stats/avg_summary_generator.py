@@ -179,7 +179,7 @@ def compute_average_time_for_population(results):
     return compute_average_values(time_list)
 
 
-def generate_stats_output(population_results, f):
+def generate_stats_output(population_results, f, time_f):
     stats_header = 'Stat' + separator + separator.join(generate_header_items()) + '\n'
     f.write(stats_header)
 
@@ -196,7 +196,9 @@ def generate_stats_output(population_results, f):
         avg_time, stdev_time, min_time, first_quartile_time, third_quartile_time, median_time, max_time = compute_average_time_for_population(value)
         f.write(average_values_to_output_format(avg_time, stdev_time, min_time, first_quartile_time,
                                                 third_quartile_time, median_time, max_time))
+        time_f.write(average_values_to_output_format(avg_distance, stdev_distance, min_distance, first_quartile_distance, third_quartile_distance, median_distance, max_distance)[1:])
     f.write('\n')
+    time_f.write('\n')
 
 
 # TODO: check whether quartiles are computed correctly
@@ -248,7 +250,9 @@ def main():
         populations_results[ant_type] = type_results
 
     f = open(directory + '/' + prefix + name + '_avg_summary.dat', 'w')
-    generate_stats_output(populations_results, f)
+    f_times = open(directory + '/' + prefix + name + '_times.dat', 'w')
+
+    generate_stats_output(populations_results, f, f_times)
     f.write('\n')
     f_box_and_whiskers_global = open(directory + '/' + prefix + name + '_avg_box_and_whiskers_global.dat', 'w')
     f_box_and_whiskers_last_iter = open(directory + '/' + prefix + name + '_avg_box_and_whiskers_last_iter.dat', 'w')
@@ -256,6 +260,7 @@ def main():
     generate_fitness_output(populations_results, iterations, f, f_box_and_whiskers_global, f_box_and_whiskers_last_iter)
 
     f.close()
+    f_times.close()
     f_box_and_whiskers_global.close()
     f_box_and_whiskers_last_iter.close()
 
